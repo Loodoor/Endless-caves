@@ -1,0 +1,26 @@
+0 = vide
+1 = pierre
+2 = mur-horizontale
+3 = mur-verticale
+4 = porte-haut-fermée
+5 = porte-bas-fermée
+6 = porte-droit-fermée
+7 = porte-gauche-fermée
+8 = coin-haut-droit
+9 = coin-haut-gauche
+10 = coin-bas-droit
+11 = coin-bas-gauche
+12 = trappe fermée
+13 = trappe ouverte
+14 = porte-haut-ouverte
+15 = porte-bas-ouverte
+16 = porte-droit-ouverte
+17 = porte-gauche-ouverte
+18 = porte-haut-verouillée
+19 = porte-bas-verouillée
+20 = porte-droit-verouillée
+21 = porte-gauche-verouillée
+
+1001 = item potentiel
+
+2000 = monstre potentiel

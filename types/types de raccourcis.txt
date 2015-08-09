@@ -1,0 +1,6 @@
+0 = menu = echap
+1 = avancer = z
+2 = reculer = s
+3 = aller vers la gauche = q
+4 = aller vers la droite = d
+5 = poser une bombe = e

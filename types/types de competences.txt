@@ -1,0 +1,12 @@
+0 = attaque+
+1 = vitesse d'attaque+
+2 = PV max+
+3 = regen mana+
+4 = vitesse projectiles+
+5 = vitesse joueur+
+6 = chances de loot un coeur+
+7 = mana max+
+8 = projectils explosifs
+9 = chances d'esquiver
+10 = vol de vie
+11 = regen mana passif en presence d'ennemis

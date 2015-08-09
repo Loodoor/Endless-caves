@@ -1,0 +1,2 @@
+1 = verticale
+2 = horizontale

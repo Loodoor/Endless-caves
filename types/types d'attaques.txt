@@ -1,0 +1,3 @@
+0 = none
+1 = attaques normales
+2 = bombes ( a poser )

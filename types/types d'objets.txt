@@ -1,0 +1,12 @@
+0 = bombe
+1 = multi-bombes
+2 = clé
+3 = multi-clé
+4 = argent*1
+5 = argent*5
+6 = argent*10
+7 = coeur
+
+1000 = bombes*99
+1001 = clé*99
+1002 = argent*99

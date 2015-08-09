@@ -1,0 +1,5 @@
+1 = normale
+2 = spawn
+3 = trésor
+4 = boss
+5 = vérouillé

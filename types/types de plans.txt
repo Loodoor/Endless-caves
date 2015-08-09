@@ -1,0 +1,9 @@
+0 = image de fond
+1 = objets
+2 = attaques
+3 = ennemis
+4 = joueur
+5 = interface fond
+6 = interface objets
+7 = menu
+8 = messages
