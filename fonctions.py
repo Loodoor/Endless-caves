@@ -2,7 +2,7 @@
 
 from sous_fonctions import *
 
-VERSION = "0.1.0.1"
+VERSION = "0.1.1"
 
 
 def generer_map(niveau):
@@ -67,12 +67,12 @@ def creer_menu_session(resolution, session):
     for i in range(4):
         menu_session.options.append(Options_Menu())
     if session.partie:
-        menu_session.options[0].message = "CONTINUER PARTIE"
+        menu_session.options[0].message = "Continuer la partie"
     if not session.partie:
-        menu_session.options[0].message = "NOUVELLE PARTIE"
-    menu_session.options[1].message = "ARBRE DE COMPETENCES"
-    menu_session.options[2].message = "ARBRE DE SORTS"
-    menu_session.options[3].message = "QUITTER"
+        menu_session.options[0].message = "Nouvelle partie"
+    menu_session.options[1].message = "Arbre de competences"
+    menu_session.options[2].message = "Arbre de sorts"
+    menu_session.options[3].message = "Quitter"
     menu_session.type = 1
     menu_session = creer_images_et_positions_menu(menu_session)
 
@@ -89,10 +89,10 @@ def creer_menu_programme(resolution):
     for i in range(4):
         menu_programme.options.append(Options_Menu())
 
-    menu_programme.options[0].message = "NOUVEAU PERSONNAGE"
-    menu_programme.options[1].message = "LISTE DES PERSONNAGES"
-    menu_programme.options[2].message = "OPTIONS"
-    menu_programme.options[3].message = "QUITTER LE JEU"
+    menu_programme.options[0].message = "Nouveau personnage"
+    menu_programme.options[1].message = "Liste des personnages"
+    menu_programme.options[2].message = "Controles"
+    menu_programme.options[3].message = "Quitter le jeu"
     menu_programme.type = 1
     menu_programme = creer_images_et_positions_menu(menu_programme)
 

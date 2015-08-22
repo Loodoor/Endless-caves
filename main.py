@@ -5,7 +5,7 @@ import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.1.0.1"
+VERSION = "0.1.1"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -30,12 +30,6 @@ joueur = charger_image_joueur(joueur)
 position_ecran_x = (resolution.current_w/2)-512
 position_ecran_y = (resolution.current_h/2)-288
 
-raccourcis = [pygame.K_ESCAPE,
-              pygame.K_w,
-              pygame.K_s,
-              pygame.K_a,
-              pygame.K_d,
-              pygame.K_e]
 joueur.hitbox.w = 32
 joueur.hitbox.h = 48
 
@@ -72,6 +66,31 @@ del liste_personnages
 del chaine
 del i
 
+# CREATION / VERIFICATION DU DOSSIER DE SCREENSHOTS
+
+try:
+    os.chdir(os.getcwd()+"\\screenshots")
+    path = os.getcwd().split("\\")
+    del path[len(path)-1]
+    os.chdir("\\".join(path))
+except:
+    os.mkdir(os.getcwd()+"\\screenshots")
+
+# OBTENTION / CREATION DES RACCOURCIS
+
+try:
+    with open("raccourcis.txt", "r") as fichier_raccourcis:
+        raccourcis = fichier_raccourcis.read().split("\n")
+        for i in range(len(raccourcis)):
+            raccourcis[i] = raccourcis[i].split("=")
+            raccourcis[i][0] = int(raccourcis[i][0])
+except:
+    raccourcis = [[pygame.K_w, "Defaut"],
+                  [pygame.K_s, "Defaut"],
+                  [pygame.K_a, "Defaut"],
+                  [pygame.K_d, "Defaut"],
+                  [pygame.K_e, "Defaut"]]
+
 # DEBUT PROGRAMME
 
 liste_rafraichir = mettre_fond(ecran)
@@ -106,6 +125,13 @@ while programme_continuer:  # MENU PRINCIPALE
         else:
             temps_actuel = pygame.time.get_ticks()
             liste_rafraichir = mettre_fond(ecran)
+
+    elif choix == 3:
+
+        liste_rafraichir = mettre_fond(ecran)
+        raccourcis = choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis)
+        liste_rafraichir = mettre_fond(ecran)
+        temps_actuel = pygame.time.get_ticks()
 
     elif choix == 4:  # QUITTER LE JEU
 
@@ -220,31 +246,33 @@ while programme_continuer:  # MENU PRINCIPALE
                     for entree in pygame.event.get():
 
                         if entree.type == pygame.KEYDOWN:
-                            if entree.key == raccourcis[0]:
+                            if entree.key == pygame.K_ESCAPE:
                                 choix, joueur = gerer_menu_jeu(ecran, position_souris, position_ecran_x, position_ecran_y, raccourcis, joueur)
                                 temps_actuel = pygame.time.get_ticks()
-                            if entree.key == raccourcis[1]:
+                            if entree.key == raccourcis[0][0]:
                                 joueur.deplacement_y -= joueur.vitesse
-                            if entree.key == raccourcis[2]:
+                            if entree.key == raccourcis[1][0]:
                                 joueur.deplacement_y += joueur.vitesse
-                            if entree.key == raccourcis[3]:
+                            if entree.key == raccourcis[2][0]:
                                 joueur.deplacement_x -= joueur.vitesse
-                            if entree.key == raccourcis[4]:
+                            if entree.key == raccourcis[3][0]:
                                 joueur.deplacement_x += joueur.vitesse
 
                         if entree.type == pygame.KEYUP:
-                            if entree.key == raccourcis[1]:
+                            if entree.key == raccourcis[0][0]:
                                 joueur.deplacement_y += joueur.vitesse
-                            if entree.key == raccourcis[2]:
+                            if entree.key == raccourcis[1][0]:
                                 joueur.deplacement_y -= joueur.vitesse
-                            if entree.key == raccourcis[3]:
+                            if entree.key == raccourcis[2][0]:
                                 joueur.deplacement_x += joueur.vitesse
-                            if entree.key == raccourcis[4]:
+                            if entree.key == raccourcis[3][0]:
                                 joueur.deplacement_x -= joueur.vitesse
-                            if entree.key == raccourcis[5]:
+                            if entree.key == raccourcis[4][0]:
                                 if joueur.bombes > 0:
                                     joueur.attaques.autorisation.append(2)
                                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.bombes-1)
+                            if entree.key == pygame.K_PRINT:
+                                pygame.image.save(ecran,"screenshots/"+str(int(time.time()))+".png")
 
                         if entree.type == pygame.MOUSEBUTTONDOWN:
                             if entree.button == 1:
@@ -290,8 +318,10 @@ while programme_continuer:  # MENU PRINCIPALE
 
                     liste_rafraichir, session = rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste_rafraichir)
 
+                    liste_rafraichir = afficher_minibar(map, joueur, position_ecran_x, position_ecran_y, liste_rafraichir)
+
                     liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((824, 10, 126, 88)), (position_ecran_x+824, position_ecran_y+10, 126, 88), 1])
-                    liste_rafraichir.append([minimap, (position_ecran_x+824, position_ecran_y+10, 126, 88), 5])
+                    liste_rafraichir.append([minimap, (position_ecran_x+824, position_ecran_y+10, 126, 88), 6])
 
                     if session.competences[11] > 0 and len(map.salles[joueur.salle].ennemis) > 0 and tempo == 3:
                         liste_rafraichir, joueur = rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, joueur.mana+session.competences[11])
@@ -304,6 +334,9 @@ while programme_continuer:  # MENU PRINCIPALE
                             boucle_jeu_continuer = False
                             jeu_continuer = False
                             menu_session = creer_menu_session(resolution, session)
+
+                            afficher_game_over(ecran, resolution, niveau)
+
                             liste_rafraichir = []
                             liste_rafraichir = mettre_fond(ecran)
                         else:

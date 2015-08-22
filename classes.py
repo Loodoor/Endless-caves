@@ -2,7 +2,7 @@
 
 import pygame
 
-VERSION = "0.1.0.1"
+VERSION = "0.1.1"
 
 
 class Salle:
@@ -41,6 +41,7 @@ class Ennemis:
         self.type = 0
         self.attaque = 0
         self.points_de_vies = 0
+        self.points_de_vies_maximum = 0
         self.images = Image()
         self.hitbox_deplacement = Hitbox()
         self.hitbox_degats = Hitbox()
@@ -48,6 +49,7 @@ class Ennemis:
         self.deplacement_x = 0
         self.deplacement_y = 0
         self.attaques = Attaque()
+        self.minibarre = Minibarre()
 
 
 class Objet:
@@ -189,3 +191,14 @@ class Message:
         self.h = 0
         self.image = 0
         self.temps_creation = 0
+
+
+class Minibarre:
+
+    def __init__(self):
+
+        self.x = 0
+        self.y = 0
+        self.w = 0
+        self.h = 0
+        self.image = 0

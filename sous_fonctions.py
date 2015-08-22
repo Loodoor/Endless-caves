@@ -2,10 +2,11 @@
 
 import os
 import pickle
+import time
 from random import randrange
 from classes import *
 
-VERSION = "0.1.0.1"
+VERSION = "0.1.1"
 
 FOND = pygame.image.load("images/fond.bmp")
 TILESET = pygame.image.load("images/tileset.bmp")
@@ -378,7 +379,8 @@ def initialiser_ennemis(map, joueur):
 
                     map.salles[joueur.salle].ennemis[i].attaque = 10+(map.niveau*map.niveau)\
                         - ((map.niveau*randrange(map.niveau))//2)
-                    map.salles[joueur.salle].ennemis[i].points_de_vies = map.salles[joueur.salle].ennemis[i].attaque*10
+                    map.salles[joueur.salle].ennemis[i].points_de_vies_maximum = map.salles[joueur.salle].ennemis[i].attaque*10
+                    map.salles[joueur.salle].ennemis[i].points_de_vies = map.salles[joueur.salle].ennemis[i].points_de_vies_maximum
 
                     map.salles[joueur.salle].ennemis[i].hitbox_degats.x = map.salles[joueur.salle].ennemis[i].x
                     map.salles[joueur.salle].ennemis[i].hitbox_degats.y = map.salles[joueur.salle].ennemis[i].y
@@ -390,6 +392,15 @@ def initialiser_ennemis(map, joueur):
                     map.salles[joueur.salle].ennemis[i].hitbox_deplacement.h = 48
 
                     map.salles[joueur.salle].ennemis[i].mort = False
+
+                    map.salles[joueur.salle].ennemis[i].minibarre = Minibarre()
+                    map.salles[joueur.salle].ennemis[i].minibarre.x = map.salles[joueur.salle].ennemis[i].x
+                    map.salles[joueur.salle].ennemis[i].minibarre.y = map.salles[joueur.salle].ennemis[i].y+66
+                    map.salles[joueur.salle].ennemis[i].minibarre.w = 64
+                    map.salles[joueur.salle].ennemis[i].minibarre.h = 8
+                    map.salles[joueur.salle].ennemis[i].minibarre.image = pygame.Surface((64, 8))
+                    map.salles[joueur.salle].ennemis[i].minibarre.image.fill((0, 0, 0))
+                    map.salles[joueur.salle].ennemis[i].minibarre.image.set_colorkey((255, 255, 255))
 
                     for l in range(6):
                         map.salles[joueur.salle].ennemis[i].images.bas.append(
@@ -959,7 +970,7 @@ def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, sessio
 
     # AFFICHER LE NOMBRE DE VIES
 
-    mot = "VIES:"
+    mot = "Vies:"
     for i in range(len(mot)):
         ecran.blit(pygame.transform.scale(CARACTERES.subsurface(((ord(mot[i]) % 10)*32, (ord(mot[i])//10)*64, 32, 64)),
                                           (30, 60)), (position_ecran_x+(30*i)+2, position_ecran_y+578))
@@ -970,7 +981,7 @@ def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, sessio
 
     # AFFICHER LE NOMBRE DE NIVEAUX
 
-    mot = "NIVEAU:"
+    mot = "Niveau:"
     for i in range(len(mot)):
         ecran.blit(pygame.transform.scale(CARACTERES.subsurface(((ord(mot[i]) % 10)*32, (ord(mot[i])//10)*64, 32, 64)),
                                           (30, 60)), (position_ecran_x+(30*i)+688, position_ecran_y+578))
@@ -1260,7 +1271,9 @@ def creer_attaque(joueur, position_ecran_x, position_ecran_y, session):
                     entite.y = joueur.y+27
                     entite.type = 1
                     entite.images = [ATTAQUES_JOUEUR.subsurface((0, 0, 20, 20)),
-                                     ATTAQUES_JOUEUR.subsurface((20, 0, 40, 40))]
+                                     ATTAQUES_JOUEUR.subsurface((20, 0, 40, 40)),
+                                     ATTAQUES_JOUEUR.subsurface((320, 0, 96, 96)),
+                                     ATTAQUES_JOUEUR.subsurface((416, 0, 96, 96))]
                     entite.detruit = False
                     entite.temps = 0
 
@@ -1416,61 +1429,101 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
 
                 joueur.attaques.entites[i].temps += 1
 
-                if joueur.attaques.entites[i].temps < 24:  # AFFICHER L'IMPACT
-                    if joueur.attaques.entites[i].deplacement_x >= 0:
-                        if joueur.attaques.entites[i].deplacement_y >= 0:
-                            liste_rafraichir.append([joueur.attaques.entites[i].images[1],
-                                                     (int(joueur.attaques.entites[i].x)+position_ecran_x,
-                                                      int(joueur.attaques.entites[i].y)+position_ecran_y,
-                                                      40, 40), 2])
-                        else:
-                            liste_rafraichir.append([joueur.attaques.entites[i].images[1],
-                                                     (int(joueur.attaques.entites[i].x)+position_ecran_x,
-                                                      int(joueur.attaques.entites[i].y)+position_ecran_y-40,
-                                                      40, 40), 2])
-                    else:
-                        if joueur.attaques.entites[i].deplacement_y>=0:
-                            liste_rafraichir.append([joueur.attaques.entites[i].images[1],
-                                                     (int(joueur.attaques.entites[i].x)+position_ecran_x-40,
-                                                      int(joueur.attaques.entites[i].y)+position_ecran_y,
-                                                      40, 40), 2])
-                        else:
-                            liste_rafraichir.append([joueur.attaques.entites[i].images[1],
-                                                     (int(joueur.attaques.entites[i].x)+position_ecran_x-40,
-                                                      int(joueur.attaques.entites[i].y)+position_ecran_y-40,
-                                                      40, 40), 2])
-                    i += 1
+                # AVEC LES PROJECTILS EXPLOSIFS
 
-                elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
+                if session.competences[8] > 0:
 
-                    if joueur.attaques.entites[i].deplacement_x >= 0:
-                        if joueur.attaques.entites[i].deplacement_y >= 0:
-                            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                                (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 40, 40)),
-                                (int(joueur.attaques.entites[i].x)+position_ecran_x,
-                                 int(joueur.attaques.entites[i].y)+position_ecran_y,
-                                 40, 40), 2])
-                        else:
-                            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                                (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y-40, 40, 40)),
-                                (int(joueur.attaques.entites[i].x)+position_ecran_x,
-                                 int(joueur.attaques.entites[i].y)+position_ecran_y-40,
-                                 40, 40), 2])
-                    else:
-                        if joueur.attaques.entites[i].deplacement_y >= 0:
-                            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                                (joueur.attaques.entites[i].x-40, joueur.attaques.entites[i].y, 40, 40)),
-                                (int(joueur.attaques.entites[i].x)+position_ecran_x-40,
-                                 int(joueur.attaques.entites[i].y)+position_ecran_y,
-                                 40, 40), 2])
-                        else:
-                            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                                (joueur.attaques.entites[i].x-40, joueur.attaques.entites[i].y-40, 40, 40)),
-                                (int(joueur.attaques.entites[i].x)+position_ecran_x-40,
-                                 int(joueur.attaques.entites[i].y)+position_ecran_y-40,
-                                 40, 40), 2])
+                    if joueur.attaques.entites[i].temps == 1:  # AJUSTER LA POSITION
 
-                    del joueur.attaques.entites[i]
+                        joueur.attaques.entites[i].x -= 38
+                        joueur.attaques.entites[i].y -= 38
+                        if joueur.attaques.entites[i].deplacement_x <= 0:
+                            joueur.attaques.entites[i].x -= 48
+                        if joueur.attaques.entites[i].deplacement_y <= 0:
+                            joueur.attaques.entites[i].y -= 48
+
+                        if joueur.attaques.entites[i].x < 0:
+                            joueur.attaques.entites[i].x = 0
+                        if joueur.attaques.entites[i].y < 0:
+                            joueur.attaques.entites[i].y = 0
+                        if joueur.attaques.entites[i].x > 864:
+                            joueur.attaques.entites[i].x = 864
+                        if joueur.attaques.entites[i].y > 480:
+                            joueur.attaques.entites[i].y = 480
+
+                    if joueur.attaques.entites[i].temps < 7:  # AFFICHER LE DEBUT D'EXPLOSION
+                        liste_rafraichir.append([joueur.attaques.entites[i].images[2],
+                                                 (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                                                  int(joueur.attaques.entites[i].y)+position_ecran_y,
+                                                  96, 96), 2])
+                        i += 1
+
+                    elif joueur.attaques.entites[i].temps == 7:  # EFFACER LE DEBUT D'EXPLOSION ET INFLIGER LES DEGATS
+                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                            (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 96, 96)),
+                            (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                             int(joueur.attaques.entites[i].y)+position_ecran_y,
+                             96, 96), 2])
+
+                        for ennemi in map.salles[joueur.salle].ennemis:
+                            if (((ennemi.x+32)-(joueur.attaques.entites[i].x+48))**2)+(((ennemi.y+32)-(joueur.attaques.entites[i].y+48))**2) <= 4096:
+                                ennemi.points_de_vies -= 50*session.competences[8]
+                                if ennemi.points_de_vies <= 0:
+                                    ennemi.mort = True
+
+                    elif 6 < joueur.attaques.entites[i].temps < 24:  # AFFICHER LA GROSSE EXPLOSION
+                        liste_rafraichir.append([joueur.attaques.entites[i].images[3],
+                                                 (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                                                  int(joueur.attaques.entites[i].y)+position_ecran_y,
+                                                  96, 96), 2])
+                        i += 1
+
+                    elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
+                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                            (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 96, 96)),
+                            (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                             int(joueur.attaques.entites[i].y)+position_ecran_y,
+                             96, 96), 2])
+
+                        del joueur.attaques.entites[i]
+
+                # SANS LES PROJECTILS EXPLOSIFS
+
+                if session.competences[8] == 0:
+
+                    if joueur.attaques.entites[i].temps == 1:  # AJUSTER LA POSITION
+
+                        joueur.attaques.entites[i].x -= 10
+                        joueur.attaques.entites[i].y -= 10
+                        if joueur.attaques.entites[i].deplacement_x <= 0:
+                            joueur.attaques.entites[i].x -= 20
+                        if joueur.attaques.entites[i].deplacement_y <= 0:
+                            joueur.attaques.entites[i].y -= 20
+
+                        if joueur.attaques.entites[i].x < 0:
+                            joueur.attaques.entites[i].x = 0
+                        if joueur.attaques.entites[i].y < 0:
+                            joueur.attaques.entites[i].y = 0
+                        if joueur.attaques.entites[i].x > 920:
+                            joueur.attaques.entites[i].x = 920
+                        if joueur.attaques.entites[i].y > 536:
+                            joueur.attaques.entites[i].y = 536
+
+                    if joueur.attaques.entites[i].temps < 24:  # AFFICHER L'IMPACT
+                        liste_rafraichir.append([joueur.attaques.entites[i].images[1],
+                                                 (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                                                  int(joueur.attaques.entites[i].y)+position_ecran_y,
+                                                  40, 40), 2])
+                        i += 1
+
+                    elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
+                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                            (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 40, 40)),
+                            (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                             int(joueur.attaques.entites[i].y)+position_ecran_y,
+                             40, 40), 2])
+
+                        del joueur.attaques.entites[i]
 
         # BOMBES
 
@@ -1754,6 +1807,14 @@ def gerer_mort_monstres(map, joueur, liste_rafraichir, position_ecran_x, positio
                      map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                      64, 64), 0])
 
+                # EFFACER BARRE DE VIE DU MONSTRE
+
+                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                    (map.salles[joueur.salle].ennemis[i].minibarre.x,
+                     map.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8)),
+                    (position_ecran_x+map.salles[joueur.salle].ennemis[i].minibarre.x,
+                     position_ecran_y+map.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8), 1])
+
                 # OBTENIR UN COEUR
 
                 if randrange(5) < 1+session.competences[6]:
@@ -1996,7 +2057,7 @@ def obtenir_choix_menu_et_afficher_selection(menu, position_souris, liste_rafrai
             liste_rafraichir.append([menu.options[i].images[0],
                                      (menu.options[i].x, menu.options[i].y, menu.options[i].w, menu.options[i].h), 7])
 
-    return liste_rafraichir, choix,position_souris
+    return liste_rafraichir, choix, position_souris
 
 
 def creer_session(ecran, resolution, liste_rafraichir, liste_messages):
@@ -2034,8 +2095,8 @@ def creer_session(ecran, resolution, liste_rafraichir, liste_messages):
     menu.h = 300
     for i in range(4):
         menu.options.append(Options_Menu())
-    menu.options[0].message = "VALIDER"
-    menu.options[1].message = "RETOUR"
+    menu.options[0].message = "Valider"
+    menu.options[1].message = "Retour"
     menu.type = 1
     menu = creer_images_et_positions_menu(menu)
 
@@ -2063,12 +2124,14 @@ def creer_session(ecran, resolution, liste_rafraichir, liste_messages):
 
         for entree in pygame.event.get():
             if entree.type == pygame.KEYDOWN:
-                if 90 >= ord(entree.dict['unicode'].upper()) >= 65:  # AJOUTER DES LETTRES
-                    session.nom += entree.dict['unicode'].upper()
-                elif entree.key == pygame.K_BACKSPACE:  # EFFACER UNE LETTRE
+                if entree.unicode != str():
+                    if 122 >= ord(entree.unicode) >= 97 or \
+                       90 >= ord(entree.unicode) >= 65:  # AJOUTER DES LETTRES
+                        session.nom += entree.unicode
+                if entree.key == pygame.K_BACKSPACE:  # EFFACER UNE LETTRE
                     if session.nom != "":
                         session.nom = session.nom[:-1]
-                elif entree.key == pygame.K_RETURN:  # VALIDER
+                if entree.key == pygame.K_RETURN:  # VALIDER
                     choix = 1
 
             elif entree.type == pygame.MOUSEBUTTONUP:  # OBTENIR LE CHOIX
@@ -2086,7 +2149,7 @@ def creer_session(ecran, resolution, liste_rafraichir, liste_messages):
         if len(session.nom) > 15:
             session.nom = session.nom[:15]
 
-        chaine = "PSEUDO:"+session.nom
+        chaine = "Pseudo:"+session.nom
 
         if 250 > pygame.time.get_ticks() % 500 > 0:  # AJOUTER UN CURSEUR CLIGNOTANT
             chaine += "_"
@@ -2174,9 +2237,9 @@ def choisir_session(ecran, resolution, liste_rafraichir, liste_messages):
     options.h = 128
     for i in range(3):
         options.options.append(Options_Menu())
-    options.options[0].message = "VALIDER"
-    options.options[1].message = "RETOUR"
-    options.options[2].message = "SUPPRIMER"
+    options.options[0].message = "Valider"
+    options.options[1].message = "Retour"
+    options.options[2].message = "Supprimer"
     options.type = 2
     options = creer_images_et_positions_menu(options)
 
@@ -2352,10 +2415,10 @@ def gerer_menu_jeu(ecran, position_souris, position_ecran_x, position_ecran_y, r
     menu.h = 500
     for i in range(4):
         menu.options.append(Options_Menu())
-    menu.options[0].message = "CONTINUER"
-    menu.options[1].message = "RECOMMENCER LA PARTIE"
-    menu.options[2].message = "QUITTER LA PARTIE"
-    menu.options[3].message = "QUITTER LE JEU"
+    menu.options[0].message = "Continuer"
+    menu.options[1].message = "Recommencer la partie"
+    menu.options[2].message = "Quitter la partie"
+    menu.options[3].message = "Quitter le jeu"
     menu.type = 1
     menu = creer_images_et_positions_menu(menu)
 
@@ -2378,25 +2441,25 @@ def gerer_menu_jeu(ecran, position_souris, position_ecran_x, position_ecran_y, r
 
         for entree in pygame.event.get():
             if entree.type == pygame.KEYDOWN:
-                if entree.key == raccourcis[0]:
+                if entree.key == pygame.K_ESCAPE:
                     continuer = False
                     choix = 1
-                if entree.key == raccourcis[1]:
+                if entree.key == raccourcis[0][0]:
                     joueur.deplacement_y -= joueur.vitesse
-                if entree.key == raccourcis[2]:
+                if entree.key == raccourcis[1][0]:
                     joueur.deplacement_y += joueur.vitesse
-                if entree.key == raccourcis[3]:
+                if entree.key == raccourcis[2][0]:
                     joueur.deplacement_x -= joueur.vitesse
-                if entree.key == raccourcis[4]:
+                if entree.key == raccourcis[3][0]:
                     joueur.deplacement_x += joueur.vitesse
             if entree.type == pygame.KEYUP:
-                if entree.key == raccourcis[1]:
+                if entree.key == raccourcis[0][0]:
                     joueur.deplacement_y += joueur.vitesse
-                if entree.key == raccourcis[2]:
+                if entree.key == raccourcis[1][0]:
                     joueur.deplacement_y -= joueur.vitesse
-                if entree.key == raccourcis[3]:
+                if entree.key == raccourcis[2][0]:
                     joueur.deplacement_x += joueur.vitesse
-                if entree.key == raccourcis[4]:
+                if entree.key == raccourcis[3][0]:
                     joueur.deplacement_x -= joueur.vitesse
 
             if entree.type == pygame.MOUSEBUTTONUP:
@@ -2438,6 +2501,8 @@ def charger_images_monstres(map):
     for i in range(len(map.salles)):
         for j in range(len(map.salles[i].ennemis)):
 
+            # CHARGER LES SKINS DES MONSTRES
+
             map.salles[i].ennemis[j].images.bas = []
             map.salles[i].ennemis[j].images.haut = []
             map.salles[i].ennemis[j].images.droite = []
@@ -2456,6 +2521,17 @@ def charger_images_monstres(map):
                 map.salles[i].ennemis[j].images.haut[l].set_colorkey((255, 255, 255))
                 map.salles[i].ennemis[j].images.droite[l].set_colorkey((255, 255, 255))
                 map.salles[i].ennemis[j].images.gauche[l].set_colorkey((255, 255, 255))
+
+            # CHARGER LA MINIBARRE DES MONSTRES
+
+            map.salles[i].ennemis[j].minibarre.image = pygame.Surface((64, 8))
+            map.salles[i].ennemis[j].minibarre.image.fill((0, 0, 0))
+            map.salles[i].ennemis[j].minibarre.image.set_colorkey((255, 255, 255))
+            map.salles[i].ennemis[j].minibarre.image.fill(
+                (255, 0, 0), (2, 2, int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60), 4))
+            map.salles[i].ennemis[j].minibarre.image.fill(
+                (255, 255, 255), (2+int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60), 2,
+                                  62-(2+int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60)), 4))
 
     return map
 
@@ -2590,6 +2666,7 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
 
     global ICONES_COMPETENCES
     global FOND
+    global CARACTERES
 
     # CREER UNE LISTE DE MENUS QUI CONTIENNENT LES ETAGES DE COMPETENCES
 
@@ -2598,9 +2675,9 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
     for i in range(len(arbre_de_competences)):
         arbre_de_competences[i].x = 0
         arbre_de_competences[i].y = \
-            (resolution.current_h-128)-((i+1)*((resolution.current_h-128)//len(arbre_de_competences)))
+            (resolution.current_h-128)-((i+1)*((resolution.current_h-256)//len(arbre_de_competences)))
         arbre_de_competences[i].w = resolution.current_w
-        arbre_de_competences[i].h = (resolution.current_h-128)//len(arbre_de_competences)
+        arbre_de_competences[i].h = (resolution.current_h-256)//len(arbre_de_competences)
         arbre_de_competences[i].type = 2
 
     # ETAGE 0
@@ -2664,9 +2741,9 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
     menu.h = 128
     for i in range(3):
         menu.options.append(Options_Menu())
-    menu.options[0].message = "VALIDER"
-    menu.options[1].message = "RETOUR"
-    menu.options[2].message = "REINITIALISER"
+    menu.options[0].message = "Valider"
+    menu.options[1].message = "Retour"
+    menu.options[2].message = "Reinitialiser"
     menu.type = 2
     menu = creer_images_et_positions_menu(menu)
 
@@ -2676,6 +2753,17 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
         session.competences.append(0)
     liste = list(session.competences)
     points = session.points_de_competences
+
+    # texte = [x, y, w, h, message, image, points]
+    texte = [0, 32, 0, 64, "Points restants: "+str(points), 0, points]
+    texte[5] = pygame.Surface((len(texte[4])*32, 64))
+    texte[5].set_colorkey((255, 255, 255))
+    texte[5].fill((255, 255, 255))
+    for i in range(len(texte[4])):
+        texte[5].blit(CARACTERES.subsurface(((ord(texte[4][i]) % 10)*32, (ord(texte[4][i])//10)*64, 32, 64)),
+                      (32*i, 0))
+    texte[0] = (resolution.current_w-(len(texte[4])*32))//2
+    texte[2] = len(texte[4])*32
 
     continuer = True
     tempo = 0
@@ -2690,6 +2778,25 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
     # PAGE DE COMPETENCES
 
     while continuer:
+
+        # AFFICHER LE NOMBRE DE POINTS RESTANTS
+
+        liste_rafraichir.append([FOND.subsurface((texte[0], texte[1], texte[2], texte[3])),
+                                 (texte[0], texte[1], texte[2], texte[3]), 1])
+
+        if points != texte[6]:
+            texte[6] = points
+            texte[4] = "Points restants: "+str(points)
+            texte[5] = pygame.Surface((len(texte[4])*32, 64))
+            texte[5].set_colorkey((255, 255, 255))
+            texte[5].fill((255, 255, 255))
+            for i in range(len(texte[4])):
+                texte[5].blit(CARACTERES.subsurface(((ord(texte[4][i]) % 10)*32, (ord(texte[4][i])//10)*64, 32, 64)),
+                              (32*i, 0))
+            texte[0] = (resolution.current_w-(len(texte[4])*32))//2
+            texte[2] = len(texte[4])*32
+
+        liste_rafraichir.append([texte[5], (texte[0], texte[1], texte[2], texte[3]), 7])
 
         # RAFRAICHIR IMAGE
 
@@ -2813,7 +2920,7 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
         if (fenetre[7] != -1 and fenetre[8] != -1) or (fenetre[5] != -1 and fenetre[6] != -1):
             liste_rafraichir.append([
                 FOND.subsurface((fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3])),
-                (fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3]), 7])
+                (fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3]), 0])
 
         if fenetre[5] != -1 and fenetre[6] != -1:
             liste_rafraichir.append([fenetre[4], (fenetre[0], fenetre[1], fenetre[2], fenetre[3]), 8])
@@ -3321,3 +3428,494 @@ def gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel):
     tempo = gerer_tempo(tempo)
 
     return liste_rafraichir, temps_actuel, tempo
+
+
+def afficher_minibar(map, joueur, position_ecran_x, position_ecran_y, liste_rafraichir):
+
+    for ennemi in map.salles[joueur.salle].ennemis:
+
+        # EFFACER L'ANCIENNE MINIBARRE
+
+        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+            (ennemi.minibarre.x, ennemi.minibarre.y, 64, 8)),
+            (position_ecran_x+ennemi.minibarre.x, position_ecran_y+ennemi.minibarre.y, 64, 8), 1])
+
+        # RECALCULER LA POSITION ET RECREER L'IMAGE DE LA MINIBARRE
+
+        ennemi.minibarre.x = ennemi.x
+        ennemi.minibarre.y = ennemi.y+66
+
+        ennemi.minibarre.image.fill((255, 0, 0),
+                                    (2, 2, int((ennemi.points_de_vies/ennemi.points_de_vies_maximum)*60), 4))
+        ennemi.minibarre.image.fill((255, 255, 255),
+                                    (2+int((ennemi.points_de_vies/ennemi.points_de_vies_maximum)*60), 2,
+                                     62-(2+int((ennemi.points_de_vies/ennemi.points_de_vies_maximum)*60)), 4))
+
+        # AFFICHER LA NOUVELLE MINIBARRE AU NOUVEL EMPLACEMENT
+
+        liste_rafraichir.append([ennemi.minibarre.image,
+                                (position_ecran_x+ennemi.minibarre.x, position_ecran_y+ennemi.minibarre.y,
+                                 ennemi.minibarre.w, ennemi.minibarre.h), 5])
+
+    return liste_rafraichir
+
+
+def afficher_game_over(ecran, resolution, niveau):
+
+    global CARACTERES
+
+    messages = ["Game over", "", "Etage atteint:"+str(niveau-1)]
+    for i in range(len(messages)):
+        for j in range(len(messages[i])):
+            ecran.blit(pygame.transform.scale2x(CARACTERES.subsurface(((ord(messages[i][j]) % 10)*32, (ord(messages[i][j])//10)*64, 32, 64))),
+                       (((resolution.current_w-(64*len(messages[i])))//2)+(64*j),
+                        ((resolution.current_h-(130*len(messages)))//2)+(130*i)))
+
+    pygame.display.flip()
+
+    pygame.time.wait(5000)
+
+    return 0
+
+
+def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
+
+    global CARACTERES
+    global CARACTERES_SELECTIONNES
+
+    # CALCULER L'ESPACE DISPONIBLE ENTRE LES BORDS ET LE TEXTE
+
+    espace_restant = (resolution.current_w-984)//4
+
+    # CREER ET AFFICHER L'INTERFACE
+
+    cadre_noir = pygame.Surface((resolution.current_w, resolution.current_h))
+    cadre_noir.fill((255, 255, 255))
+    cadre_noir.fill((150, 150, 150), (98, 98, resolution.current_w-196, resolution.current_h-266))
+    cadre_noir.fill((0, 0, 0), (100, 100, resolution.current_w-200, resolution.current_h-270))
+    cadre_noir.fill((150, 150, 150), (resolution.current_w-114, 100, 2, resolution.current_h-270))
+    cadre_noir.fill((200, 200, 200), (resolution.current_w-112, 100, 12, resolution.current_h-270))
+    cadre_noir.fill((150, 150, 150), (resolution.current_w-306-(2*espace_restant), 100, 2, resolution.current_h-270))
+    cadre_noir.set_colorkey((255, 255, 255))
+    liste_rafraichir.append([cadre_noir, (0, 0, resolution.current_w, resolution.current_h), 0])
+    del cadre_noir
+
+    # RECUPERER UNE COPIE DES RACCOURCIS
+
+    try:
+        with open("raccourcis.txt", "r") as fichier_raccourcis:
+            raccourcis_copie = fichier_raccourcis.read().split("\n")
+            for i in range(len(raccourcis_copie)):
+                raccourcis_copie[i] = raccourcis_copie[i].split("=")
+                raccourcis_copie[i][0] = int(raccourcis_copie[i][0])
+    except:
+        raccourcis_copie = [[pygame.K_w, "Defaut"],
+                            [pygame.K_s, "Defaut"],
+                            [pygame.K_a, "Defaut"],
+                            [pygame.K_d, "Defaut"],
+                            [pygame.K_e, "Defaut"]]
+
+    # CREER LE MENU VALIDER/RETOUR
+
+    menu = Menu()
+    menu.x = 0
+    menu.y = resolution.current_h-170
+    menu.w = resolution.current_w
+    menu.h = 170
+    for i in range(2):
+        menu.options.append(Options_Menu())
+    menu.options[0].message = "Valider"
+    menu.options[1].message = "Retour"
+    menu.type = 2
+    menu = creer_images_et_positions_menu(menu)
+
+    # CREER LE MENU DE DESCRIPTION DES TOUCHES
+
+    menu_description = Menu()
+    for i in range(5):
+        menu_description.options.append(Options_Menu())
+    menu_description.options[0].message = "Avancer"
+    menu_description.options[1].message = "Reculer"
+    menu_description.options[2].message = "Aller a droite"
+    menu_description.options[3].message = "Aller a gauche"
+    menu_description.options[4].message = "Poser une bombe"
+    menu_description.x = 100
+    menu_description.y = 100
+    menu_description.w = resolution.current_w-(408+2*espace_restant)
+    menu_description.h = len(menu_description.options)*192
+    menu_description.type = 1
+    menu_description = creer_images_et_positions_menu(menu_description)
+
+    # CREER LA LISTE OU SE TROUVE LE NOM DES TOUCHES
+
+    menu_touches = Menu()
+    for i in range(len(menu_description.options)):
+        menu_touches.options.append(Options_Menu())
+        menu_touches.options[i].message = raccourcis_copie[i][1]
+    menu_touches.x = resolution.current_w-306-(2*espace_restant)
+    menu_touches.y = 100
+    menu_touches.w = 192+(2*espace_restant)
+    menu_touches.h = menu_description.h
+    menu_touches.type = 1
+    menu_touches = creer_images_et_positions_menu(menu_touches)
+
+    # INITIALISER QUELQUES VARIABLES
+
+    # liste_cadre = [x, y, w, h, image]
+    liste_cadre = [0, 0, 0, 0, 0]
+    choix = [0, 0]
+    position_souris = [0, 0]
+    continuer = True
+    tempo = 0
+    temps_actuel = pygame.time.get_ticks()
+
+    # BOUCLE DU MENU
+
+    while continuer:
+
+        # RAFRAICHIR L'IMAGE ET LE CHOIX DE L'UTILISATEUR
+
+        liste_rafraichir, temps_actuel, tempo = gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel)
+        choix = [0, choix[1]]
+
+        # GERER LES ENTREES UTILISATEURS
+
+        for entree in pygame.event.get():
+
+            if entree.type == pygame.KEYDOWN:  # CHANGER LE RACCOURCIS
+                if entree.unicode != str() and choix != 0:
+
+                    raccourcis_copie[choix[1]-1] = [entree.key, entree.unicode.upper()]
+
+                    # EFFACER LE CADRE
+
+                    if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
+                        if liste_cadre[1]+liste_cadre[3] <= resolution.current_h-170 and liste_cadre[1] >= 100:
+                            liste_rafraichir.append([
+                                pygame.Surface((liste_cadre[2], liste_cadre[3])),
+                                (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+                        if liste_cadre[1]+liste_cadre[3] > resolution.current_h-170:
+                            liste_rafraichir.append([
+                                pygame.Surface((liste_cadre[2], resolution.current_h-170-liste_cadre[1])),
+                                (liste_cadre[0], liste_cadre[1], liste_cadre[2],
+                                 resolution.current_h-170-liste_cadre[1]), 0])
+                        if liste_cadre[1] < 100:
+                            liste_rafraichir.append([
+                                pygame.Surface((liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
+                                (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+
+                    # EFFACER L'ANCIENNE TOUCHE
+
+                    if menu_touches.options[choix[1]-1].y < resolution.current_h-170 and \
+                       menu_touches.options[choix[1]-1].y+menu_touches.options[choix[1]-1].h > 100:
+
+                        if menu_touches.options[choix[1]-1].y+menu_touches.options[choix[1]-1].h <= resolution.current_h-170 and \
+                           menu_touches.options[choix[1]-1].y >= 100:
+                            liste_rafraichir.append(
+                                [pygame.Surface((menu_touches.options[choix[1]-1].w, menu_touches.options[choix[1]-1].h)),
+                                 (menu_touches.options[choix[1]-1].x, menu_touches.options[choix[1]-1].y,
+                                  menu_touches.options[choix[1]-1].w, menu_touches.options[choix[1]-1].h), 7])
+
+                        if menu_touches.options[choix[1]-1].y+menu_touches.options[choix[1]-1].h > resolution.current_h-170:
+                            liste_rafraichir.append([pygame.Surface(
+                                (menu_touches.options[choix[1]-1].w, resolution.current_h-170-menu_touches.options[choix[1]-1].y)),
+                                (menu_touches.options[choix[1]-1].x, menu_touches.options[choix[1]-1].y,
+                                 menu_touches.options[choix[1]-1].w, resolution.current_h-170-menu_touches.options[choix[1]-1].y), 7])
+
+                        if menu_touches.options[i].y < 100:
+                            liste_rafraichir.append([pygame.Surface(
+                                (menu_touches.options[choix[1]-1].w, menu_touches.options[choix[1]-1].h-(100-menu_touches.options[choix[1]-1].y))),
+                                (menu_touches.options[choix[1]-1].x, 100, menu_touches.options[choix[1]-1].w,
+                                 menu_touches.options[choix[1]-1].h-(100-menu_touches.options[choix[1]-1].y)), 7])
+
+                    # CHANGER LA LISTE DES TOUCHES
+
+                    menu_touches.options[choix[1]-1].message = entree.unicode.upper()
+                    menu_touches.options[choix[1]-1].w = 32*len(menu_touches.options[choix[1]-1].message)
+                    menu_touches.options[choix[1]-1].x = menu_touches.x+((menu_touches.w//2)-(menu_touches.options[choix[1]-1].w//2))
+                    menu_touches.options[choix[1]-1].images[0] = pygame.Surface((menu_touches.options[choix[1]-1].w, 64))
+                    menu_touches.options[choix[1]-1].images[0].fill((255, 255, 255))
+                    menu_touches.options[choix[1]-1].images[0].set_colorkey((255, 255, 255))
+                    menu_touches.options[choix[1]-1].images[1] = pygame.Surface((menu_touches.options[choix[1]-1].w, 64))
+                    menu_touches.options[choix[1]-1].images[1].fill((255, 255, 255))
+                    menu_touches.options[choix[1]-1].images[1].set_colorkey((255, 255, 255))
+                    for i in range(len(menu_touches.options[choix[1]-1].message)):
+                        menu_touches.options[choix[1]-1].images[0].blit(CARACTERES.subsurface(
+                            ((ord(menu_touches.options[choix[1]-1].message[i]) % 10)*32,
+                             (ord(menu_touches.options[choix[1]-1].message[i])//10)*64, 32, 64)), (32*i, 0))
+                        menu_touches.options[choix[1]-1].images[1].blit(CARACTERES_SELECTIONNES.subsurface(
+                            ((ord(menu_touches.options[choix[1]-1].message[i]) % 10)*32,
+                             (ord(menu_touches.options[choix[1]-1].message[i])//10)*64, 32, 64)), (32*i, 0))
+
+                    choix[1] = 0
+
+            if entree.type == pygame.MOUSEMOTION:  # LES MOUVEMENTS DE SOURIS
+                position_souris = [entree.pos[0], entree.pos[1]]
+
+            if entree.type == pygame.MOUSEBUTTONUP:
+
+                if entree.button == 1:  # LES CLIQUES
+
+                    for i in range(len(menu.options)):  # LE MENU VALIDER/RETOUR
+                        if menu.options[i].x+menu.options[i].w > entree.pos[0] > menu.options[i].x and \
+                           menu.options[i].y+menu.options[i].h > entree.pos[1] > menu.options[i].y:
+                            choix[0] = i+1
+
+                    for i in range(len(menu_description.options)):  # LE MENU DE DESCRIPTION DES TOUCHES
+                        if menu_description.options[i].x+menu_description.options[i].w > entree.pos[0] > menu_description.options[i].x and \
+                           menu_description.options[i].y+menu_description.options[i].h > entree.pos[1] > menu_description.options[i].y and \
+                           100 < entree.pos[0] < resolution.current_w-100 and 100 < entree.pos[1] < resolution.current_h-170:
+                            choix[1] = i+1
+
+                            # EFFACER LE CADRE
+
+                            if liste_cadre[4] != 0:
+                                if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
+                                    if liste_cadre[1]+liste_cadre[3] <= resolution.current_h-170 and liste_cadre[1] >= 100:
+                                        liste_rafraichir.append([
+                                            pygame.Surface((liste_cadre[2], liste_cadre[3])),
+                                            (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+                                    if liste_cadre[1]+liste_cadre[3] > resolution.current_h-170:
+                                        liste_rafraichir.append([
+                                            pygame.Surface((liste_cadre[2], resolution.current_h-170-liste_cadre[1])),
+                                            (liste_cadre[0], liste_cadre[1], liste_cadre[2],
+                                             resolution.current_h-170-liste_cadre[1]), 0])
+                                    if liste_cadre[1] < 100:
+                                        liste_rafraichir.append([
+                                            pygame.Surface((liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
+                                            (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+
+                            # CREER LES NOUVELLES COORDONNEES DU CADRE
+
+                            liste_cadre[0] = menu_description.options[i].x-4
+                            liste_cadre[1] = menu_description.options[i].y-4
+                            liste_cadre[2] = menu_description.options[i].w+8
+                            liste_cadre[3] = menu_description.options[i].h+8
+                            liste_cadre[4] = pygame.Surface((liste_cadre[2], liste_cadre[3]))
+                            liste_cadre[4].fill((255, 255, 0))
+                            liste_cadre[4].fill((255, 255, 255), (2, 2, menu_description.options[i].w+4, menu_description.options[i].h+4))
+                            liste_cadre[4].set_colorkey((255, 255, 255))
+
+                if 4 <= entree.button <= 5:  # FAIRE DEFILER LE MENU
+                    if (menu_description.options[len(menu_description.options)-1].y >= resolution.current_h-298 and
+                       entree.button == 5) or (menu_description.options[0].y <= 164 and entree.button == 4):
+
+                        # EFFACER LE MENU DE DESCRIPTIONS PUIS LE DEPLACER
+
+                        for i in range(len(menu_description.options)):
+
+                            if menu_description.options[i].y < resolution.current_h-170 and \
+                               menu_description.options[i].y+menu_description.options[i].h > 100:
+
+                                if menu_description.options[i].y+menu_description.options[i].h <= resolution.current_h-170 and \
+                                   menu_description.options[i].y >= 100:
+                                    liste_rafraichir.append(
+                                        [pygame.Surface((menu_description.options[i].w, menu_description.options[i].h)),
+                                         (menu_description.options[i].x, menu_description.options[i].y,
+                                          menu_description.options[i].w, menu_description.options[i].h), 7])
+
+                                if menu_description.options[i].y+menu_description.options[i].h > resolution.current_h-170:
+                                    liste_rafraichir.append([pygame.Surface(
+                                        (menu_description.options[i].w, resolution.current_h-170-menu_description.options[i].y)),
+                                        (menu_description.options[i].x, menu_description.options[i].y,
+                                         menu_description.options[i].w, resolution.current_h-170-menu_description.options[i].y), 7])
+
+                                if menu_description.options[i].y < 100:
+                                    liste_rafraichir.append([pygame.Surface(
+                                        (menu_description.options[i].w, menu_description.options[i].h-(100-menu_description.options[i].y))),
+                                        (menu_description.options[i].x, 100, menu_description.options[i].w,
+                                         menu_description.options[i].h-(100-menu_description.options[i].y)), 7])
+
+                            if entree.button == 5:
+                                menu_description.options[i].y -= 30
+                            if entree.button == 4:
+                                menu_description.options[i].y += 30
+
+                        # EFFACER LA LISTE DES TOUCHES PUIS LA DEPLACER
+
+                        for i in range(len(menu_touches.options)):
+
+                            if menu_touches.options[i].y < resolution.current_h-170 and \
+                               menu_touches.options[i].y+menu_touches.options[i].h > 100:
+
+                                if menu_touches.options[i].y+menu_touches.options[i].h <= resolution.current_h-170 and \
+                                   menu_touches.options[i].y >= 100:
+                                    liste_rafraichir.append(
+                                        [pygame.Surface((menu_touches.options[i].w, menu_touches.options[i].h)),
+                                         (menu_touches.options[i].x, menu_touches.options[i].y,
+                                          menu_touches.options[i].w, menu_touches.options[i].h), 7])
+
+                                if menu_touches.options[i].y+menu_touches.options[i].h > resolution.current_h-170:
+                                    liste_rafraichir.append([pygame.Surface(
+                                        (menu_touches.options[i].w, resolution.current_h-170-menu_touches.options[i].y)),
+                                        (menu_touches.options[i].x, menu_touches.options[i].y,
+                                         menu_touches.options[i].w, resolution.current_h-170-menu_touches.options[i].y), 7])
+
+                                if menu_touches.options[i].y < 100:
+                                    liste_rafraichir.append([pygame.Surface(
+                                        (menu_touches.options[i].w, menu_touches.options[i].h-(100-menu_touches.options[i].y))),
+                                        (menu_touches.options[i].x, 100, menu_touches.options[i].w,
+                                         menu_touches.options[i].h-(100-menu_touches.options[i].y)), 7])
+
+                            if entree.button == 5:
+                                menu_touches.options[i].y -= 30
+                            if entree.button == 4:
+                                menu_touches.options[i].y += 30
+
+                        # EFFACER LE CADRE PUIS LE DEPLACER
+
+                        if liste_cadre[4] != 0:
+                            if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
+                                if liste_cadre[1]+liste_cadre[3] <= resolution.current_h-170 and liste_cadre[1] >= 100:
+                                    liste_rafraichir.append([
+                                        pygame.Surface((liste_cadre[2], liste_cadre[3])),
+                                        (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+                                if liste_cadre[1]+liste_cadre[3] > resolution.current_h-170:
+                                    liste_rafraichir.append([
+                                        pygame.Surface((liste_cadre[2], resolution.current_h-170-liste_cadre[1])),
+                                        (liste_cadre[0], liste_cadre[1], liste_cadre[2],
+                                         resolution.current_h-170-liste_cadre[1]), 0])
+                                if liste_cadre[1] < 100:
+                                    liste_rafraichir.append([
+                                        pygame.Surface((liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
+                                        (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
+
+                            if entree.button == 5:
+                                liste_cadre[1] -= 30
+                            if entree.button == 4:
+                                liste_cadre[1] += 30
+
+        # AFFICHER LE MENU VALIDER/RETOUR
+
+        for i in range(len(menu.options)):
+            if menu.options[i].x+menu.options[i].w > position_souris[0] > menu.options[i].x and \
+               menu.options[i].y+menu.options[i].h > position_souris[1] > menu.options[i].y:
+                liste_rafraichir.append([menu.options[i].images[1],
+                                         (menu.options[i].x, menu.options[i].y,
+                                          menu.options[i].w, menu.options[i].h), 7])
+            else:
+                liste_rafraichir.append([menu.options[i].images[0],
+                                         (menu.options[i].x, menu.options[i].y,
+                                          menu.options[i].w, menu.options[i].h), 7])
+
+        # AFFICHER LA LISTE DES TOUCHES
+
+        for i in range(len(menu_touches.options)):
+            if menu_touches.options[i].y < resolution.current_h-170 and \
+               menu_touches.options[i].y+menu_touches.options[i].h > 100:
+
+                if menu_touches.options[i].y+menu_touches.options[i].h <= resolution.current_h-170 and \
+                   menu_touches.options[i].y >= 100:
+                    liste_rafraichir.append([menu_touches.options[i].images[0],
+                                             (menu_touches.options[i].x, menu_touches.options[i].y,
+                                              menu_touches.options[i].w, menu_touches.options[i].h), 7])
+
+                if menu_touches.options[i].y+menu_touches.options[i].h > resolution.current_h-170:
+                    liste_rafraichir.append([menu_touches.options[i].images[0].subsurface(
+                        (0, 0, menu_touches.options[i].w, resolution.current_h-170-menu_touches.options[i].y)),
+                        (menu_touches.options[i].x, menu_touches.options[i].y,
+                         menu_touches.options[i].w, resolution.current_h-170-menu_touches.options[i].y), 7])
+
+                if menu_touches.options[i].y < 100:
+                    liste_rafraichir.append([menu_touches.options[i].images[0].subsurface(
+                        (0, 100-menu_touches.options[i].y, menu_touches.options[i].w,
+                         menu_touches.options[i].h-(100-menu_touches.options[i].y))),
+                        (menu_touches.options[i].x, 100, menu_touches.options[i].w,
+                         menu_touches.options[i].h-(100-menu_touches.options[i].y)), 7])
+
+        # AFFICHER LE MENU DE DESCRIPTION DES TOUCHES
+
+        for i in range(len(menu_description.options)):
+            if menu_description.options[i].y < resolution.current_h-170 and \
+               menu_description.options[i].y+menu_description.options[i].h > 100:
+
+                # SI LA DESCRIPTION EST ENTIERE
+
+                if menu_description.options[i].y+menu_description.options[i].h <= resolution.current_h-170 and \
+                   menu_description.options[i].y >= 100:
+
+                    if menu_description.options[i].x+menu_description.options[i].w > position_souris[0] > menu_description.options[i].x and \
+                       menu_description.options[i].y+menu_description.options[i].h > position_souris[1] > menu_description.options[i].y and \
+                       100 < position_souris[0] < resolution.current_w-100 and 100 < position_souris[1] < resolution.current_h-170:
+                        liste_rafraichir.append([menu_description.options[i].images[1],
+                                                 (menu_description.options[i].x, menu_description.options[i].y,
+                                                  menu_description.options[i].w, menu_description.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu_description.options[i].images[0],
+                                                 (menu_description.options[i].x, menu_description.options[i].y,
+                                                  menu_description.options[i].w, menu_description.options[i].h), 7])
+
+                # SI LA DESCRIPTION EST TROP BASSE
+
+                if menu_description.options[i].y+menu_description.options[i].h > resolution.current_h-170:
+
+                    if menu_description.options[i].x+menu_description.options[i].w > position_souris[0] > menu_description.options[i].x and \
+                       menu_description.options[i].y+menu_description.options[i].h > position_souris[1] > menu_description.options[i].y and \
+                       100 < position_souris[0] < resolution.current_w-100 and 100 < position_souris[1] < resolution.current_h-170:
+                        liste_rafraichir.append([menu_description.options[i].images[1].subsurface(
+                            (0, 0, menu_description.options[i].w, resolution.current_h-170-menu_description.options[i].y)),
+                            (menu_description.options[i].x, menu_description.options[i].y,
+                             menu_description.options[i].w, menu_description.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu_description.options[i].images[0].subsurface(
+                            (0, 0, menu_description.options[i].w, resolution.current_h-170-menu_description.options[i].y)),
+                            (menu_description.options[i].x, menu_description.options[i].y,
+                             menu_description.options[i].w, resolution.current_h-170-menu_description.options[i].y), 7])
+
+                # SI LA DESCRIPTION EST TROP HAUTE
+
+                if menu_touches.options[i].y < 100:
+
+                    if menu_description.options[i].x+menu_description.options[i].w > position_souris[0] > menu_description.options[i].x and \
+                       menu_description.options[i].y+menu_description.options[i].h > position_souris[1] > menu_description.options[i].y and \
+                       100 < position_souris[0] < resolution.current_w-100 and 100 < position_souris[1] < resolution.current_h-170:
+                        liste_rafraichir.append([menu_description.options[i].images[1].subsurface(
+                            (0, 100-menu_description.options[i].y, menu_description.options[i].w,
+                             menu_description.options[i].y+menu_description.options[i].h-100)),
+                            (menu_description.options[i].x, 100, menu_description.options[i].w,
+                             menu_description.options[i].y+menu_description.options[i].h-100), 7])
+                    else:
+                        liste_rafraichir.append([menu_description.options[i].images[0].subsurface(
+                            (0, 100-menu_description.options[i].y, menu_description.options[i].w,
+                             menu_description.options[i].y+menu_description.options[i].h-100)),
+                            (menu_description.options[i].x, 100, menu_description.options[i].w,
+                             menu_description.options[i].y+menu_description.options[i].h-100), 7])
+
+        # AFFICHER LE CADRE
+
+        if choix[1] != 0:
+            if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
+                if liste_cadre[1]+liste_cadre[3] < resolution.current_h-170 and liste_cadre[1] > 100:
+                    liste_rafraichir.append([liste_cadre[4],
+                                             (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 7])
+                if liste_cadre[1]+liste_cadre[3] > resolution.current_h-170:
+                    liste_rafraichir.append(
+                        [liste_cadre[4].subsurface((0, 0, liste_cadre[2], resolution.current_h-170-liste_cadre[1])),
+                         (liste_cadre[0], liste_cadre[1], liste_cadre[2], resolution.current_h-170-liste_cadre[1]), 7])
+                if liste_cadre[1] < 100:
+                    liste_rafraichir.append([liste_cadre[4].subsurface(
+                        (0, 100-liste_cadre[1], liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
+                        (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 7])
+
+        # GERER LES CHOIX
+
+        if choix[0] == 1:  # VALIDER
+            with open("raccourcis.txt", "w+") as fichier_raccourcis:
+                chaine = []
+                for raccourci in raccourcis_copie:
+                    raccourci[0] = str(raccourci[0])
+                    chaine.append("=".join(raccourci))
+                chaine = "\n".join(chaine)
+                fichier_raccourcis.write(chaine)
+                continuer = False
+
+            with open("raccourcis.txt", "r") as fichier_raccourcis:
+                raccourcis = fichier_raccourcis.read().split("\n")
+            for i in range(len(raccourcis)):
+                raccourcis[i] = raccourcis[i].split("=")
+                raccourcis[i][0] = int(raccourcis[i][0])
+
+        if choix[0] == 2:  # RETOUR
+            continuer = False
+
+    return raccourcis
