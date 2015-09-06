@@ -1,3 +1,7 @@
 0 = none
 1 = attaques normales
 2 = bombes ( a poser )
+3 = attaque paralysante
+4 = nuage paralysant
+5 = explosion temporelle
+6 = explosion temporelle (x2)

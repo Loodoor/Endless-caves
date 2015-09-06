@@ -1,11 +1,11 @@
-﻿# -*- coding:Utf-8 -*
+﻿# -*- coding:utf_8 -*
 
 import pygame._view
 import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.1.1"
+VERSION = "0.2"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -61,10 +61,31 @@ with open("saves/liste_personnages.txt", "r+") as liste_personnages:
 with open("saves/liste_personnages.txt", "w") as liste_personnages:
     liste_personnages.write("\n"+"\n".join(chaine))
 
-
 del liste_personnages
 del chaine
 del i
+
+# VERIFICATION DE SESSION.SORTS
+
+with open("saves/liste_personnages.txt", "r") as liste_personnages:
+    liste = liste_personnages.read().split("\n")
+    i = 0
+    while i < len(liste):
+        if liste[i] == str():
+            del liste[i]
+            i -= 1
+        i += 1
+    for i in range(len(liste)):
+        with open("saves/"+liste[i]+".txt", "rb") as fichier_session:
+            depickler = pickle.Unpickler(fichier_session)
+            session_test = depickler.load()
+        if len(session_test.sorts) > 2:
+            session_test.sorts = session_test.sorts[:2]
+        while len(session_test.sorts) < 2:
+            session_test.sorts += [0]
+        with open("saves/"+liste[i]+".txt", "wb") as fichier_session:
+            pickler = pickle.Pickler(fichier_session)
+            pickler.dump(session_test)
 
 # CREATION / VERIFICATION DU DOSSIER DE SCREENSHOTS
 
@@ -114,7 +135,7 @@ while programme_continuer:  # MENU PRINCIPALE
                 temps_actuel = pygame.time.get_ticks()
                 liste_rafraichir = mettre_fond(ecran)
         else:
-            creer_message(liste_messages, resolution, "VOUS NE POUVEZ PAS CREER PLUS DE 3 SESSIONS")
+            creer_message(liste_messages, resolution, "Vous ne pouvez pas creer plus de 3 sessions")
 
     elif choix == 2:  # CHOISIR UN PERSONNAGE
 
@@ -126,7 +147,7 @@ while programme_continuer:  # MENU PRINCIPALE
             temps_actuel = pygame.time.get_ticks()
             liste_rafraichir = mettre_fond(ecran)
 
-    elif choix == 3:
+    elif choix == 3:  # CHOISIR LES CONTROLES
 
         liste_rafraichir = mettre_fond(ecran)
         raccourcis = choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis)
@@ -149,46 +170,110 @@ while programme_continuer:  # MENU PRINCIPALE
         liste_messages, liste_rafraichir = afficher_messages(liste_messages, liste_rafraichir, resolution)
         liste_rafraichir, temps_actuel, tempo = gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel)
 
-        if choix == 1 and not session.partie:  # NOUVELLE PARTIE
+        if session.partie:  # S'IL Y A UNE SAUVEGARDE DE PARTIE
+            if choix == 1:  # CONTINUER LA PARTIE
 
-            joueur = reset_stats_joueur(joueur, session)
-            joueur.attaques.autorisation = list()
-            jeu_continuer = True
-            niveau = 0
+                etage = session.map
+                etage = charger_images_monstres(etage)
+                etage = charger_images_objets(etage)
+                for i in range(etage.nombre_de_salles):
+                    etage = generer_images_salles(etage, i)
+                for salle in etage.salles:
+                    for ennemi in salle.ennemis:
+                        ennemi.paralyse = False
 
-        elif choix == 1 and session.partie:  # CONTINUER LA PARTIE
+                joueur = session.joueur
+                joueur = charger_image_joueur(joueur)
+                joueur.attaques.autorisation = []
+                joueur.temps_depuis_invincible = 0
+                joueur.attaques.temps_derniere_attaque = 0
+                joueur.attaques.entites = []
+                jeu_continuer = True
+                niveau = etage.niveau
+                sort_selectionne = 0
+                joueur.sorts_actifs = list()
+                joueur.sorts_temps_activation = list()
+                for i in range(len(session.sorts)):
+                    joueur.sorts_actifs.append(False)
+                    joueur.sorts_temps_activation.append(0)
 
-            map = session.map
-            map = charger_images_monstres(map)
-            map = charger_images_objets(map)
-            for i in range(map.nombre_de_salles):
-                map = generer_images_salles(map, i)
+            elif choix == 2:  # RECOMMENCER UNE PARTIE
 
-            joueur = session.joueur
-            joueur = charger_image_joueur(joueur)
-            joueur.attaques.autorisation = []
-            joueur.temps_depuis_invincible = 0
-            joueur.attaques.temps_derniere_attaque = 0
-            joueur.attaques.entites = []
-            jeu_continuer = True
-            niveau = map.niveau
+                joueur = reset_stats_joueur(joueur, session)
+                joueur.attaques.autorisation = list()
+                jeu_continuer = True
+                sort_selectionne = 0
+                niveau = 0
+                joueur.sorts = list(session.sorts)
+                joueur.sorts_actifs = list()
+                joueur.sorts_temps_activation = list()
+                for i in range(len(session.sorts)):
+                    joueur.sorts_actifs.append(False)
+                    joueur.sorts_temps_activation.append(0)
+                session.partie = False
 
-        elif choix == 2:  # ARBRE DE COMPETENCES
+            elif choix == 3:  # ARBRE DE COMPETENCES
 
-            liste_rafraichir = mettre_fond(ecran)
-            session, liste_rafraichir, liste_messages = \
-                choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, session)
-            liste_rafraichir = mettre_fond(ecran)
-            temps_actuel = pygame.time.get_ticks()
+                liste_rafraichir = mettre_fond(ecran)
+                session, liste_rafraichir, liste_messages = \
+                    choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
 
-        elif choix == 4:  # QUITTER LA SESSION
+            elif choix == 4:  # ARBRE DE SORTS
+                liste_rafraichir = mettre_fond(ecran)
+                session, liste_rafraichir, liste_messages = \
+                    choisir_sorts(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
 
-            chaine = "saves/"+session.nom+".txt"
-            with open(chaine, "wb") as sauvegarde:
-                pickler = pickle.Pickler(sauvegarde)
-                pickler.dump(session)
-            liste_rafraichir = mettre_fond(ecran)
-            session_continuer = False
+            elif choix == 5:  # QUITTER LA SESSION
+
+                chaine = "saves/"+session.nom+".txt"
+                with open(chaine, "wb") as sauvegarde:
+                    pickler = pickle.Pickler(sauvegarde)
+                    pickler.dump(session)
+                liste_rafraichir = mettre_fond(ecran)
+                session_continuer = False
+
+        else:  # S'IL N'Y A PAS DE SAUVEGARDE DE PARTIE
+            if choix == 1:  # NOUVELLE PARTIE
+
+                joueur = reset_stats_joueur(joueur, session)
+                joueur.attaques.autorisation = list()
+                jeu_continuer = True
+                sort_selectionne = 0
+                niveau = 0
+                joueur.sorts = list(session.sorts)
+                joueur.sorts_actifs = list()
+                joueur.sorts_temps_activation = list()
+                for i in range(len(session.sorts)):
+                    joueur.sorts_actifs.append(False)
+                    joueur.sorts_temps_activation.append(0)
+
+            elif choix == 2:  # ARBRE DE COMPETENCES
+
+                liste_rafraichir = mettre_fond(ecran)
+                session, liste_rafraichir, liste_messages = \
+                    choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 3:  # ARBRE DE SORTS
+                liste_rafraichir = mettre_fond(ecran)
+                session, liste_rafraichir, liste_messages = \
+                    choisir_sorts(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 4:  # QUITTER LA SESSION
+
+                chaine = "saves/"+session.nom+".txt"
+                with open(chaine, "wb") as sauvegarde:
+                    pickler = pickle.Pickler(sauvegarde)
+                    pickler.dump(session)
+                liste_rafraichir = mettre_fond(ecran)
+                session_continuer = False
 
         if jeu_continuer:  # PREPARER A LA BOUCLE DU JEU
             temps_actuel = pygame.time.get_ticks()
@@ -200,7 +285,7 @@ while programme_continuer:  # MENU PRINCIPALE
 
                 joueur.salle = -1
                 niveau += 1
-                map = generer_map(niveau)
+                etage = generer_map(niveau)
 
             boucle_jeu_continuer = True
 
@@ -208,22 +293,23 @@ while programme_continuer:  # MENU PRINCIPALE
 
                 if not session.partie:
 
-                    joueur = initialiser_joueur(map, joueur)
-                    map = initialiser_salle(map, joueur)
-                    map = generer_images_salles(map, joueur.salle)
-                    minimap = charger_minimap(map, joueur)
+                    joueur = initialiser_joueur(etage, joueur)
+                    etage = initialiser_salle(etage, joueur)
+                    etage = generer_images_salles(etage, joueur.salle)
+                    minimap = charger_minimap(etage, joueur)
 
                 if session.partie:
 
-                    map = session.map
+                    etage = session.map
                     joueur = session.joueur
-                    minimap = charger_minimap(map, joueur)
+                    minimap = charger_minimap(etage, joueur)
 
                 liste_rafraichir = []
                 joueur.attaques.entites = []
 
                 afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, session)
-                ecran.blit(map.salles[joueur.salle].image, (position_ecran_x, position_ecran_y))
+                liste_rafraichir, sort_selectionne = changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne)
+                ecran.blit(etage.salles[joueur.salle].image, (position_ecran_x, position_ecran_y))
                 ecran.blit(joueur.images.bas[0], (position_ecran_x+joueur.x, position_ecran_y+joueur.y))
                 ecran.blit(minimap, (position_ecran_x+824, position_ecran_y+10))
                 pygame.display.flip()
@@ -272,72 +358,83 @@ while programme_continuer:  # MENU PRINCIPALE
                                     joueur.attaques.autorisation.append(2)
                                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.bombes-1)
                             if entree.key == pygame.K_PRINT:
-                                pygame.image.save(ecran,"screenshots/"+str(int(time.time()))+".png")
+                                pygame.image.save(ecran, "screenshots/"+str(int(time.time()))+".png")
 
                         if entree.type == pygame.MOUSEBUTTONDOWN:
                             if entree.button == 1:
                                 joueur.attaques.autorisation.append(1)
+                            if entree.button == 4:
+                                liste_rafraichir, sort_selectionne = \
+                                    changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne-1)
+                            if entree.button == 5:
+                                liste_rafraichir, sort_selectionne = \
+                                    changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne+1)
 
                         if entree.type == pygame.MOUSEBUTTONUP:
                             if entree.button == 1:
                                 joueur.attaques.autorisation.remove(1)
+                            if entree.button == 3:
+                                joueur, liste_rafraichir, sort_valide = \
+                                    enlever_mana_sorts(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, sort_selectionne)
+                                if sort_valide:
+                                    joueur.sorts_actifs[sort_selectionne] = True
+                                joueur.sorts_temps_activation[sort_selectionne] = pygame.time.get_ticks()
 
                         if entree.type == pygame.MOUSEMOTION:
                             joueur.attaques.position_souris = [entree.pos[0], entree.pos[1]]
 
                     # DIFFERENTES CHOSES A GERER PENDANT QUE LE JEU TOURNE
 
-                    liste_rafraichir, blocs_a_proximite = deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, position_ecran_y)
+                    liste_rafraichir, blocs_a_proximite = deplacer_personnage(etage, joueur, liste_rafraichir, tempo, position_ecran_x, position_ecran_y)
 
                     if joueur.deplacement_x != 0 or joueur.deplacement_y != 0:
 
                         for i in range(4):
 
-                            if collisions(joueur.hitbox, map.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]):
-                                if 13 <= map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] <= 17:
+                            if collisions(joueur.hitbox, etage.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]):
+                                if 13 <= etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] <= 17:
                                     salle_continuer = False
 
-                                if map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] == 13:
+                                if etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] == 13:
                                     boucle_jeu_continuer = False
 
-                        map, joueur, liste_rafraichir = ramasser_objets(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y)
+                        etage, joueur, liste_rafraichir = ramasser_objets(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y)
 
-                    map, liste_rafraichir, joueur = gerer_portes(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y)
+                    etage, liste_rafraichir, joueur = gerer_portes(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y)
 
-                    liste_rafraichir = afficher_objets(map, liste_rafraichir, position_ecran_x, position_ecran_y, joueur)
+                    liste_rafraichir = afficher_objets(etage, liste_rafraichir, position_ecran_x, position_ecran_y, joueur)
 
-                    joueur = creer_attaque(joueur, position_ecran_x, position_ecran_y, session)
+                    joueur, etage = creer_attaque(joueur, position_ecran_x, position_ecran_y, session, etage)
 
-                    joueur, map, liste_rafraichir = gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafraichir, session)
+                    joueur, etage, liste_rafraichir = gerer_attaques(joueur, position_ecran_x, position_ecran_y, etage, liste_rafraichir, session)
 
-                    map, liste_rafraichir, joueur = deplacer_monstres(map, joueur, tempo, liste_rafraichir, position_ecran_x, position_ecran_y, session)
+                    etage, liste_rafraichir, joueur = deplacer_monstres(etage, joueur, tempo, liste_rafraichir, position_ecran_x, position_ecran_y, session)
 
-                    map, liste_rafraichir, session = gerer_mort_monstres(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y, session)
+                    etage, liste_rafraichir, session = gerer_mort_monstres(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y, session)
 
                     joueur = gerer_invincibilite(joueur)
 
-                    liste_rafraichir, session = rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste_rafraichir)
+                    liste_rafraichir, session, joueur = rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste_rafraichir, joueur, etage)
 
-                    liste_rafraichir = afficher_minibar(map, joueur, position_ecran_x, position_ecran_y, liste_rafraichir)
+                    liste_rafraichir = afficher_minibar(etage, joueur, position_ecran_x, position_ecran_y, liste_rafraichir)
 
-                    liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((824, 10, 126, 88)), (position_ecran_x+824, position_ecran_y+10, 126, 88), 1])
+                    liste_rafraichir, joueur = afficher_animation_joueur(joueur, etage, position_ecran_x, position_ecran_y, liste_rafraichir)
+
+                    etage = gerer_poison(joueur, etage)
+
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((824, 10, 126, 88)), (position_ecran_x+824, position_ecran_y+10, 126, 88), 1])
                     liste_rafraichir.append([minimap, (position_ecran_x+824, position_ecran_y+10, 126, 88), 6])
-
-                    if session.competences[11] > 0 and len(map.salles[joueur.salle].ennemis) > 0 and tempo == 3:
-                        liste_rafraichir, joueur = rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, joueur.mana+session.competences[11])
 
                     # GERER LA MORT DU PERSONNAGE
 
                     if joueur.points_de_vies <= 0:
                         if joueur.nombre_de_vies <= 0:
+                            liste_rafraichir, temps_actuel, tempo = gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel)
                             salle_continuer = False
                             boucle_jeu_continuer = False
                             jeu_continuer = False
                             menu_session = creer_menu_session(resolution, session)
-
                             afficher_game_over(ecran, resolution, niveau)
-
-                            liste_rafraichir = []
                             liste_rafraichir = mettre_fond(ecran)
                         else:
                             liste_rafraichir, joueur = rafraichir_nombre_de_vies(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.nombre_de_vies-1)
@@ -347,7 +444,7 @@ while programme_continuer:  # MENU PRINCIPALE
 
                     if choix == 1:  # CONTINUER LE JEU
 
-                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((130, 38, 700, 500)), (position_ecran_x+130, position_ecran_y+38, 700, 500), 1])
+                        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((130, 38, 700, 500)), (position_ecran_x+130, position_ecran_y+38, 700, 500), 1])
 
                     if choix == 2:  # RECOMMENCER LA PARTIE
 
@@ -357,21 +454,30 @@ while programme_continuer:  # MENU PRINCIPALE
                         joueur = reset_stats_joueur(joueur, session)
                         joueur.attaques.autorisation = []
                         niveau = 0
+                        joueur.sorts = list(session.sorts)
+                        joueur.sorts_actifs = list()
+                        joueur.sorts_temps_activation = list()
+                        for i in range(len(session.sorts)):
+                            joueur.sorts_actifs.append(False)
+                            joueur.sorts_temps_activation.append(0)
 
                     if choix == 3:  # QUITTER LA PARTIE
 
                         session.partie = True
-                        session.map = map
+                        session.map = etage
                         session.joueur = joueur
                         salle_continuer = False
                         boucle_jeu_continuer = False
                         jeu_continuer = False
                         liste_rafraichir = mettre_fond(ecran)
+                        menu_session = creer_menu_session(resolution, session)
 
                     if choix == 4:  # QUITTER LE JEU
 
                         session.partie = True
-                        session.map = map
+                        session.map = etage
+                        if joueur.animation_tete.activee:
+                            joueur.animation_tete.activee = False
                         session.joueur = joueur
 
                         chaine = "saves/"+session.nom+".txt"

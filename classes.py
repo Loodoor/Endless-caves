@@ -1,8 +1,8 @@
-﻿# -*- coding:Utf-8 -*
+﻿# -*- coding:utf_8 -*
 
 import pygame
 
-VERSION = "0.1.1"
+VERSION = "0.2"
 
 
 class Salle:
@@ -50,6 +50,11 @@ class Ennemis:
         self.deplacement_y = 0
         self.attaques = Attaque()
         self.minibarre = Minibarre()
+        self.paralyse = False
+        self.fin_paralyse = 0
+        self.temps_dernier_poison = 0
+        self.empoisonne = False
+        self.fin_empoisonne = 0
 
 
 class Objet:
@@ -91,6 +96,11 @@ class Joueur:
         self.temps_depuis_invincible = 0
 
         self.attaques = Attaque()
+        self.sorts_actifs = list()
+        self.sorts = list()
+        self.sorts_temps_activation = list()
+
+        self.animation_tete = Animation()
 
 
 class Image:
@@ -171,7 +181,7 @@ class Session:
         self.nom = ""
         self.competences = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.points_de_competences = 0
-        self.sorts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.sorts = [0, 0]
         self.points_de_sorts = 0
         self.niveau = 0
         self.xp = 0
@@ -202,3 +212,17 @@ class Minibarre:
         self.w = 0
         self.h = 0
         self.image = 0
+
+
+class Animation:
+
+    def __init__(self):
+
+        self.activee = False
+        self.images = list()
+        self.temps_restant = 0
+        self.temps_total = 0
+        self.x = 0
+        self.y = 0
+        self.w = 0
+        self.h = 0

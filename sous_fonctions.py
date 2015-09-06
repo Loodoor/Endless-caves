@@ -1,4 +1,4 @@
-﻿# -*- coding:Utf-8 -*
+﻿# -*- coding:utf_8 -*
 
 import os
 import pickle
@@ -6,7 +6,7 @@ import time
 from random import randrange
 from classes import *
 
-VERSION = "0.1.1"
+VERSION = "0.2"
 
 FOND = pygame.image.load("images/fond.bmp")
 TILESET = pygame.image.load("images/tileset.bmp")
@@ -21,6 +21,8 @@ ATTAQUES_JOUEUR = pygame.image.load("images/attaques_joueur.bmp")
 MINIMAP = pygame.image.load("images/minimap.bmp")
 FOND_MENU_JEU = pygame.image.load("images/menu_jeu.bmp")
 ICONES_COMPETENCES = pygame.image.load("images/competences.bmp")
+ANIMATIONS_JOUEUR = pygame.image.load("images/animations_joueur.bmp")
+ICONES_SORTS = pygame.image.load("images/icones_sorts.bmp")
 
 PERSONNAGES.set_colorkey((255, 255, 255))
 OBJETS.set_colorkey((255, 255, 255))
@@ -33,6 +35,8 @@ ATTAQUES_JOUEUR.set_colorkey((255, 255, 255))
 MINIMAP.set_colorkey((255, 255, 255))
 FOND_MENU_JEU.set_colorkey((255, 255, 255))
 ICONES_COMPETENCES.set_colorkey((255, 255, 255))
+ANIMATIONS_JOUEUR.set_colorkey((255, 255, 255))
+ICONES_SORTS.set_colorkey((255, 255, 255))
 
 
 def placer_salles(niveau):
@@ -110,29 +114,29 @@ def placer_salles(niveau):
 
     # REMPLIR LA VARIABLE MAP A PARTIR DU TABLEAU
 
-    map = Map(nombre_de_salles+1+nombre_de_salles_au_tresor_verouillees)
-    map.salles = []
-    for i in range(map.nombre_de_salles):
-        map.salles.append(Salle())
+    etage = Map(nombre_de_salles+1+nombre_de_salles_au_tresor_verouillees)
+    etage.salles = []
+    for i in range(etage.nombre_de_salles):
+        etage.salles.append(Salle())
 
     for i in range(len(tableau)):
-        map.carte_map.append(list(tableau[i]))
+        etage.carte_map.append(list(tableau[i]))
 
-    map.niveau = niveau
+    etage.niveau = niveau
 
     i = 0
     for j in range(nombre_de_salles):
         for k in range(nombre_de_salles):
             if tableau[j][k] != 0:
-                map.salles[i].type_salle = tableau[j][k]
-                map.salles[i].x = k
-                map.salles[i].y = j
+                etage.salles[i].type_salle = tableau[j][k]
+                etage.salles[i].x = k
+                etage.salles[i].y = j
                 i += 1
 
-    return map
+    return etage
 
 
-def generer_salles(map):
+def generer_salles(etage):
 
     fichier = open("patterns.txt", "r")  # RECUPERATION DES PATTERNS DE SALLES
 
@@ -144,9 +148,9 @@ def generer_salles(map):
 
     # GENERATION DE L'INTERIEUR DES SALLES
 
-    for i in range(map.nombre_de_salles):
+    for i in range(etage.nombre_de_salles):
 
-        if map.salles[i].type_salle == 1:  # REMPLIR LES SALLES NORMALES
+        if etage.salles[i].type_salle == 1:  # REMPLIR LES SALLES NORMALES
             a = randrange(int(len(liste_paternes)/10))
 
             chaine_obtenue = ""
@@ -157,7 +161,7 @@ def generer_salles(map):
 
             while liste_paternes[j] != [str(a+1)]:
                 for l in range(9):
-                    map.salles[i].blocs_type.append(list(liste_paternes[j]))
+                    etage.salles[i].blocs_type.append(list(liste_paternes[j]))
                     j += 1
 
             h = 0
@@ -166,27 +170,27 @@ def generer_salles(map):
 
                 for k in range(15):
 
-                    if map.salles[i].blocs_type[j][k] == "1001":
+                    if etage.salles[i].blocs_type[j][k] == "1001":
 
-                        map.salles[i].blocs_type[j][k] = 1
-                        map.salles[i].objets_potentiels.append(Objet())
-                        map.salles[i].objets_potentiels[h].x = k*64
-                        map.salles[i].objets_potentiels[h].y = j*64
+                        etage.salles[i].blocs_type[j][k] = 1
+                        etage.salles[i].objets_potentiels.append(Objet())
+                        etage.salles[i].objets_potentiels[h].x = k*64
+                        etage.salles[i].objets_potentiels[h].y = j*64
                         h += 1
 
-                    elif map.salles[i].blocs_type[j][k] == "2000":
+                    elif etage.salles[i].blocs_type[j][k] == "2000":
 
-                        map.salles[i].blocs_type[j][k] = 0
-                        map.salles[i].ennemis_potentiels.append(Ennemis())
-                        map.salles[i].ennemis_potentiels[g].x = k*64
-                        map.salles[i].ennemis_potentiels[g].y = j*64
+                        etage.salles[i].blocs_type[j][k] = 0
+                        etage.salles[i].ennemis_potentiels.append(Ennemis())
+                        etage.salles[i].ennemis_potentiels[g].x = k*64
+                        etage.salles[i].ennemis_potentiels[g].y = j*64
                         g += 1
 
-        elif map.salles[i].type_salle == 2 or \
-                map.salles[i].type_salle == 3 or \
-                map.salles[i].type_salle == 5:  # REMPLIR LES SALLES DE SPAWN/DE TRESOR/VEROUILLEES
+        elif etage.salles[i].type_salle == 2 or \
+                etage.salles[i].type_salle == 3 or \
+                etage.salles[i].type_salle == 5:  # REMPLIR LES SALLES DE SPAWN/DE TRESOR/VEROUILLEES
 
-            map.salles[i].blocs_type = \
+            etage.salles[i].blocs_type = \
                 [
                     [9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8],
                     [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
@@ -199,9 +203,9 @@ def generer_salles(map):
                     [11, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 10],
                 ]
 
-        elif map.salles[i].type_salle == 4:  # REMPLIR LES SALLES FINALES
+        elif etage.salles[i].type_salle == 4:  # REMPLIR LES SALLES FINALES
 
-            map.salles[i].blocs_type = \
+            etage.salles[i].blocs_type = \
                 [
                     [9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 8],
                     [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3],
@@ -216,86 +220,86 @@ def generer_salles(map):
 
         # AJOUTER LES PORTES
 
-        for j in range(map.nombre_de_salles):
+        for j in range(etage.nombre_de_salles):
 
                 # LES PORTES NORMALES
 
-                if map.salles[i].x+1 == map.salles[j].x and \
-                   map.salles[i].y == map.salles[j].y and \
-                   map.salles[j].type_salle != 5:
-                    map.salles[i].blocs_type[4][14] = 6
+                if etage.salles[i].x+1 == etage.salles[j].x and \
+                   etage.salles[i].y == etage.salles[j].y and \
+                   etage.salles[j].type_salle != 5:
+                    etage.salles[i].blocs_type[4][14] = 6
 
-                if map.salles[i].x-1 == map.salles[j].x and \
-                   map.salles[i].y == map.salles[j].y and \
-                   map.salles[j].type_salle != 5:
-                    map.salles[i].blocs_type[4][0] = 7
+                if etage.salles[i].x-1 == etage.salles[j].x and \
+                   etage.salles[i].y == etage.salles[j].y and \
+                   etage.salles[j].type_salle != 5:
+                    etage.salles[i].blocs_type[4][0] = 7
 
-                if map.salles[i].y+1 == map.salles[j].y and \
-                   map.salles[i].x == map.salles[j].x and \
-                   map.salles[j].type_salle != 5:
-                    map.salles[i].blocs_type[8][7] = 5
+                if etage.salles[i].y+1 == etage.salles[j].y and \
+                   etage.salles[i].x == etage.salles[j].x and \
+                   etage.salles[j].type_salle != 5:
+                    etage.salles[i].blocs_type[8][7] = 5
 
-                if map.salles[i].y-1 == map.salles[j].y and \
-                   map.salles[i].x == map.salles[j].x and \
-                   map.salles[j].type_salle != 5:
-                    map.salles[i].blocs_type[0][7] = 4
+                if etage.salles[i].y-1 == etage.salles[j].y and \
+                   etage.salles[i].x == etage.salles[j].x and \
+                   etage.salles[j].type_salle != 5:
+                    etage.salles[i].blocs_type[0][7] = 4
 
                 # LES PORTES VEROUILLEES
 
-                if map.salles[i].x+1 == map.salles[j].x and \
-                   map.salles[i].y == map.salles[j].y and \
-                   map.salles[j].type_salle == 5:
-                    map.salles[i].blocs_type[4][14] = 20
+                if etage.salles[i].x+1 == etage.salles[j].x and \
+                   etage.salles[i].y == etage.salles[j].y and \
+                   etage.salles[j].type_salle == 5:
+                    etage.salles[i].blocs_type[4][14] = 20
 
-                if map.salles[i].x-1 == map.salles[j].x and \
-                   map.salles[i].y == map.salles[j].y and \
-                   map.salles[j].type_salle == 5:
-                    map.salles[i].blocs_type[4][0] = 21
+                if etage.salles[i].x-1 == etage.salles[j].x and \
+                   etage.salles[i].y == etage.salles[j].y and \
+                   etage.salles[j].type_salle == 5:
+                    etage.salles[i].blocs_type[4][0] = 21
 
-                if map.salles[i].y+1 == map.salles[j].y and \
-                   map.salles[i].x == map.salles[j].x and \
-                   map.salles[j].type_salle == 5:
-                    map.salles[i].blocs_type[8][7] = 19
+                if etage.salles[i].y+1 == etage.salles[j].y and \
+                   etage.salles[i].x == etage.salles[j].x and \
+                   etage.salles[j].type_salle == 5:
+                    etage.salles[i].blocs_type[8][7] = 19
 
-                if map.salles[i].y-1 == map.salles[j].y and \
-                   map.salles[i].x == map.salles[j].x and \
-                   map.salles[j].type_salle == 5:
-                    map.salles[i].blocs_type[0][7] = 18
+                if etage.salles[i].y-1 == etage.salles[j].y and \
+                   etage.salles[i].x == etage.salles[j].x and \
+                   etage.salles[j].type_salle == 5:
+                    etage.salles[i].blocs_type[0][7] = 18
 
-        map.salles[i].visited = False
+        etage.salles[i].visited = False
 
-    return map
+    return etage
 
 
-def generer_images_salles(map, i):
+def generer_images_salles(etage, i):
 
     global TILESET
-    map.salles[i].image = pygame.Surface((960, 576))
+    etage.salles[i].image = pygame.Surface((960, 576))
 
     for j in range(9):
         for h in range(15):
-            map.salles[i].blocs_type[j][h] = int(map.salles[i].blocs_type[j][h])
-            map.salles[i].image.blit(TILESET.subsurface((map.salles[i].blocs_type[j][h] % 10)*64,
-                                                        (map.salles[i].blocs_type[j][h]//10)*64, 64, 64),
+            etage.salles[i].blocs_type[j][h] = int(etage.salles[i].blocs_type[j][h])
+            etage.salles[i].image.blit(TILESET.subsurface((etage.salles[i].blocs_type[j][h] % 10)*64,
+                                                        (etage.salles[i].blocs_type[j][h]//10)*64, 64, 64),
                                      (h*64, j*64))
 
-    return map
+    return etage
 
 
-def generer_hitboxs(map, i):
+def generer_hitboxs(etage, i):
 
     for y in range(9):
 
-        map.salles[i].blocs_hitboxs.append([])
+        etage.salles[i].blocs_hitboxs.append([])
         for x in range(15):
 
-            map.salles[i].blocs_hitboxs[y].append(Hitbox())
-            map.salles[i].blocs_hitboxs[y][x].x = x*64
-            map.salles[i].blocs_hitboxs[y][x].y = y*64
-            map.salles[i].blocs_hitboxs[y][x].w = 64
-            map.salles[i].blocs_hitboxs[y][x].h = 64
+            etage.salles[i].blocs_hitboxs[y].append(Hitbox())
+            etage.salles[i].blocs_hitboxs[y][x].x = x*64
+            etage.salles[i].blocs_hitboxs[y][x].y = y*64
+            etage.salles[i].blocs_hitboxs[y][x].w = 64
+            etage.salles[i].blocs_hitboxs[y][x].h = 64
 
-    return map
+    return etage
 
 
 def charger_image_joueur(joueur):
@@ -320,7 +324,7 @@ def charger_image_joueur(joueur):
     return joueur
 
 
-def initialiser_joueur(map, joueur):
+def initialiser_joueur(etage, joueur):
 
     # PLACER LE JOUEUR DANS LA SALLE ACTUELLE
 
@@ -328,7 +332,7 @@ def initialiser_joueur(map, joueur):
         joueur.x = 448
         joueur.y = 256
         i = 0
-        while map.salles[i].type_salle != 2:
+        while etage.salles[i].type_salle != 2:
             i += 1
         joueur.salle = i
     else:  # POUR PASSER D'UNE SALLE A L'AUTRE
@@ -336,22 +340,22 @@ def initialiser_joueur(map, joueur):
         if joueur.x >= 832:
             joueur.x = 64
             joueur.y = 256
-            while map.salles[joueur.salle].x != (map.salles[i].x-1) or map.salles[joueur.salle].y != map.salles[i].y:
+            while etage.salles[joueur.salle].x != (etage.salles[i].x-1) or etage.salles[joueur.salle].y != etage.salles[i].y:
                 i += 1
         elif joueur.x < 128:
             joueur.x = 832
             joueur.y = 256
-            while map.salles[joueur.salle].x != (map.salles[i].x+1) or map.salles[joueur.salle].y != map.salles[i].y:
+            while etage.salles[joueur.salle].x != (etage.salles[i].x+1) or etage.salles[joueur.salle].y != etage.salles[i].y:
                 i += 1
         elif joueur.y >= 448:
             joueur.x = 448
             joueur.y = 64
-            while map.salles[joueur.salle].y != (map.salles[i].y-1) or map.salles[joueur.salle].x != map.salles[i].x:
+            while etage.salles[joueur.salle].y != (etage.salles[i].y-1) or etage.salles[joueur.salle].x != etage.salles[i].x:
                 i += 1
         elif joueur.y < 128:
             joueur.x = 448
             joueur.y = 448
-            while map.salles[joueur.salle].y != (map.salles[i].y+1) or map.salles[joueur.salle].x != map.salles[i].x:
+            while etage.salles[joueur.salle].y != (etage.salles[i].y+1) or etage.salles[joueur.salle].x != etage.salles[i].x:
                 i += 1
 
         joueur.salle = i
@@ -359,120 +363,120 @@ def initialiser_joueur(map, joueur):
     return joueur
 
 
-def initialiser_ennemis(map, joueur):
+def initialiser_ennemis(etage, joueur):
 
-    if not map.salles[joueur.salle].visited:
+    if not etage.salles[joueur.salle].visited:
 
-        if map.salles[joueur.salle].type_salle == 1:  # GENERATION D'ENNEMIS POUR LES SALLES NORMALES
+        if etage.salles[joueur.salle].type_salle == 1:  # GENERATION D'ENNEMIS POUR LES SALLES NORMALES
 
             global PERSONNAGES
 
             if randrange(2) == 0:  # UNE CHANCE SUR DEUX D'AVOIR DES ENNEMIS
 
-                for i in range(randrange(len(map.salles[joueur.salle].ennemis_potentiels))):
-                    map.salles[joueur.salle].ennemis.append(Ennemis())
+                for i in range(randrange(len(etage.salles[joueur.salle].ennemis_potentiels))):
+                    etage.salles[joueur.salle].ennemis.append(Ennemis())
 
-                    map.salles[joueur.salle].ennemis[i].x = map.salles[joueur.salle].ennemis_potentiels[i].x
-                    map.salles[joueur.salle].ennemis[i].y = map.salles[joueur.salle].ennemis_potentiels[i].y
+                    etage.salles[joueur.salle].ennemis[i].x = etage.salles[joueur.salle].ennemis_potentiels[i].x
+                    etage.salles[joueur.salle].ennemis[i].y = etage.salles[joueur.salle].ennemis_potentiels[i].y
 
-                    map.salles[joueur.salle].ennemis[i].type = randrange((PERSONNAGES.get_size()[1]//64)-1)
+                    etage.salles[joueur.salle].ennemis[i].type = randrange((PERSONNAGES.get_size()[1]//64)-1)
 
-                    map.salles[joueur.salle].ennemis[i].attaque = 10+(map.niveau*map.niveau)\
-                        - ((map.niveau*randrange(map.niveau))//2)
-                    map.salles[joueur.salle].ennemis[i].points_de_vies_maximum = map.salles[joueur.salle].ennemis[i].attaque*10
-                    map.salles[joueur.salle].ennemis[i].points_de_vies = map.salles[joueur.salle].ennemis[i].points_de_vies_maximum
+                    etage.salles[joueur.salle].ennemis[i].attaque = 10+(etage.niveau*etage.niveau)\
+                        - ((etage.niveau*randrange(etage.niveau))//2)
+                    etage.salles[joueur.salle].ennemis[i].points_de_vies_maximum = etage.salles[joueur.salle].ennemis[i].attaque*10
+                    etage.salles[joueur.salle].ennemis[i].points_de_vies = etage.salles[joueur.salle].ennemis[i].points_de_vies_maximum
 
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.x = map.salles[joueur.salle].ennemis[i].x
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.y = map.salles[joueur.salle].ennemis[i].y
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.w = 64
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.h = 64
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = map.salles[joueur.salle].ennemis[i].x+16
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = map.salles[joueur.salle].ennemis[i].y+16
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.w = 32
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.h = 48
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.x = etage.salles[joueur.salle].ennemis[i].x
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.y = etage.salles[joueur.salle].ennemis[i].y
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.w = 64
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.h = 64
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = etage.salles[joueur.salle].ennemis[i].x+16
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = etage.salles[joueur.salle].ennemis[i].y+16
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.w = 32
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.h = 48
 
-                    map.salles[joueur.salle].ennemis[i].mort = False
+                    etage.salles[joueur.salle].ennemis[i].mort = False
 
-                    map.salles[joueur.salle].ennemis[i].minibarre = Minibarre()
-                    map.salles[joueur.salle].ennemis[i].minibarre.x = map.salles[joueur.salle].ennemis[i].x
-                    map.salles[joueur.salle].ennemis[i].minibarre.y = map.salles[joueur.salle].ennemis[i].y+66
-                    map.salles[joueur.salle].ennemis[i].minibarre.w = 64
-                    map.salles[joueur.salle].ennemis[i].minibarre.h = 8
-                    map.salles[joueur.salle].ennemis[i].minibarre.image = pygame.Surface((64, 8))
-                    map.salles[joueur.salle].ennemis[i].minibarre.image.fill((0, 0, 0))
-                    map.salles[joueur.salle].ennemis[i].minibarre.image.set_colorkey((255, 255, 255))
+                    etage.salles[joueur.salle].ennemis[i].minibarre = Minibarre()
+                    etage.salles[joueur.salle].ennemis[i].minibarre.x = etage.salles[joueur.salle].ennemis[i].x
+                    etage.salles[joueur.salle].ennemis[i].minibarre.y = etage.salles[joueur.salle].ennemis[i].y+66
+                    etage.salles[joueur.salle].ennemis[i].minibarre.w = 64
+                    etage.salles[joueur.salle].ennemis[i].minibarre.h = 8
+                    etage.salles[joueur.salle].ennemis[i].minibarre.image = pygame.Surface((64, 8))
+                    etage.salles[joueur.salle].ennemis[i].minibarre.image.fill((0, 0, 0))
+                    etage.salles[joueur.salle].ennemis[i].minibarre.image.set_colorkey((255, 255, 255))
 
                     for l in range(6):
-                        map.salles[joueur.salle].ennemis[i].images.bas.append(
-                            PERSONNAGES.subsurface((l*64, (map.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
-                        map.salles[joueur.salle].ennemis[i].images.haut.append(
-                            PERSONNAGES.subsurface(((l+6)*64, (map.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
-                        map.salles[joueur.salle].ennemis[i].images.droite.append(
-                            PERSONNAGES.subsurface(((l+12)*64, (map.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
-                        map.salles[joueur.salle].ennemis[i].images.gauche.append(
-                            PERSONNAGES.subsurface(((l+18)*64, (map.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
-                        map.salles[joueur.salle].ennemis[i].images.bas[l].set_colorkey((255, 255, 255))
-                        map.salles[joueur.salle].ennemis[i].images.haut[l].set_colorkey((255, 255, 255))
-                        map.salles[joueur.salle].ennemis[i].images.droite[l].set_colorkey((255, 255, 255))
-                        map.salles[joueur.salle].ennemis[i].images.gauche[l].set_colorkey((255, 255, 255))
+                        etage.salles[joueur.salle].ennemis[i].images.bas.append(
+                            PERSONNAGES.subsurface((l*64, (etage.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
+                        etage.salles[joueur.salle].ennemis[i].images.haut.append(
+                            PERSONNAGES.subsurface(((l+6)*64, (etage.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
+                        etage.salles[joueur.salle].ennemis[i].images.droite.append(
+                            PERSONNAGES.subsurface(((l+12)*64, (etage.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
+                        etage.salles[joueur.salle].ennemis[i].images.gauche.append(
+                            PERSONNAGES.subsurface(((l+18)*64, (etage.salles[joueur.salle].ennemis[i].type+1)*64, 64, 64)))
+                        etage.salles[joueur.salle].ennemis[i].images.bas[l].set_colorkey((255, 255, 255))
+                        etage.salles[joueur.salle].ennemis[i].images.haut[l].set_colorkey((255, 255, 255))
+                        etage.salles[joueur.salle].ennemis[i].images.droite[l].set_colorkey((255, 255, 255))
+                        etage.salles[joueur.salle].ennemis[i].images.gauche[l].set_colorkey((255, 255, 255))
 
-    return map
+    return etage
 
 
-def initialiser_objets(map, joueur):
+def initialiser_objets(etage, joueur):
 
-    if not map.salles[joueur.salle].visited:
+    if not etage.salles[joueur.salle].visited:
 
         # GENERATION D'OBJETS DANS LES SALLES NORMALES
 
-        if map.salles[joueur.salle].type_salle == 1:
+        if etage.salles[joueur.salle].type_salle == 1:
 
             global OBJETS
 
             compteur = 0
-            for i in range(len(map.salles[joueur.salle].objets_potentiels)):
+            for i in range(len(etage.salles[joueur.salle].objets_potentiels)):
 
                 if randrange(3) == 0:  # LA PROBABILITE D'AVOIR LE Xeme OBJET = 1/(3*X)
 
-                    n = randrange(len(map.salles[joueur.salle].objets_potentiels))
-                    map.salles[joueur.salle].objets.append(Objet())
-                    map.salles[joueur.salle].objets[compteur].x = map.salles[joueur.salle].objets_potentiels[n].x
-                    map.salles[joueur.salle].objets[compteur].y = map.salles[joueur.salle].objets_potentiels[n].y
-                    map.salles[joueur.salle].objets[compteur].hitbox.x = map.salles[joueur.salle].objets[compteur].x
-                    map.salles[joueur.salle].objets[compteur].hitbox.y = map.salles[joueur.salle].objets[compteur].y
-                    map.salles[joueur.salle].objets[compteur].hitbox.w = 64
-                    map.salles[joueur.salle].objets[compteur].hitbox.h = 64
-                    map.salles[joueur.salle].blocs_type[map.salles[joueur.salle].objets[compteur].y//64][map.salles[joueur.salle].objets[compteur].x//64] = 0
+                    n = randrange(len(etage.salles[joueur.salle].objets_potentiels))
+                    etage.salles[joueur.salle].objets.append(Objet())
+                    etage.salles[joueur.salle].objets[compteur].x = etage.salles[joueur.salle].objets_potentiels[n].x
+                    etage.salles[joueur.salle].objets[compteur].y = etage.salles[joueur.salle].objets_potentiels[n].y
+                    etage.salles[joueur.salle].objets[compteur].hitbox.x = etage.salles[joueur.salle].objets[compteur].x
+                    etage.salles[joueur.salle].objets[compteur].hitbox.y = etage.salles[joueur.salle].objets[compteur].y
+                    etage.salles[joueur.salle].objets[compteur].hitbox.w = 64
+                    etage.salles[joueur.salle].objets[compteur].hitbox.h = 64
+                    etage.salles[joueur.salle].blocs_type[etage.salles[joueur.salle].objets[compteur].y//64][etage.salles[joueur.salle].objets[compteur].x//64] = 0
 
                     type = randrange(100)  # CHOISIR L'OBJET
                     if type < 25:
-                        map.salles[joueur.salle].objets[compteur].type = 0
+                        etage.salles[joueur.salle].objets[compteur].type = 0
                     elif 50 > type >= 25:
-                        map.salles[joueur.salle].objets[compteur].type = 2
+                        etage.salles[joueur.salle].objets[compteur].type = 2
                     elif 75 > type >= 50:
-                        map.salles[joueur.salle].objets[compteur].type = 4
+                        etage.salles[joueur.salle].objets[compteur].type = 4
                     elif 85 > type >= 75:
-                        map.salles[joueur.salle].objets[compteur].type = 1
+                        etage.salles[joueur.salle].objets[compteur].type = 1
                     elif 92 > type >= 85:
-                        map.salles[joueur.salle].objets[compteur].type = 3
+                        etage.salles[joueur.salle].objets[compteur].type = 3
                     elif 97 > type >= 92:
-                        map.salles[joueur.salle].objets[compteur].type = 5
+                        etage.salles[joueur.salle].objets[compteur].type = 5
                     elif 100 > type >= 97:
-                        map.salles[joueur.salle].objets[compteur].type = 6
+                        etage.salles[joueur.salle].objets[compteur].type = 6
 
-                    map.salles[joueur.salle].objets[compteur].image = \
-                        OBJETS.subsurface(((map.salles[joueur.salle].objets[compteur].type % 10)*64,
-                                           (map.salles[joueur.salle].objets[compteur].type//10)*64, 64, 64))
-                    map.salles[joueur.salle].objets[compteur].image.set_colorkey((255, 255, 255))
+                    etage.salles[joueur.salle].objets[compteur].image = \
+                        OBJETS.subsurface(((etage.salles[joueur.salle].objets[compteur].type % 10)*64,
+                                           (etage.salles[joueur.salle].objets[compteur].type//10)*64, 64, 64))
+                    etage.salles[joueur.salle].objets[compteur].image.set_colorkey((255, 255, 255))
 
-                    del map.salles[joueur.salle].objets_potentiels[n]
+                    del etage.salles[joueur.salle].objets_potentiels[n]
                     compteur += 1
                 else:
                     break
 
         # GENERATION D'UN OBJET RARE DANS LES SALLES VEROUILLEES/SALLES DE TRESOR
 
-        elif map.salles[joueur.salle].type_salle == 3 or map.salles[joueur.salle].type_salle == 5:
+        elif etage.salles[joueur.salle].type_salle == 3 or etage.salles[joueur.salle].type_salle == 5:
 
             global OBJETS_RARES
 
@@ -486,10 +490,10 @@ def initialiser_objets(map, joueur):
             objet.hitbox.y = 256
             objet.hitbox.w = 64
             objet.hitbox.h = 64
-            map.salles[joueur.salle].objets.append(objet)
-            map.salles[joueur.salle].blocs_type[map.salles[joueur.salle].objets[0].y//64][map.salles[joueur.salle].objets[0].x//64] = 0
+            etage.salles[joueur.salle].objets.append(objet)
+            etage.salles[joueur.salle].blocs_type[etage.salles[joueur.salle].objets[0].y//64][etage.salles[joueur.salle].objets[0].x//64] = 0
 
-    return map
+    return etage
 
 
 def rafraichir_image(liste_rafraichir, ecran):
@@ -521,160 +525,160 @@ def collisions(rect_un, rect_deux):
         return True
 
 
-def gerer_portes(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y):
+def gerer_portes(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y):
 
     global TILESET
 
     # OUVRIR LES PORTES NORMALES ET LES TRAPES
 
-    if len(map.salles[joueur.salle].ennemis) == 0 and not map.salles[joueur.salle].visited:
-        map.salles[joueur.salle].visited = True
+    if len(etage.salles[joueur.salle].ennemis) == 0 and not etage.salles[joueur.salle].visited:
+        etage.salles[joueur.salle].visited = True
 
-        if map.salles[joueur.salle].blocs_type[0][7] == 4:
-            map.salles[joueur.salle].blocs_type[0][7] = 14
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((256, 64, 64, 64)), (448, 0))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((448, 0, 64, 64)),
+        if etage.salles[joueur.salle].blocs_type[0][7] == 4:
+            etage.salles[joueur.salle].blocs_type[0][7] = 14
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((256, 64, 64, 64)), (448, 0))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((448, 0, 64, 64)),
                                      (448+position_ecran_x, position_ecran_y, 64, 64), 0])
 
-        if map.salles[joueur.salle].blocs_type[4][0] == 7:
-            map.salles[joueur.salle].blocs_type[4][0] = 17
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((448, 64, 64, 64)), (0, 256))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((0, 256, 64, 64)),
+        if etage.salles[joueur.salle].blocs_type[4][0] == 7:
+            etage.salles[joueur.salle].blocs_type[4][0] = 17
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((448, 64, 64, 64)), (0, 256))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((0, 256, 64, 64)),
                                      (position_ecran_x, 256+position_ecran_y, 64, 64), 0])
 
-        if map.salles[joueur.salle].blocs_type[8][7] == 5:
-            map.salles[joueur.salle].blocs_type[8][7] = 15
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((320, 64, 64, 64)), (448, 512))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((448, 512, 64, 64)),
+        if etage.salles[joueur.salle].blocs_type[8][7] == 5:
+            etage.salles[joueur.salle].blocs_type[8][7] = 15
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((320, 64, 64, 64)), (448, 512))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((448, 512, 64, 64)),
                                      (448+position_ecran_x, 512+position_ecran_y, 64, 64), 0])
 
-        if map.salles[joueur.salle].blocs_type[4][14] == 6:
-            map.salles[joueur.salle].blocs_type[4][14] = 16
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((384, 64, 64, 64)), (896, 256))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((896, 256, 64, 64)),
+        if etage.salles[joueur.salle].blocs_type[4][14] == 6:
+            etage.salles[joueur.salle].blocs_type[4][14] = 16
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((384, 64, 64, 64)), (896, 256))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((896, 256, 64, 64)),
                                      (896+position_ecran_x, 256+position_ecran_y, 64, 64), 0])
 
-        if map.salles[joueur.salle].type_salle == 4:
-            map.salles[joueur.salle].blocs_type[4][7] = 13
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((192, 64, 64, 64)), (448, 256))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((448, 256, 64, 64)),
+        if etage.salles[joueur.salle].type_salle == 4:
+            etage.salles[joueur.salle].blocs_type[4][7] = 13
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((192, 64, 64, 64)), (448, 256))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((448, 256, 64, 64)),
                                      (448+position_ecran_x, 256+position_ecran_y, 64, 64), 0])
 
     # OUVRIR LES PORTES VEROUILLEES
 
-    if len(map.salles[joueur.salle].ennemis) == 0 and \
-       (map.salles[joueur.salle].blocs_type[0][7] == 18 or
-       map.salles[joueur.salle].blocs_type[4][0] == 21 or
-       map.salles[joueur.salle].blocs_type[8][7] == 19 or
-       map.salles[joueur.salle].blocs_type[4][14] == 20):
+    if len(etage.salles[joueur.salle].ennemis) == 0 and \
+       (etage.salles[joueur.salle].blocs_type[0][7] == 18 or
+       etage.salles[joueur.salle].blocs_type[4][0] == 21 or
+       etage.salles[joueur.salle].blocs_type[8][7] == 19 or
+       etage.salles[joueur.salle].blocs_type[4][14] == 20):
 
         salle_ouverte = -1
 
-        if map.salles[joueur.salle].blocs_type[0][7] == 18 and \
+        if etage.salles[joueur.salle].blocs_type[0][7] == 18 and \
            496 > joueur.x > 432 and \
            joueur.y == 48 and \
            joueur.deplacement_y < 0 and \
            joueur.cles:
             liste_rafraichir, joueur =\
                 rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles-1)
-            map.salles[joueur.salle].blocs_type[0][7] = 14
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((256, 64, 64, 64)), (448, 0))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((448, 0, 64, 64)),
+            etage.salles[joueur.salle].blocs_type[0][7] = 14
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((256, 64, 64, 64)), (448, 0))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((448, 0, 64, 64)),
                                      (448+position_ecran_x, position_ecran_y, 64, 64), 0])
 
-            for i in range(len(map.salles)):
-                if map.salles[joueur.salle].x == map.salles[i].x and \
-                   map.salles[joueur.salle].y == map.salles[i].y+1:
+            for i in range(len(etage.salles)):
+                if etage.salles[joueur.salle].x == etage.salles[i].x and \
+                   etage.salles[joueur.salle].y == etage.salles[i].y+1:
                     salle_ouverte = i
 
-        if map.salles[joueur.salle].blocs_type[4][0] == 21 and \
+        if etage.salles[joueur.salle].blocs_type[4][0] == 21 and \
            304 > joueur.y > 240 and \
            joueur.x == 48 and \
            joueur.deplacement_x < 0 and \
            joueur.cles:
             liste_rafraichir, joueur =\
                 rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles-1)
-            map.salles[joueur.salle].blocs_type[4][0] = 17
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((448, 64, 64, 64)), (0, 256))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((0, 256, 64, 64)),
+            etage.salles[joueur.salle].blocs_type[4][0] = 17
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((448, 64, 64, 64)), (0, 256))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((0, 256, 64, 64)),
                                      (position_ecran_x, 256+position_ecran_y, 64, 64), 0])
 
-            for i in range(len(map.salles)):
-                if map.salles[joueur.salle].x == map.salles[i].x+1 and \
-                   map.salles[joueur.salle].y == map.salles[i].y:
+            for i in range(len(etage.salles)):
+                if etage.salles[joueur.salle].x == etage.salles[i].x+1 and \
+                   etage.salles[joueur.salle].y == etage.salles[i].y:
                     salle_ouverte = i
 
-        if map.salles[joueur.salle].blocs_type[8][7] == 19 and \
+        if etage.salles[joueur.salle].blocs_type[8][7] == 19 and \
            496 > joueur.x > 432 and \
            joueur.y == 448 and \
            joueur.deplacement_y > 0 and \
            joueur.cles:
             liste_rafraichir, joueur =\
                 rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles-1)
-            map.salles[joueur.salle].blocs_type[8][7] = 15
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((320, 64, 64, 64)), (448, 512))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((448, 512, 64, 64)),
+            etage.salles[joueur.salle].blocs_type[8][7] = 15
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((320, 64, 64, 64)), (448, 512))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((448, 512, 64, 64)),
                                      (448+position_ecran_x, 512+position_ecran_y, 64, 64), 0])
 
-            for i in range(len(map.salles)):
-                if map.salles[joueur.salle].x == map.salles[i].x and \
-                   map.salles[joueur.salle].y == map.salles[i].y-1:
+            for i in range(len(etage.salles)):
+                if etage.salles[joueur.salle].x == etage.salles[i].x and \
+                   etage.salles[joueur.salle].y == etage.salles[i].y-1:
                     salle_ouverte = i
 
-        if map.salles[joueur.salle].blocs_type[4][14] == 20 and \
+        if etage.salles[joueur.salle].blocs_type[4][14] == 20 and \
            joueur.x == 848 and \
            304 > joueur.y > 240 and \
            joueur.deplacement_x > 0 and \
            joueur.cles:
             liste_rafraichir, joueur =\
                 rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles-1)
-            map.salles[joueur.salle].blocs_type[4][14] = 16
-            map.salles[joueur.salle].image.blit(TILESET.subsurface((384, 64, 64, 64)), (896, 256))
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((896, 256, 64, 64)),
+            etage.salles[joueur.salle].blocs_type[4][14] = 16
+            etage.salles[joueur.salle].image.blit(TILESET.subsurface((384, 64, 64, 64)), (896, 256))
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((896, 256, 64, 64)),
                                      (896+position_ecran_x, 256+position_ecran_y, 64, 64), 0])
 
-            for i in range(len(map.salles)):
-                if map.salles[joueur.salle].x == map.salles[i].x-1 and \
-                   map.salles[joueur.salle].y == map.salles[i].y:
+            for i in range(len(etage.salles)):
+                if etage.salles[joueur.salle].x == etage.salles[i].x-1 and \
+                   etage.salles[joueur.salle].y == etage.salles[i].y:
                     salle_ouverte = i
 
         # TRANSFORMER TOUTES LES PORTES VEROUILLEES DE LA SALLE QUE L'ON VIENT DE DEBLOQUER
 
         if salle_ouverte != -1:
-            for i in range(len(map.salles)):
-                if map.salles[i].x == map.salles[salle_ouverte].x and \
-                   map.salles[i].y == map.salles[salle_ouverte].y-1 and \
+            for i in range(len(etage.salles)):
+                if etage.salles[i].x == etage.salles[salle_ouverte].x and \
+                   etage.salles[i].y == etage.salles[salle_ouverte].y-1 and \
                    i != joueur.salle:
-                    if map.salles[i].visited:
-                        map.salles[i].blocs_type[8][7] = 15
+                    if etage.salles[i].visited:
+                        etage.salles[i].blocs_type[8][7] = 15
                     else:
-                        map.salles[i].blocs_type[8][7] = 5
+                        etage.salles[i].blocs_type[8][7] = 5
 
-                if map.salles[i].x == map.salles[salle_ouverte].x-1 and \
-                   map.salles[i].y == map.salles[salle_ouverte].y and \
+                if etage.salles[i].x == etage.salles[salle_ouverte].x-1 and \
+                   etage.salles[i].y == etage.salles[salle_ouverte].y and \
                    i != joueur.salle:
-                    if map.salles[i].visited:
-                        map.salles[i].blocs_type[4][14] = 16
+                    if etage.salles[i].visited:
+                        etage.salles[i].blocs_type[4][14] = 16
                     else:
-                        map.salles[i].blocs_type[4][14] = 6
+                        etage.salles[i].blocs_type[4][14] = 6
 
-                if map.salles[i].x == map.salles[salle_ouverte].x and \
-                   map.salles[i].y == map.salles[salle_ouverte].y+1 and \
+                if etage.salles[i].x == etage.salles[salle_ouverte].x and \
+                   etage.salles[i].y == etage.salles[salle_ouverte].y+1 and \
                    i != joueur.salle:
-                    if map.salles[i].visited:
-                        map.salles[i].blocs_type[0][7] = 14
+                    if etage.salles[i].visited:
+                        etage.salles[i].blocs_type[0][7] = 14
                     else:
-                        map.salles[i].blocs_type[0][7] = 4
+                        etage.salles[i].blocs_type[0][7] = 4
 
-                if map.salles[i].x == map.salles[salle_ouverte].x+1 and \
-                   map.salles[i].y == map.salles[salle_ouverte].y and \
+                if etage.salles[i].x == etage.salles[salle_ouverte].x+1 and \
+                   etage.salles[i].y == etage.salles[salle_ouverte].y and \
                    i != joueur.salle:
-                    if map.salles[i].visited:
-                        map.salles[i].blocs_type[4][0] = 17
+                    if etage.salles[i].visited:
+                        etage.salles[i].blocs_type[4][0] = 17
                     else:
-                        map.salles[i].blocs_type[4][0] = 7
+                        etage.salles[i].blocs_type[4][0] = 7
 
-    return map, liste_rafraichir, joueur
+    return etage, liste_rafraichir, joueur
 
 
 def gerer_fps(temps_actuel):
@@ -691,28 +695,39 @@ def gerer_fps(temps_actuel):
     return temps_actuel
 
 
-def afficher_objets(map, liste_rafraichir, position_ecran_x, position_ecran_y, joueur):
+def afficher_objets(etage, liste_rafraichir, position_ecran_x, position_ecran_y, joueur):
 
-    for i in range(len(map.salles[joueur.salle].objets)):
-        liste_rafraichir.append([map.salles[joueur.salle].objets[i].image,
-                                 (map.salles[joueur.salle].objets[i].x+position_ecran_x,
-                                  map.salles[joueur.salle].objets[i].y+position_ecran_y, 64, 64), 1])
+    for i in range(len(etage.salles[joueur.salle].objets)):
+        liste_rafraichir.append([etage.salles[joueur.salle].objets[i].image,
+                                 (etage.salles[joueur.salle].objets[i].x+position_ecran_x,
+                                  etage.salles[joueur.salle].objets[i].y+position_ecran_y, 64, 64), 1])
 
     return liste_rafraichir
 
 
-def deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, position_ecran_y):
+def deplacer_personnage(etage, joueur, liste_rafraichir, tempo, position_ecran_x, position_ecran_y):
 
     # EFFACER IMAGE JOUEUR
 
-    liste_rafraichir.append([map.salles[joueur.salle].image.subsurface((joueur.x, joueur.y, 64, 64)),
+    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((joueur.x, joueur.y, 64, 64)),
                              (joueur.x+position_ecran_x, joueur.y+position_ecran_y, 64, 64), 0])
 
     # DEPLACER LE JOUEUR
 
     if joueur.deplacement_x != 0:  # DEPLACER SUR L'AXE DES X
 
-        joueur.x += joueur.deplacement_x
+        if joueur.sorts_actifs[1] and \
+           joueur.sorts[1] == 8 or \
+           joueur.sorts[1] == 10 or \
+           joueur.sorts[1] == 13 or \
+           joueur.sorts[1] == 14:
+            if joueur.sorts_temps_activation[1] > pygame.time.get_ticks()-10000:
+                joueur.x += int(1.5*joueur.deplacement_x)
+            else:
+                joueur.sorts_actifs[1] = False
+                joueur.x += joueur.deplacement_x
+        else:
+            joueur.x += joueur.deplacement_x
 
         blocs_a_proximite = list()
         blocs_a_proximite.append([joueur.x//64, joueur.y//64])
@@ -725,9 +740,9 @@ def deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, 
 
         for i in range(4):  # FAIRE RECULER LE JOUEUR DE 1 TANT QU'IL EST EN COLLISION AVEC LE DECORS
 
-            while collisions(joueur.hitbox, map.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]) and \
-                (11 >= map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 1 or
-                 21 >= map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 18):
+            while collisions(joueur.hitbox, etage.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]) and \
+                (11 >= etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 1 or
+                 21 >= etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 18):
 
                 if joueur.deplacement_x > 0:
                     joueur.x -= 1
@@ -745,7 +760,18 @@ def deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, 
 
     if joueur.deplacement_y != 0:  # DEPLACER SUR L'AXE DES Y
 
-        joueur.y += joueur.deplacement_y
+        if joueur.sorts_actifs[1] and \
+           joueur.sorts[1] == 8 or \
+           joueur.sorts[1] == 10 or \
+           joueur.sorts[1] == 13 or \
+           joueur.sorts[1] == 14:
+            if joueur.sorts_temps_activation[1] > pygame.time.get_ticks()-10000:
+                joueur.y += int(1.5*joueur.deplacement_y)
+            else:
+                joueur.sorts_actifs[1] = False
+                joueur.y += joueur.deplacement_y
+        else:
+            joueur.y += joueur.deplacement_y
 
         blocs_a_proximite = list()
         blocs_a_proximite.append([joueur.x//64, joueur.y//64])
@@ -758,9 +784,9 @@ def deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, 
 
         for i in range(4):  # FAIRE RECULER LE JOUEUR DE 1 TANT QU'IL EST EN COLLISION AVEC LE DECORS
 
-            while collisions(joueur.hitbox, map.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]) and \
-                (11 >= map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 1 or
-                 21 >= map.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 18):
+            while collisions(joueur.hitbox, etage.salles[joueur.salle].blocs_hitboxs[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]]) and \
+                (11 >= etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 1 or
+                 21 >= etage.salles[joueur.salle].blocs_type[blocs_a_proximite[i][1]][blocs_a_proximite[i][0]] >= 18):
 
                 if joueur.deplacement_y > 0:
                     joueur.y -= 1
@@ -828,61 +854,133 @@ def deplacer_personnage(map, joueur, liste_rafraichir, tempo, position_ecran_x, 
 
 
 def gerer_tempo(tempo):
-    return (tempo+1)%24
+    return (tempo+1) % 24
 
 
-def ramasser_objets(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y):
+def ramasser_objets(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y):
 
-    i = 0
+    global ANIMATIONS_JOUEUR
 
     # VERIFIER S'IL Y A COLLISION, REGARDER LE TYPE D'OBJET, AJOUTER LA STAT, ET SUPPRIMER L'OBJET
 
-    while i < len(map.salles[joueur.salle].objets):
+    i = 0
+    while i < len(etage.salles[joueur.salle].objets):
 
-        if collisions(joueur.hitbox, map.salles[joueur.salle].objets[i].hitbox):
+        if collisions(joueur.hitbox, etage.salles[joueur.salle].objets[i].hitbox):
 
-            if map.salles[joueur.salle].objets[i].type == 0:
+            # OBJETS COMMUNS
+
+            if etage.salles[joueur.salle].objets[i].type == 0:
                 liste_rafraichir, joueur = \
                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.bombes+1)
-            if map.salles[joueur.salle].objets[i].type == 1:
+
+            if etage.salles[joueur.salle].objets[i].type == 1:
                 liste_rafraichir, joueur = \
                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.bombes+3)
-            if map.salles[joueur.salle].objets[i].type == 2:
+
+            if etage.salles[joueur.salle].objets[i].type == 2:
                 liste_rafraichir, joueur = \
                     rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles+1)
-            if map.salles[joueur.salle].objets[i].type == 3:
+
+            if etage.salles[joueur.salle].objets[i].type == 3:
                 liste_rafraichir, joueur = \
                     rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.cles+3)
-            if map.salles[joueur.salle].objets[i].type == 4:
+
+            if etage.salles[joueur.salle].objets[i].type == 4:
                 liste_rafraichir, joueur = \
-                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.argent+1)
-            if map.salles[joueur.salle].objets[i].type == 5:
+                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+1)
+
+            if etage.salles[joueur.salle].objets[i].type == 5:
                 liste_rafraichir, joueur = \
-                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.argent+5)
-            if map.salles[joueur.salle].objets[i].type == 6:
+                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+5)
+
+            if etage.salles[joueur.salle].objets[i].type == 6:
                 liste_rafraichir, joueur = \
-                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.argent+10)
-            if map.salles[joueur.salle].objets[i].type == 7:
+                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+10)
+
+            if etage.salles[joueur.salle].objets[i].type == 7:
                 liste_rafraichir, joueur = rafraichir_vie(position_ecran_x, position_ecran_y, joueur, liste_rafraichir,
                                                           joueur.points_de_vies+10, joueur.vie_maximum)
-            if map.salles[joueur.salle].objets[i].type == 1000:
+
+            # OBJETS RARES
+
+            if etage.salles[joueur.salle].objets[i].type == 1000:
                 liste_rafraichir, joueur = \
                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, 99)
-            if map.salles[joueur.salle].objets[i].type == 1001:
+
+            if etage.salles[joueur.salle].objets[i].type == 1001:
                 liste_rafraichir, joueur = \
                     rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, 99)
-            if map.salles[joueur.salle].objets[i].type == 1002:
+
+            if etage.salles[joueur.salle].objets[i].type == 1002:
                 liste_rafraichir, joueur = \
-                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.argent+50)
-            if map.salles[joueur.salle].objets[i].type == 1003:
+                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+50)
+
+            if etage.salles[joueur.salle].objets[i].type == 1003:
                 joueur.vitesse += 1
-            if map.salles[joueur.salle].objets[i].type == 1004 or \
-               map.salles[joueur.salle].objets[i].type == 1005:
-                joueur.attaque += 2
-            if map.salles[joueur.salle].objets[i].type == 1006 or \
-               map.salles[joueur.salle].objets[i].type == 1007:
+                if joueur.animation_tete.activee:
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.animation_tete.x, joueur.animation_tete.y,
+                         joueur.animation_tete.w, joueur.animation_tete.h)),
+                        (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                         joueur.animation_tete.w, joueur.animation_tete.h), 0])
+                joueur.animation_tete.activee = True
+                joueur.animation_tete.temps_restant = 24
+                joueur.animation_tete.temps_total = 24
+                joueur.animation_tete.x = joueur.x
+                joueur.animation_tete.y = joueur.y-25
+                joueur.animation_tete.w = 64
+                joueur.animation_tete.h = 20
+                joueur.animation_tete.images = [ANIMATIONS_JOUEUR.subsurface((0, 20, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((64, 20, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((128, 20, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((192, 20, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((256, 20, 64, 20))]
+
+            if etage.salles[joueur.salle].objets[i].type == 1004 or \
+               etage.salles[joueur.salle].objets[i].type == 1005:
+                joueur.attaque += 10
+                if joueur.animation_tete.activee:
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.animation_tete.x, joueur.animation_tete.y,
+                         joueur.animation_tete.w, joueur.animation_tete.h)),
+                        (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                         joueur.animation_tete.w, joueur.animation_tete.h), 0])
+                joueur.animation_tete.activee = True
+                joueur.animation_tete.temps_restant = 24
+                joueur.animation_tete.temps_total = 24
+                joueur.animation_tete.x = joueur.x
+                joueur.animation_tete.y = joueur.y-25
+                joueur.animation_tete.w = 64
+                joueur.animation_tete.h = 20
+                joueur.animation_tete.images = [ANIMATIONS_JOUEUR.subsurface((0, 40, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((64, 40, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((128, 40, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((192, 40, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((256, 40, 64, 20))]
+
+            if etage.salles[joueur.salle].objets[i].type == 1006 or \
+               etage.salles[joueur.salle].objets[i].type == 1007:
                 liste_rafraichir, joueur = rafraichir_vie(position_ecran_x, position_ecran_y, joueur,
-                                                          liste_rafraichir, joueur.points_de_vies+5, joueur.vie_maximum+5)
+                                                          liste_rafraichir, joueur.points_de_vies+25, joueur.vie_maximum+25)
+                if joueur.animation_tete.activee:
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.animation_tete.x, joueur.animation_tete.y,
+                         joueur.animation_tete.w, joueur.animation_tete.h)),
+                        (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                         joueur.animation_tete.w, joueur.animation_tete.h), 0])
+                joueur.animation_tete.activee = True
+                joueur.animation_tete.temps_restant = 24
+                joueur.animation_tete.temps_total = 24
+                joueur.animation_tete.x = joueur.x
+                joueur.animation_tete.y = joueur.y-25
+                joueur.animation_tete.w = 64
+                joueur.animation_tete.h = 20
+                joueur.animation_tete.images = [ANIMATIONS_JOUEUR.subsurface((0, 0, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((64, 0, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((128, 0, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((192, 0, 64, 20)),
+                                                ANIMATIONS_JOUEUR.subsurface((256, 0, 64, 20))]
 
             if joueur.vitesse > 10:
                 joueur.vitesse = 10
@@ -897,16 +995,16 @@ def ramasser_objets(map, joueur, liste_rafraichir, position_ecran_x, position_ec
             if joueur.deplacement_y < 0:
                 joueur.deplacement_y = -joueur.vitesse
 
-            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                (map.salles[joueur.salle].objets[i].x, map.salles[joueur.salle].objets[i].y, 64, 64)),
-                (map.salles[joueur.salle].objets[i].x+position_ecran_x,
-                 map.salles[joueur.salle].objets[i].y+position_ecran_y, 64, 64), 1])
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                (etage.salles[joueur.salle].objets[i].x, etage.salles[joueur.salle].objets[i].y, 64, 64)),
+                (etage.salles[joueur.salle].objets[i].x+position_ecran_x,
+                 etage.salles[joueur.salle].objets[i].y+position_ecran_y, 64, 64), 1])
 
-            del map.salles[joueur.salle].objets[i]
+            del etage.salles[joueur.salle].objets[i]
             i -= 1
         i += 1
 
-    return map, joueur, liste_rafraichir
+    return etage, joueur, liste_rafraichir
 
 
 def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, session):
@@ -914,6 +1012,7 @@ def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, sessio
     global INTERFACE
     global CARACTERES
     global OBJETS
+    global ICONES_SORTS
 
     # AFFICHER LE FOND DE L'INTERFACE
 
@@ -955,7 +1054,7 @@ def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, sessio
 
     # AFFICHER LA BARRE DE MANA
 
-    mana_max = 100+(20*session.competences[7])
+    mana_max = 100+(10*session.competences[7])
 
     for i in range(450):
         if i <= int(joueur.mana*(450/mana_max)):
@@ -1000,6 +1099,17 @@ def afficher_interface(position_ecran_x, position_ecran_y, ecran, joueur, sessio
             ecran.blit(INTERFACE.subsurface((0, 192, 64, 1)), (position_ecran_x+960, position_ecran_y+573-i))
         else:
             ecran.blit(INTERFACE.subsurface((0, 193, 64, 1)), (position_ecran_x+960, position_ecran_y+573-i))
+
+    # AFFICHER LA BARRE DE SORTS
+
+    for i in range(len(joueur.sorts)):
+        if joueur.sorts[i] != 0:
+            ecran.blit(ICONES_SORTS.subsurface(((joueur.sorts[i]-1) % 10)*64, ((joueur.sorts[i]-1)//10)*64, 64, 64),
+                       (position_ecran_x+960, position_ecran_y+(64*i)))
+        else:
+            icone = pygame.Surface((64, 64))
+            icone.fill((150, 150, 150))
+            ecran.blit(icone,(position_ecran_x+960, position_ecran_y+(64*i)))
 
     pygame.display.flip()
 
@@ -1060,14 +1170,29 @@ def rafraichir_cles(position_ecran_x, position_ecran_y, joueur, liste_rafraichir
     return liste_rafraichir, joueur
 
 
-def rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, nouvelle_valeur):
+def rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, nouvelle_valeur):
 
     global INTERFACE
+    global ANIMATIONS_JOUEUR
 
     if nouvelle_valeur >= 99:  # FAIRE GAGNER UNE VIE
         nouvelle_valeur -= 99
         liste_rafraichir, joueur = rafraichir_nombre_de_vies(position_ecran_x, position_ecran_y,
                                                              joueur, liste_rafraichir, joueur.nombre_de_vies+1)
+        if joueur.animation_tete.activee:
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                (joueur.animation_tete.x, joueur.animation_tete.y,
+                 joueur.animation_tete.w, joueur.animation_tete.h)),
+                (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                 joueur.animation_tete.w, joueur.animation_tete.h), 0])
+        joueur.animation_tete.activee = True
+        joueur.animation_tete.temps_restant = 60
+        joueur.animation_tete.temps_total = 60
+        joueur.animation_tete.x = joueur.x
+        joueur.animation_tete.y = joueur.y-25
+        joueur.animation_tete.w = 64
+        joueur.animation_tete.h = 20
+        joueur.animation_tete.images = [ANIMATIONS_JOUEUR.subsurface((0, 80, 64, 20))]
 
     if nouvelle_valeur != joueur.argent:  # AFFICHER LES UNITES
 
@@ -1158,7 +1283,7 @@ def rafraichir_nombre_de_vies(position_ecran_x, position_ecran_y, joueur, liste_
 
 def rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, nouveau_mana):
 
-    mana_max = 100+(20*session.competences[7])
+    mana_max = 100+(10*session.competences[7])
 
     if nouveau_mana < 0:
         nouveau_mana = 0
@@ -1173,14 +1298,14 @@ def rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir
 
         bout_de_barre = pygame.Surface((a, 28))
         bout_de_barre.fill((42, 42, 42))
-        liste_rafraichir.append([bout_de_barre, (position_ecran_x+510+int(nouveau_mana*(450/mana_max)),
+        liste_rafraichir.append([bout_de_barre, (position_ecran_x+511+int(nouveau_mana*(450/mana_max)),
                                                  position_ecran_y-30, a, 28), 6])
 
     if a < 0:  # AJOUTER DU MANA
 
         bout_de_barre = pygame.Surface((-a, 28))
         bout_de_barre.fill((63, 72, 204))
-        liste_rafraichir.append([bout_de_barre, (position_ecran_x+510+int(joueur.mana*(450/mana_max)),
+        liste_rafraichir.append([bout_de_barre, (position_ecran_x+511+int(joueur.mana*(450/mana_max)),
                                                  position_ecran_y-30, -a, 28), 6])
 
     joueur.mana = nouveau_mana
@@ -1188,19 +1313,36 @@ def rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir
     return liste_rafraichir, joueur
 
 
-def rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste_rafraichir):
+def rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste_rafraichir, joueur, etage):
 
     global INTERFACE
+    global ANIMATIONS_JOUEUR
 
     # FAIRE MONTER UN OU PLUSIEURS NIVEAU SI BESOIN
 
     i = 0
     while session.xp >= int(100*(1.8**session.niveau)):
-        liste_rafraichir, session = rafraichir_xp(position_ecran_x, position_ecran_y, session, liste_rafraichir,
-                                                  session.xp-int(100*(1.8**session.niveau)))
+        liste_rafraichir, session = rafraichir_xp(position_ecran_x, position_ecran_y, session,
+                                                  liste_rafraichir, session.xp-int(100*(1.8**session.niveau)))
         session.niveau += 1
         session.points_de_competences += 1
         session.points_de_sorts += 1
+
+        if joueur.animation_tete.activee:
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                (joueur.animation_tete.x, joueur.animation_tete.y,
+                 joueur.animation_tete.w, joueur.animation_tete.h)),
+                (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                 joueur.animation_tete.w, joueur.animation_tete.h), 0])
+        joueur.animation_tete.activee = True
+        joueur.animation_tete.temps_restant = 120
+        joueur.animation_tete.temps_total = 120
+        joueur.animation_tete.x = joueur.x
+        joueur.animation_tete.y = joueur.y-25
+        joueur.animation_tete.w = 64
+        joueur.animation_tete.h = 20
+        joueur.animation_tete.images = [ANIMATIONS_JOUEUR.subsurface((64, 80, 64, 20))]
+
         i += 1
 
     if session.niveau > 15:
@@ -1223,7 +1365,7 @@ def rafraichir_niveau_session(position_ecran_x, position_ecran_y, session, liste
             liste_rafraichir.append([INTERFACE.subsurface((66, 128, 30, 64)),
                                      (position_ecran_x+898, position_ecran_y+576, 30, 64), 5])
 
-    return liste_rafraichir, session
+    return liste_rafraichir, session, joueur
 
 
 def rafraichir_xp(position_ecran_x, position_ecran_y, session, liste_rafraichir, nouvelle_valeur):
@@ -1253,7 +1395,7 @@ def rafraichir_xp(position_ecran_x, position_ecran_y, session, liste_rafraichir,
     return liste_rafraichir, session
 
 
-def creer_attaque(joueur, position_ecran_x, position_ecran_y, session):
+def creer_attaque(joueur, position_ecran_x, position_ecran_y, session, etage):
 
     global ATTAQUES_JOUEUR
 
@@ -1261,77 +1403,64 @@ def creer_attaque(joueur, position_ecran_x, position_ecran_y, session):
 
         if joueur.attaques.autorisation[i] == 1:
 
-            if pygame.time.get_ticks() >= joueur.attaques.temps_derniere_attaque+joueur.vitesse_attaque:
+            if joueur.sorts_actifs[1] and \
+               joueur.sorts[1] == 10 or \
+               joueur.sorts[1] == 13 or \
+               joueur.sorts[1] == 14:
+                if joueur.sorts_temps_activation[1] > pygame.time.get_ticks()-10000:
+                    temps_autorise = joueur.attaques.temps_derniere_attaque+int(0.66*joueur.vitesse_attaque)
+                else:
+                    joueur.sorts_actifs[1] = False
+                    temps_autorise = joueur.attaques.temps_derniere_attaque+joueur.vitesse_attaque
+            else:
+                temps_autorise = joueur.attaques.temps_derniere_attaque+joueur.vitesse_attaque
 
-                try:
-                    joueur.attaques.temps_derniere_attaque = pygame.time.get_ticks()
+            if pygame.time.get_ticks() >= temps_autorise:
 
-                    entite = Entite_Attaque()
-                    entite.x = joueur.x+27
-                    entite.y = joueur.y+27
-                    entite.type = 1
-                    entite.images = [ATTAQUES_JOUEUR.subsurface((0, 0, 20, 20)),
-                                     ATTAQUES_JOUEUR.subsurface((20, 0, 40, 40)),
-                                     ATTAQUES_JOUEUR.subsurface((320, 0, 96, 96)),
-                                     ATTAQUES_JOUEUR.subsurface((416, 0, 96, 96))]
-                    entite.detruit = False
-                    entite.temps = 0
+                joueur.attaques.temps_derniere_attaque = pygame.time.get_ticks()
 
-                    difference_x = joueur.attaques.position_souris[0]-(joueur.x+position_ecran_x+27)
-                    difference_y = joueur.attaques.position_souris[1]-(joueur.y+position_ecran_y+27)
+                entite = Entite_Attaque()
+                entite.x = joueur.x+27
+                entite.y = joueur.y+27
+                entite.type = 1
+                entite.images = [ATTAQUES_JOUEUR.subsurface((0, 0, 20, 20)),
+                                 ATTAQUES_JOUEUR.subsurface((20, 0, 40, 40)),
+                                 ATTAQUES_JOUEUR.subsurface((320, 0, 96, 96)),
+                                 ATTAQUES_JOUEUR.subsurface((416, 0, 96, 96))]
+                entite.detruit = False
+                entite.temps = 0
 
-                    if difference_x < 0:
-                        difference_x_absolue = -difference_x
-                    else:
-                        difference_x_absolue = difference_x
+                difference_x = joueur.attaques.position_souris[0]-(joueur.x+position_ecran_x+27)
+                difference_y = joueur.attaques.position_souris[1]-(joueur.y+position_ecran_y+27)
 
+                if difference_x < 0:
+                    difference_x_absolue = -difference_x
+                else:
+                    difference_x_absolue = difference_x
+
+                if difference_y < 0:
+                    difference_y_absolue = -difference_y
+                else:
+                    difference_y_absolue = difference_y
+
+                if difference_y_absolue > difference_x_absolue:
                     if difference_y < 0:
-                        difference_y_absolue = -difference_y
+                        entite.deplacement_y = -15-(1.5*session.competences[4])
                     else:
-                        difference_y_absolue = difference_y
+                        entite.deplacement_y = 15+(1.5*session.competences[4])
+                    entite.deplacement_x = (entite.deplacement_y*difference_x)/difference_y
 
-                    if difference_y_absolue > difference_x_absolue:
-                        if difference_y < 0:
-                            entite.deplacement_y = -15
-                            if session.competences[4] == 1:
-                                entite.deplacement_y = -18
-                            elif session.competences[4] == 2:
-                                entite.deplacement_y = -20
-                            elif session.competences[4] == 3:
-                                entite.deplacement_y = -23
-                        else:
-                            entite.deplacement_y = 15
-                            if session.competences[4] == 1:
-                                entite.deplacement_y = 18
-                            elif session.competences[4] == 2:
-                                entite.deplacement_y = 20
-                            elif session.competences[4] == 3:
-                                entite.deplacement_y = 23
-                        entite.deplacement_x = (entite.deplacement_y*difference_x)/difference_y
-
+                else:
+                    if difference_x < 0:
+                        entite.deplacement_x = -15-(1.5*session.competences[4])
                     else:
-                        if difference_x < 0:
-                            entite.deplacement_x = -15
-                            if session.competences[4] == 1:
-                                entite.deplacement_x = -18
-                            elif session.competences[4] == 2:
-                                entite.deplacement_x = -20
-                            elif session.competences[4] == 3:
-                                entite.deplacement_x = -23
-                        else:
-                            entite.deplacement_x = 15
-                            if session.competences[4] == 1:
-                                entite.deplacement_x = 18
-                            elif session.competences[4] == 2:
-                                entite.deplacement_x = 20
-                            elif session.competences[4] == 3:
-                                entite.deplacement_x = 23
+                        entite.deplacement_x = 15+(1.5*session.competences[4])
+                    try:
                         entite.deplacement_y = (entite.deplacement_x*difference_y)/difference_x
+                    except ZeroDivisionError:
+                        entite.deplacement_y = (entite.deplacement_x*difference_y)/1
 
-                    joueur.attaques.entites.append(entite)
-
-                except ZeroDivisionError:  # SI LE JOUEUR CLIQUE SUR SA POSITION ( AU PIXEL PRES )
-                    continue
+                joueur.attaques.entites.append(entite)
 
         if joueur.attaques.autorisation[i] == 2:
 
@@ -1351,12 +1480,151 @@ def creer_attaque(joueur, position_ecran_x, position_ecran_y, session):
 
             joueur.attaques.autorisation.remove(2)
 
-    return joueur
+    if joueur.sorts_actifs[0]:
+        if joueur.sorts[0] == 1 or \
+           joueur.sorts[0] == 3 or \
+           joueur.sorts[0] == 6 or \
+           joueur.sorts[0] == 7:
+
+            entite = Entite_Attaque()
+            entite.x = joueur.x+27
+            entite.y = joueur.y+27
+            entite.type = 3
+            entite.images = [ATTAQUES_JOUEUR.subsurface((60, 0, 22, 22)),
+                             ATTAQUES_JOUEUR.subsurface((82, 0, 40, 40))]
+            entite.detruit = False
+            entite.temps = 0
+
+            difference_x = joueur.attaques.position_souris[0]-(joueur.x+position_ecran_x+27)
+            difference_y = joueur.attaques.position_souris[1]-(joueur.y+position_ecran_y+27)
+
+            if difference_x < 0:
+                difference_x_absolue = -difference_x
+            else:
+                difference_x_absolue = difference_x
+
+            if difference_y < 0:
+                difference_y_absolue = -difference_y
+            else:
+                difference_y_absolue = difference_y
+
+            if difference_y_absolue > difference_x_absolue:
+                if difference_y < 0:
+                    entite.deplacement_y = -15
+                else:
+                    entite.deplacement_y = 15
+                entite.deplacement_x = (entite.deplacement_y*difference_x)/difference_y
+
+            else:
+                if difference_x < 0:
+                    entite.deplacement_x = -15
+                else:
+                    entite.deplacement_x = 15
+                try:
+                    entite.deplacement_y = (entite.deplacement_x*difference_y)/difference_x
+                except ZeroDivisionError:
+                    entite.deplacement_y = (entite.deplacement_x*difference_y)/1
+
+            joueur.attaques.entites.append(entite)
+            joueur.sorts_actifs[0] = False
+
+        elif joueur.sorts[0] == 4:
+            for ennemi in etage.salles[joueur.salle].ennemis:
+                ennemi.paralyse = True
+                ennemi.fin_paralyse = pygame.time.get_ticks() + 2500
+                joueur.sorts_actifs[0] = False
+
+        elif joueur.sorts[0] == 2 or joueur.sorts[0] == 5:
+            entite = Entite_Attaque()
+            entite.x = joueur.x-80
+            entite.y = joueur.y-80
+            if entite.x > 736:
+                entite.x = 736
+            if entite.x < 0:
+                entite.x = 0
+            if entite.y > 352:
+                entite.y = 352
+            if entite.y < 0:
+                entite.y = 0
+            entite.w = 224
+            entite.h = 224
+            entite.type = 4
+            entite.images = pygame.transform.scale2x(pygame.transform.scale2x(ATTAQUES_JOUEUR.subsurface((0, 104, 56, 56))))
+            entite.detruit = False
+            joueur.attaques.entites.append(entite)
+            joueur.sorts_actifs[0] = False
+
+    if joueur.sorts_actifs[1]:
+        if joueur.sorts[1] == 9:
+
+            entite = Entite_Attaque()
+            entite.x = joueur.x-64
+            entite.y = joueur.y-64
+            if entite.x > 768:
+                entite.x = 768
+            if entite.x < 0:
+                entite.x = 0
+            if entite.y > 384:
+                entite.y = 384
+            if entite.y < 0:
+                entite.y = 0
+            entite.w = 192
+            entite.h = 192
+            entite.type = 5
+            entite.images = ATTAQUES_JOUEUR.subsurface((0, 232, 192, 192))
+            entite.detruit = False
+            joueur.attaques.entites.append(entite)
+            joueur.sorts_actifs[1] = False
+
+        if joueur.sorts[1] == 11:
+
+            entite = Entite_Attaque()
+            entite.x = joueur.attaques.position_souris[0]-position_ecran_x-96
+            entite.y = joueur.attaques.position_souris[1]-position_ecran_y-96
+            if entite.x > 768:
+                entite.x = 768
+            if entite.x < 0:
+                entite.x = 0
+            if entite.y > 384:
+                entite.y = 384
+            if entite.y < 0:
+                entite.y = 0
+            entite.w = 192
+            entite.h = 192
+            entite.type = 5
+            entite.images = ATTAQUES_JOUEUR.subsurface((0, 232, 192, 192))
+            entite.detruit = False
+            joueur.attaques.entites.append(entite)
+            joueur.sorts_actifs[1] = False
+
+        if joueur.sorts[1] == 12:
+
+            entite = Entite_Attaque()
+            entite.x = joueur.x-160
+            entite.y = joueur.y-160
+            if entite.x > 576:
+                entite.x = 576
+            if entite.x < 0:
+                entite.x = 0
+            if entite.y > 192:
+                entite.y = 192
+            if entite.y < 0:
+                entite.y = 0
+            entite.w = 384
+            entite.h = 384
+            entite.type = 6
+            entite.images = pygame.transform.scale2x(ATTAQUES_JOUEUR.subsurface((0, 232, 192, 192)))
+            entite.detruit = False
+            joueur.attaques.entites.append(entite)
+            joueur.sorts_actifs[1] = False
+
+    return joueur, etage
 
 
-def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafraichir, session):
+def gerer_attaques(joueur, position_ecran_x, position_ecran_y, etage, liste_rafraichir, session):
 
     global TILESET
+    global ATTAQUES_JOUEUR
 
     i = 0
 
@@ -1370,11 +1638,11 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
 
                 # EFFACER LE PROJECTILE
 
-                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                     (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 20, 20)),
                     (joueur.attaques.entites[i].x+position_ecran_x,
                      joueur.attaques.entites[i].y+position_ecran_y,
-                     20, 20), 2])
+                     20, 20), 0])
 
                 # DEPLACER LE PROJECTILE
 
@@ -1386,29 +1654,61 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                 # REGARDER S'IL Y A COLLISION AVEC LE DECORS
 
                 bloc_a_proximite = [int(joueur.attaques.entites[i].y//64), int(joueur.attaques.entites[i].x//64)]
-                if 11 >= map.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 1 or \
-                   21 >= map.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
-                    collision = 1
+
+                if joueur.sorts_actifs[1] and joueur.sorts[1] == 13:
+                    if joueur.sorts_temps_activation[1] > pygame.time.get_ticks()-10000:
+                        if 11 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 2 or \
+                           21 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
+                            collision = 1
+                    else:
+                        joueur.sorts_actifs[1] = False
+                        if 11 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 1 or \
+                           21 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
+                            collision = 1
+                else:
+                    if 11 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 1 or \
+                       21 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
+                        collision = 1
 
                 # REGARDER S'IL Y A COLLISION AVEC UN MONSTRE
 
-                for j in range(len(map.salles[joueur.salle].ennemis)):
-                    if collisions(joueur.attaques.entites[i], map.salles[joueur.salle].ennemis[j].hitbox_degats):
+                for j in range(len(etage.salles[joueur.salle].ennemis)):
+                    if collisions(joueur.attaques.entites[i], etage.salles[joueur.salle].ennemis[j].hitbox_degats):
 
                         collision = 1
-                        map.salles[joueur.salle].ennemis[j].points_de_vies -= joueur.attaque
+
+                        if etage.salles[joueur.salle].ennemis[j].paralyse and joueur.sorts[0] == 5:
+                            degats = 5*joueur.attaque
+                        else:
+                            degats = joueur.attaque
+
+                        if joueur.sorts_actifs[1] and joueur.sorts[1] == 14:
+                            if joueur.sorts_temps_activation[1] > pygame.time.get_ticks()-10000:
+                                for ennemi in etage.salles[joueur.salle].ennemis:
+                                    ennemi.points_de_vies -= int(degats/len(etage.salles[joueur.salle].ennemis))
+                                    if ennemi.points_de_vies <= 0:
+                                        ennemi.mort = True
+                            else:
+                                joueur.sorts_actifs[1] = False
+                                etage.salles[joueur.salle].ennemis[j].points_de_vies -= degats
+                        else:
+                            etage.salles[joueur.salle].ennemis[j].points_de_vies -= degats
 
                         if session.competences[10] > 0:
                             liste_rafraichir, joueur = rafraichir_vie(position_ecran_x, position_ecran_y, joueur,
                                                                       liste_rafraichir,
-                                                                      joueur.points_de_vies+(2*session.competences[10]),
+                                                                      joueur.points_de_vies+session.competences[10],
                                                                       joueur.vie_maximum)
+                        if session.competences[11] > 0:
+                            liste_rafraichir, joueur = \
+                                rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir,
+                                                session, joueur.mana+session.competences[11])
 
-                        if map.salles[joueur.salle].ennemis[j].points_de_vies <= 0:
-                            map.salles[joueur.salle].ennemis[j].mort = True
+                        if etage.salles[joueur.salle].ennemis[j].points_de_vies <= 0:
+                            etage.salles[joueur.salle].ennemis[j].mort = True
 
-                        joueur.attaques.entites[i].x = map.salles[joueur.salle].ennemis[j].x+22
-                        joueur.attaques.entites[i].y = map.salles[joueur.salle].ennemis[j].y+22
+                        joueur.attaques.entites[i].x = etage.salles[joueur.salle].ennemis[j].x+22
+                        joueur.attaques.entites[i].y = etage.salles[joueur.salle].ennemis[j].y+22
                         break
 
                 # AFFICHER LE PROJECTILE S'IL N'Y A PAS COLLISION / L'INSCIRE COMME DETRUIT
@@ -1433,7 +1733,9 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
 
                 if session.competences[8] > 0:
 
-                    if joueur.attaques.entites[i].temps == 1:  # AJUSTER LA POSITION
+                    if joueur.attaques.entites[i].temps == 1:
+
+                        # AJUSTER LA POSITION
 
                         joueur.attaques.entites[i].x -= 38
                         joueur.attaques.entites[i].y -= 38
@@ -1459,15 +1761,15 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                         i += 1
 
                     elif joueur.attaques.entites[i].temps == 7:  # EFFACER LE DEBUT D'EXPLOSION ET INFLIGER LES DEGATS
-                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                             (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 96, 96)),
                             (int(joueur.attaques.entites[i].x)+position_ecran_x,
                              int(joueur.attaques.entites[i].y)+position_ecran_y,
                              96, 96), 2])
 
-                        for ennemi in map.salles[joueur.salle].ennemis:
+                        for ennemi in etage.salles[joueur.salle].ennemis:
                             if (((ennemi.x+32)-(joueur.attaques.entites[i].x+48))**2)+(((ennemi.y+32)-(joueur.attaques.entites[i].y+48))**2) <= 4096:
-                                ennemi.points_de_vies -= 50*session.competences[8]
+                                ennemi.points_de_vies -= 25*session.competences[8]
                                 if ennemi.points_de_vies <= 0:
                                     ennemi.mort = True
 
@@ -1479,11 +1781,11 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                         i += 1
 
                     elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
-                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                             (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 96, 96)),
                             (int(joueur.attaques.entites[i].x)+position_ecran_x,
                              int(joueur.attaques.entites[i].y)+position_ecran_y,
-                             96, 96), 2])
+                             96, 96), 0])
 
                         del joueur.attaques.entites[i]
 
@@ -1491,7 +1793,9 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
 
                 if session.competences[8] == 0:
 
-                    if joueur.attaques.entites[i].temps == 1:  # AJUSTER LA POSITION
+                    if joueur.attaques.entites[i].temps == 1:
+
+                        # AJUSTER LA POSITION
 
                         joueur.attaques.entites[i].x -= 10
                         joueur.attaques.entites[i].y -= 10
@@ -1517,11 +1821,11 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                         i += 1
 
                     elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
-                        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                             (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 40, 40)),
                             (int(joueur.attaques.entites[i].x)+position_ecran_x,
                              int(joueur.attaques.entites[i].y)+position_ecran_y,
-                             40, 40), 2])
+                             40, 40), 0])
 
                         del joueur.attaques.entites[i]
 
@@ -1532,11 +1836,11 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
             if not joueur.attaques.entites[i].detruit:  # LORSQU'ELLE CLIGNOTE
 
                 joueur.attaques.entites[i].temps += 1
-                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                     (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 64, 64)),
                     (position_ecran_x+joueur.attaques.entites[i].x,
                      position_ecran_y+joueur.attaques.entites[i].y,
-                     64, 64), 2])
+                     64, 64), 0])
 
                 if joueur.attaques.entites[i].temps == 144:
                     joueur.attaques.entites[i].detruit = True
@@ -1573,7 +1877,7 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                     elif joueur.attaques.entites[i].y > 384:
                         joueur.attaques.entites[i] = 384
 
-                    for ennemi in map.salles[joueur.salle].ennemis:  # SI LA BOMBE TOUCHE DES ENNEMIS
+                    for ennemi in etage.salles[joueur.salle].ennemis:  # SI LA BOMBE TOUCHE DES ENNEMIS
                         if collisions(joueur.attaques.entites[i], ennemi.hitbox_degats):
                             ennemi.points_de_vies -= 2*joueur.attaque
 
@@ -1596,22 +1900,22 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
                     blocs_a_proximite.append([blocs_a_proximite[0][0], blocs_a_proximite[0][1]+2])
 
                     for j in range(len(blocs_a_proximite)):
-                        if map.salles[joueur.salle].blocs_type[blocs_a_proximite[j][1]][blocs_a_proximite[j][0]] == 1:
-                            map.salles[joueur.salle].blocs_type[blocs_a_proximite[j][1]][blocs_a_proximite[j][0]] = 0
-                            map.salles[joueur.salle].image.blit(
+                        if etage.salles[joueur.salle].blocs_type[blocs_a_proximite[j][1]][blocs_a_proximite[j][0]] == 1:
+                            etage.salles[joueur.salle].blocs_type[blocs_a_proximite[j][1]][blocs_a_proximite[j][0]] = 0
+                            etage.salles[joueur.salle].image.blit(
                                 TILESET.subsurface((0, 0, 64, 64)),
                                 (blocs_a_proximite[j][0]*64, blocs_a_proximite[j][1]*64))
-                            liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                                 (blocs_a_proximite[j][0]*64, blocs_a_proximite[j][1]*64, 64, 64)),
                                 ((blocs_a_proximite[j][0]*64)+position_ecran_x,
                                  (blocs_a_proximite[j][1]*64)+position_ecran_y,
                                  64, 64), 0])
 
                 if joueur.attaques.entites[i].temps == 24:  # DETRUIRE DEFINITIVEMENT LA BOMBE
-                    liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
                         (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 192, 192)),
                         (position_ecran_x+joueur.attaques.entites[i].x, position_ecran_y+joueur.attaques.entites[i].y,
-                         192, 192), 2])
+                         192, 192), 0])
                     del joueur.attaques.entites[i]
                     i -= 1
                 else:  # AFFICHER LA FUMEE
@@ -1622,132 +1926,329 @@ def gerer_attaques(joueur, position_ecran_x, position_ecran_y, map, liste_rafrai
 
                 i += 1
 
-    return joueur, map, liste_rafraichir
+        # ATTAQUES PARALYSANTES
+
+        elif joueur.attaques.entites[i].type == 3:
+
+            if not joueur.attaques.entites[i].detruit:  # LORS DU VOYAGE DES ATTAQUES DE BASE
+
+                # EFFACER LE PROJECTILE
+
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                    (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 22, 22)),
+                    (joueur.attaques.entites[i].x+position_ecran_x,
+                     joueur.attaques.entites[i].y+position_ecran_y,
+                     22, 22), 2])
+
+                # DEPLACER LE PROJECTILE
+
+                collision = 0
+
+                joueur.attaques.entites[i].x += joueur.attaques.entites[i].deplacement_x
+                joueur.attaques.entites[i].y += joueur.attaques.entites[i].deplacement_y
+
+                # REGARDER S'IL Y A COLLISION AVEC LE DECORS
+
+                bloc_a_proximite = [int(joueur.attaques.entites[i].y//64), int(joueur.attaques.entites[i].x//64)]
+
+                if joueur.sorts[0] == 6:
+                    if 11 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 2 or \
+                       21 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
+                        collision = 1
+                else:
+                    if 11 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 1 or \
+                       21 >= etage.salles[joueur.salle].blocs_type[bloc_a_proximite[0]][bloc_a_proximite[1]] >= 14:
+                        collision = 1
+
+                # REGARDER S'IL Y A COLLISION AVEC UN MONSTRE
+
+                for j in range(len(etage.salles[joueur.salle].ennemis)):
+                    if collisions(joueur.attaques.entites[i], etage.salles[joueur.salle].ennemis[j].hitbox_degats):
+
+                        etage.salles[joueur.salle].ennemis[j].paralyse = True
+                        etage.salles[joueur.salle].ennemis[j].fin_paralyse = pygame.time.get_ticks() + 3000
+
+                        if joueur.sorts[0] == 3 or joueur.sorts[0] == 6:
+                            etage.salles[joueur.salle].ennemis[j].empoisonne = True
+                            etage.salles[joueur.salle].ennemis[j].fin_empoisonne = pygame.time.get_ticks() + 5000
+                            etage.salles[joueur.salle].ennemis[j].temps_dernier_poison = 0
+
+                        if joueur.sorts[0] == 7:
+                            etage.salles[joueur.salle].ennemis[j].empoisonne = True
+                            etage.salles[joueur.salle].ennemis[j].temps_dernier_poison = 0
+
+                        if joueur.sorts[0] != 6:
+                            joueur.attaques.entites[i].x = etage.salles[joueur.salle].ennemis[j].x+20
+                            joueur.attaques.entites[i].y = etage.salles[joueur.salle].ennemis[j].y+20
+                            collision = 1
+                            break
+
+                # AFFICHER LE PROJECTILE S'IL N'Y A PAS COLLISION / L'INSCIRE COMME DETRUIT
+
+                if collision == 0:
+                    liste_rafraichir.append([joueur.attaques.entites[i].images[0],
+                                             (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                                              int(joueur.attaques.entites[i].y)+position_ecran_y,
+                                              22, 22), 2])
+
+                if collision == 1:
+                    joueur.attaques.entites[i].detruit = True
+                    joueur.attaques.entites[i].temps = 0
+
+                i += 1
+
+            else:  # LORS DE LA DESTRUCTION DES ATTAQUES PARALYSANTES
+
+                joueur.attaques.entites[i].temps += 1
+
+                if session.competences[8] == 0:
+
+                    if joueur.attaques.entites[i].temps == 1:  # AJUSTER LA POSITION
+
+                        joueur.attaques.entites[i].x -= 10
+                        joueur.attaques.entites[i].y -= 10
+                        if joueur.attaques.entites[i].deplacement_x <= 0:
+                            joueur.attaques.entites[i].x -= 20
+                        if joueur.attaques.entites[i].deplacement_y <= 0:
+                            joueur.attaques.entites[i].y -= 20
+
+                        if joueur.attaques.entites[i].x < 0:
+                            joueur.attaques.entites[i].x = 0
+                        if joueur.attaques.entites[i].y < 0:
+                            joueur.attaques.entites[i].y = 0
+                        if joueur.attaques.entites[i].x > 920:
+                            joueur.attaques.entites[i].x = 920
+                        if joueur.attaques.entites[i].y > 536:
+                            joueur.attaques.entites[i].y = 536
+
+                    if joueur.attaques.entites[i].temps < 24:  # AFFICHER L'IMPACT
+                        liste_rafraichir.append([joueur.attaques.entites[i].images[1],
+                                                 (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                                                  int(joueur.attaques.entites[i].y)+position_ecran_y,
+                                                  40, 40), 2])
+                        i += 1
+
+                    elif joueur.attaques.entites[i].temps == 24:  # EFFACER DEFINITIVEMENT L'ATTAQUE
+                        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                            (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y, 40, 40)),
+                            (int(joueur.attaques.entites[i].x)+position_ecran_x,
+                             int(joueur.attaques.entites[i].y)+position_ecran_y,
+                             40, 40), 0])
+
+                        del joueur.attaques.entites[i]
+                        i += 1
+
+        # NUAGE PARALYSANT
+
+        elif joueur.attaques.entites[i].type == 4:
+            if not joueur.attaques.entites[i].detruit:
+                for ennemi in etage.salles[joueur.salle].ennemis: # PARALYSER LES ENNEMIS PROCHES
+                    if ((ennemi.hitbox_degats.x+32)-(joueur.attaques.entites[i].x+112))**2+((ennemi.hitbox_degats.y+32)-(joueur.attaques.entites[i].y+112))**2 <= 16384:
+                        ennemi.paralyse = True
+                        ennemi.fin_paralyse = pygame.time.get_ticks()+2500
+                joueur.attaques.entites[i].detruit = True
+                joueur.attaques.entites[i].temps = 0
+            if joueur.attaques.entites[i].detruit:
+                joueur.attaques.entites[i].temps += 1
+                if joueur.attaques.entites[i].temps == 24:  # EFFACER LE NUAGE
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h)),
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 0])
+                    del joueur.attaques.entites[i]
+                else:  # AFFICHER LE NUAGE
+                    liste_rafraichir.append([joueur.attaques.entites[i].images,
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 2])
+                    i += 1
+
+        # EXPLOSION TEMPORELLE
+
+        elif joueur.attaques.entites[i].type == 5:
+            if not joueur.attaques.entites[i].detruit:
+                for ennemi in etage.salles[joueur.salle].ennemis: # INFLIGE DES DEGATS AUX ENNEMIS PROCHES
+                    if ((ennemi.hitbox_degats.x+32)-(joueur.attaques.entites[i].x+96))**2+((ennemi.hitbox_degats.y+32)-(joueur.attaques.entites[i].y+96))**2 <= 9216:
+                        ennemi.points_de_vies -= 2*joueur.attaque
+                        if ennemi.points_de_vies <= 0:
+                            ennemi.mort = True
+                joueur.attaques.entites[i].detruit = True
+                joueur.attaques.entites[i].temps = 0
+            if joueur.attaques.entites[i].detruit:
+                joueur.attaques.entites[i].temps += 1
+                if joueur.attaques.entites[i].temps == 24:  # EFFACER L'EXPLOSION
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h)),
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 0])
+                    del joueur.attaques.entites[i]
+                else:  # AFFICHER L'EXPLOSION
+                    liste_rafraichir.append([joueur.attaques.entites[i].images,
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 2])
+                    i += 1
+
+        # GROSSE EXPLOSION TEMPORELLE
+
+        elif joueur.attaques.entites[i].type == 6:
+            if not joueur.attaques.entites[i].detruit:
+                for ennemi in etage.salles[joueur.salle].ennemis: # INFLIGE DES DEGATS AUX ENNEMIS PROCHES
+                    if ((ennemi.hitbox_degats.x+32)-(joueur.attaques.entites[i].x+192))**2+((ennemi.hitbox_degats.y+32)-(joueur.attaques.entites[i].y+192))**2 <= 36864:
+                        ennemi.points_de_vies -= 2*joueur.attaque
+                        if ennemi.points_de_vies <= 0:
+                            ennemi.mort = True
+                joueur.attaques.entites[i].detruit = True
+                joueur.attaques.entites[i].temps = 0
+            if joueur.attaques.entites[i].detruit:
+                joueur.attaques.entites[i].temps += 1
+                if joueur.attaques.entites[i].temps == 24:  # EFFACER L'EXPLOSION
+                    liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.attaques.entites[i].x, joueur.attaques.entites[i].y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h)),
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 0])
+                    del joueur.attaques.entites[i]
+                else:  # AFFICHER L'EXPLOSION
+                    liste_rafraichir.append([joueur.attaques.entites[i].images,
+                        (joueur.attaques.entites[i].x+position_ecran_x, joueur.attaques.entites[i].y+position_ecran_y,
+                         joueur.attaques.entites[i].w, joueur.attaques.entites[i].h), 2])
+                    i += 1
+
+    return joueur, etage, liste_rafraichir
 
 
-def deplacer_monstres(map, joueur, tempo, liste_rafraichir, position_ecran_x, position_ecran_y, session):
+def deplacer_monstres(etage, joueur, tempo, liste_rafraichir, position_ecran_x, position_ecran_y, session):
 
-    for i in range(len(map.salles[joueur.salle].ennemis)):
+    for i in range(len(etage.salles[joueur.salle].ennemis)):
 
-        if not map.salles[joueur.salle].ennemis[i].mort:  # LA MORT DES MONSTRES EST GEREE DANS UNE AUTRE FONCTION
+        if not etage.salles[joueur.salle].ennemis[i].mort:  # LA MORT DES MONSTRES EST GEREE DANS UNE AUTRE FONCTION
 
             # MONSTRES DE BASE
 
-            if map.salles[joueur.salle].ennemis[i].type == 0:
+            if etage.salles[joueur.salle].ennemis[i].type == 0:
 
                 # EFFACER LE MONSTRE
 
-                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                    (map.salles[joueur.salle].ennemis[i].x, map.salles[joueur.salle].ennemis[i].y, 64, 64)),
-                    (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                     map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                    (etage.salles[joueur.salle].ennemis[i].x, etage.salles[joueur.salle].ennemis[i].y, 64, 64)),
+                    (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                     etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                      64, 64), 0])
 
                 # CALCULER LA TRAJECTOIRE DU MONSTRE
 
-                if map.salles[joueur.salle].ennemis[i].x < joueur.x:
-                    map.salles[joueur.salle].ennemis[i].deplacement_x = 2
-                    if map.salles[joueur.salle].ennemis[i].x+1 == joueur.x:
-                        map.salles[joueur.salle].ennemis[i].deplacement_x = 1
+                if etage.salles[joueur.salle].ennemis[i].x < joueur.x:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_x = 2
+                    if etage.salles[joueur.salle].ennemis[i].x+1 == joueur.x:
+                        etage.salles[joueur.salle].ennemis[i].deplacement_x = 1
 
-                elif map.salles[joueur.salle].ennemis[i].x > joueur.x:
-                    map.salles[joueur.salle].ennemis[i].deplacement_x = -2
-                    if map.salles[joueur.salle].ennemis[i].x-1 == joueur.x:
-                        map.salles[joueur.salle].ennemis[i].deplacement_x = -1
-
-                else:
-                    map.salles[joueur.salle].ennemis[i].deplacement_x = 0
-
-                if map.salles[joueur.salle].ennemis[i].y < joueur.y:
-                    map.salles[joueur.salle].ennemis[i].deplacement_y = 2
-                    if map.salles[joueur.salle].ennemis[i].y+1 == joueur.y:
-                        map.salles[joueur.salle].ennemis[i].deplacement_y = 1
-
-                elif map.salles[joueur.salle].ennemis[i].y > joueur.y:
-                    map.salles[joueur.salle].ennemis[i].deplacement_y = -2
-                    if map.salles[joueur.salle].ennemis[i].y-1 == joueur.y:
-                        map.salles[joueur.salle].ennemis[i].deplacement_y = -1
+                elif etage.salles[joueur.salle].ennemis[i].x > joueur.x:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_x = -2
+                    if etage.salles[joueur.salle].ennemis[i].x-1 == joueur.x:
+                        etage.salles[joueur.salle].ennemis[i].deplacement_x = -1
 
                 else:
-                    map.salles[joueur.salle].ennemis[i].deplacement_y = 0
+                    etage.salles[joueur.salle].ennemis[i].deplacement_x = 0
+
+                if etage.salles[joueur.salle].ennemis[i].y < joueur.y:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_y = 2
+                    if etage.salles[joueur.salle].ennemis[i].y+1 == joueur.y:
+                        etage.salles[joueur.salle].ennemis[i].deplacement_y = 1
+
+                elif etage.salles[joueur.salle].ennemis[i].y > joueur.y:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_y = -2
+                    if etage.salles[joueur.salle].ennemis[i].y-1 == joueur.y:
+                        etage.salles[joueur.salle].ennemis[i].deplacement_y = -1
+
+                else:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_y = 0
+
+                if etage.salles[joueur.salle].ennemis[i].paralyse and \
+                   pygame.time.get_ticks() < etage.salles[joueur.salle].ennemis[i].fin_paralyse:
+                    etage.salles[joueur.salle].ennemis[i].deplacement_x = 0
+                    etage.salles[joueur.salle].ennemis[i].deplacement_y = 0
+                if etage.salles[joueur.salle].ennemis[i].paralyse and \
+                   pygame.time.get_ticks() >= etage.salles[joueur.salle].ennemis[i].fin_paralyse:
+                    etage.salles[joueur.salle].ennemis[i].paralyse = False
 
                 # DEPLACER LE MONSTRE SUR L'AXE DES X
 
-                if map.salles[joueur.salle].ennemis[i].deplacement_x != 0:
+                if etage.salles[joueur.salle].ennemis[i].deplacement_x != 0:
 
-                    map.salles[joueur.salle].ennemis[i].x += map.salles[joueur.salle].ennemis[i].deplacement_x
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.x = map.salles[joueur.salle].ennemis[i].x
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = map.salles[joueur.salle].ennemis[i].x+16
+                    etage.salles[joueur.salle].ennemis[i].x += etage.salles[joueur.salle].ennemis[i].deplacement_x
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.x = etage.salles[joueur.salle].ennemis[i].x
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = etage.salles[joueur.salle].ennemis[i].x+16
 
-                    blocs_a_proximite = list([[map.salles[joueur.salle].ennemis[i].x//64,
-                                               map.salles[joueur.salle].ennemis[i].y//64]])
+                    blocs_a_proximite = list([[etage.salles[joueur.salle].ennemis[i].x//64,
+                                               etage.salles[joueur.salle].ennemis[i].y//64]])
                     blocs_a_proximite.append([blocs_a_proximite[0][0]+1, blocs_a_proximite[0][1]])
                     blocs_a_proximite.append([blocs_a_proximite[0][0], blocs_a_proximite[0][1]+1])
                     blocs_a_proximite.append([blocs_a_proximite[0][0]+1, blocs_a_proximite[0][1]+1])
 
                     for bloc in blocs_a_proximite:
 
-                        while collisions(map.salles[joueur.salle].ennemis[i].hitbox_deplacement,
-                                         map.salles[joueur.salle].blocs_hitboxs[bloc[1]][bloc[0]]) and \
-                                (11 >= map.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 1 or
-                                 21 >= map.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 14):
+                        while collisions(etage.salles[joueur.salle].ennemis[i].hitbox_deplacement,
+                                         etage.salles[joueur.salle].blocs_hitboxs[bloc[1]][bloc[0]]) and \
+                                (11 >= etage.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 1 or
+                                 21 >= etage.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 14):
 
-                            map.salles[joueur.salle].ennemis[i].hitbox_degats.x = map.salles[joueur.salle].ennemis[i].x
-                            map.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = map.salles[joueur.salle].ennemis[i].x+16
+                            etage.salles[joueur.salle].ennemis[i].hitbox_degats.x = etage.salles[joueur.salle].ennemis[i].x
+                            etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.x = etage.salles[joueur.salle].ennemis[i].x+16
 
-                            if map.salles[joueur.salle].ennemis[i].deplacement_x > 0:
-                                map.salles[joueur.salle].ennemis[i].x -= 1
+                            if etage.salles[joueur.salle].ennemis[i].deplacement_x > 0:
+                                etage.salles[joueur.salle].ennemis[i].x -= 1
                             else:
-                                map.salles[joueur.salle].ennemis[i].x += 1
+                                etage.salles[joueur.salle].ennemis[i].x += 1
 
-                            if map.salles[joueur.salle].ennemis[i].x//64 != blocs_a_proximite[0][0]:
-                                blocs_a_proximite[0][0] = map.salles[joueur.salle].ennemis[i].x//64
+                            if etage.salles[joueur.salle].ennemis[i].x//64 != blocs_a_proximite[0][0]:
+                                blocs_a_proximite[0][0] = etage.salles[joueur.salle].ennemis[i].x//64
                                 blocs_a_proximite[1][0] = blocs_a_proximite[0][0]+1
                                 blocs_a_proximite[2][0] = blocs_a_proximite[0][0]
                                 blocs_a_proximite[3][0] = blocs_a_proximite[0][0]+1
 
                 # DEPLACER LE MONSTRE SUR L'AXE DES Y
 
-                if map.salles[joueur.salle].ennemis[i].deplacement_y != 0:
+                if etage.salles[joueur.salle].ennemis[i].deplacement_y != 0:
 
-                    map.salles[joueur.salle].ennemis[i].y += map.salles[joueur.salle].ennemis[i].deplacement_y
-                    map.salles[joueur.salle].ennemis[i].hitbox_degats.y = map.salles[joueur.salle].ennemis[i].y
-                    map.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = map.salles[joueur.salle].ennemis[i].y+16
+                    etage.salles[joueur.salle].ennemis[i].y += etage.salles[joueur.salle].ennemis[i].deplacement_y
+                    etage.salles[joueur.salle].ennemis[i].hitbox_degats.y = etage.salles[joueur.salle].ennemis[i].y
+                    etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = etage.salles[joueur.salle].ennemis[i].y+16
 
-                    blocs_a_proximite = list([[map.salles[joueur.salle].ennemis[i].x//64,
-                                               map.salles[joueur.salle].ennemis[i].y//64]])
+                    blocs_a_proximite = list([[etage.salles[joueur.salle].ennemis[i].x//64,
+                                               etage.salles[joueur.salle].ennemis[i].y//64]])
                     blocs_a_proximite.append([blocs_a_proximite[0][0]+1, blocs_a_proximite[0][1]])
                     blocs_a_proximite.append([blocs_a_proximite[0][0], blocs_a_proximite[0][1]+1])
                     blocs_a_proximite.append([blocs_a_proximite[0][0]+1, blocs_a_proximite[0][1]+1])
 
                     for bloc in blocs_a_proximite:
 
-                        while collisions(map.salles[joueur.salle].ennemis[i].hitbox_deplacement,
-                                         map.salles[joueur.salle].blocs_hitboxs[bloc[1]][bloc[0]]) and \
-                                (11 >= map.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 1 or
-                                 21 >= map.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 14):
+                        while collisions(etage.salles[joueur.salle].ennemis[i].hitbox_deplacement,
+                                         etage.salles[joueur.salle].blocs_hitboxs[bloc[1]][bloc[0]]) and \
+                                (11 >= etage.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 1 or
+                                 21 >= etage.salles[joueur.salle].blocs_type[bloc[1]][bloc[0]] >= 14):
 
-                            map.salles[joueur.salle].ennemis[i].hitbox_degats.y = map.salles[joueur.salle].ennemis[i].y
-                            map.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = map.salles[joueur.salle].ennemis[i].y+16
+                            etage.salles[joueur.salle].ennemis[i].hitbox_degats.y = etage.salles[joueur.salle].ennemis[i].y
+                            etage.salles[joueur.salle].ennemis[i].hitbox_deplacement.y = etage.salles[joueur.salle].ennemis[i].y+16
 
-                            if map.salles[joueur.salle].ennemis[i].deplacement_y > 0:
-                                map.salles[joueur.salle].ennemis[i].y -= 1
+                            if etage.salles[joueur.salle].ennemis[i].deplacement_y > 0:
+                                etage.salles[joueur.salle].ennemis[i].y -= 1
                             else:
-                                map.salles[joueur.salle].ennemis[i].y += 1
+                                etage.salles[joueur.salle].ennemis[i].y += 1
 
-                            if map.salles[joueur.salle].ennemis[i].y//64 != blocs_a_proximite[0][1]:
-                                blocs_a_proximite[0][1] = map.salles[joueur.salle].ennemis[i].y//64
+                            if etage.salles[joueur.salle].ennemis[i].y//64 != blocs_a_proximite[0][1]:
+                                blocs_a_proximite[0][1] = etage.salles[joueur.salle].ennemis[i].y//64
                                 blocs_a_proximite[1][1] = blocs_a_proximite[0][1]
                                 blocs_a_proximite[2][1] = blocs_a_proximite[0][1]+1
                                 blocs_a_proximite[3][1] = blocs_a_proximite[2][1]
 
                 # GERER LA PERTE DE PV DU JOUEUR / LA POSSIBILITE QU'IL ESQUIVE AVEC LA COMPETENCE APPROPRIEE
 
-                if collisions(map.salles[joueur.salle].ennemis[i].hitbox_degats, joueur.hitbox):
-                    if randrange(100) > (15*session.competences[9]):
+                if collisions(etage.salles[joueur.salle].ennemis[i].hitbox_degats, joueur.hitbox):
+                    if randrange(100) >= (5*session.competences[9]):
                         liste_rafraichir, joueur = \
                             rafraichir_vie(position_ecran_x, position_ecran_y, joueur, liste_rafraichir,
-                                           joueur.points_de_vies-map.salles[joueur.salle].ennemis[i].attaque,
+                                           joueur.points_de_vies-etage.salles[joueur.salle].ennemis[i].attaque,
                                            joueur.vie_maximum)
                     else:
                         if not joueur.invincible:
@@ -1756,78 +2257,78 @@ def deplacer_monstres(map, joueur, tempo, liste_rafraichir, position_ecran_x, po
 
                 # AFFICHER LE MONSTRE APRES DEPLACEMENT
 
-                if map.salles[joueur.salle].ennemis[i].deplacement_x > 0 and \
-                   map.salles[joueur.salle].ennemis[i].deplacement_y == 0:
-                    liste_rafraichir.append([map.salles[joueur.salle].ennemis[i].images.droite[tempo//8],
-                                             (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                                              map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                if etage.salles[joueur.salle].ennemis[i].deplacement_x > 0 and \
+                   etage.salles[joueur.salle].ennemis[i].deplacement_y == 0:
+                    liste_rafraichir.append([etage.salles[joueur.salle].ennemis[i].images.droite[tempo//8],
+                                             (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                                              etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                                               64, 64), 4])
-                if map.salles[joueur.salle].ennemis[i].deplacement_x < 0 and \
-                   map.salles[joueur.salle].ennemis[i].deplacement_y == 0:
-                    liste_rafraichir.append([map.salles[joueur.salle].ennemis[i].images.gauche[tempo//8],
-                                             (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                                              map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                if etage.salles[joueur.salle].ennemis[i].deplacement_x < 0 and \
+                   etage.salles[joueur.salle].ennemis[i].deplacement_y == 0:
+                    liste_rafraichir.append([etage.salles[joueur.salle].ennemis[i].images.gauche[tempo//8],
+                                             (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                                              etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                                               64, 64), 4])
-                if map.salles[joueur.salle].ennemis[i].deplacement_y > 0:
-                    liste_rafraichir.append([map.salles[joueur.salle].ennemis[i].images.bas[tempo//8],
-                                             (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                                              map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                if etage.salles[joueur.salle].ennemis[i].deplacement_y > 0:
+                    liste_rafraichir.append([etage.salles[joueur.salle].ennemis[i].images.bas[tempo//8],
+                                             (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                                              etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                                               64, 64), 4])
-                if map.salles[joueur.salle].ennemis[i].deplacement_y < 0:
-                    liste_rafraichir.append([map.salles[joueur.salle].ennemis[i].images.haut[tempo//8],
-                                             (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                                              map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                if etage.salles[joueur.salle].ennemis[i].deplacement_y < 0:
+                    liste_rafraichir.append([etage.salles[joueur.salle].ennemis[i].images.haut[tempo//8],
+                                             (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                                              etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                                               64, 64), 4])
-                if map.salles[joueur.salle].ennemis[i].deplacement_x == 0 and \
-                   map.salles[joueur.salle].ennemis[i].deplacement_y == 0:
-                    liste_rafraichir.append([map.salles[joueur.salle].ennemis[i].images.bas[0],
-                                             (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                                              map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                if etage.salles[joueur.salle].ennemis[i].deplacement_x == 0 and \
+                   etage.salles[joueur.salle].ennemis[i].deplacement_y == 0:
+                    liste_rafraichir.append([etage.salles[joueur.salle].ennemis[i].images.bas[0],
+                                             (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                                              etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                                               64, 64), 4])
 
-    return map, liste_rafraichir, joueur
+    return etage, liste_rafraichir, joueur
 
 
-def gerer_mort_monstres(map, joueur, liste_rafraichir, position_ecran_x, position_ecran_y, session):
+def gerer_mort_monstres(etage, joueur, liste_rafraichir, position_ecran_x, position_ecran_y, session):
 
     global OBJETS
 
     i = 0
-    while i < len(map.salles[joueur.salle].ennemis):
+    while i < len(etage.salles[joueur.salle].ennemis):
 
-        if map.salles[joueur.salle].ennemis[i].mort:
+        if etage.salles[joueur.salle].ennemis[i].mort:
 
-            if map.salles[joueur.salle].ennemis[i].type == 0:  # MORT DES MONSTRES DE BASE
+            if etage.salles[joueur.salle].ennemis[i].type == 0:  # MORT DES MONSTRES DE BASE
 
                 # EFFACER MONSTRE
 
-                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                    (map.salles[joueur.salle].ennemis[i].x, map.salles[joueur.salle].ennemis[i].y, 64, 64)),
-                    (map.salles[joueur.salle].ennemis[i].x+position_ecran_x,
-                     map.salles[joueur.salle].ennemis[i].y+position_ecran_y,
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                    (etage.salles[joueur.salle].ennemis[i].x, etage.salles[joueur.salle].ennemis[i].y, 64, 64)),
+                    (etage.salles[joueur.salle].ennemis[i].x+position_ecran_x,
+                     etage.salles[joueur.salle].ennemis[i].y+position_ecran_y,
                      64, 64), 0])
 
                 # EFFACER BARRE DE VIE DU MONSTRE
 
-                liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
-                    (map.salles[joueur.salle].ennemis[i].minibarre.x,
-                     map.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8)),
-                    (position_ecran_x+map.salles[joueur.salle].ennemis[i].minibarre.x,
-                     position_ecran_y+map.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8), 1])
+                liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                    (etage.salles[joueur.salle].ennemis[i].minibarre.x,
+                     etage.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8)),
+                    (position_ecran_x+etage.salles[joueur.salle].ennemis[i].minibarre.x,
+                     position_ecran_y+etage.salles[joueur.salle].ennemis[i].minibarre.y, 64, 8), 1])
 
                 # OBTENIR UN COEUR
 
-                if randrange(5) < 1+session.competences[6]:
+                if randrange(25) < 5+session.competences[6]:
                     objet = Objet()
-                    objet.x = map.salles[joueur.salle].ennemis[i].x
-                    objet.y = map.salles[joueur.salle].ennemis[i].y
+                    objet.x = etage.salles[joueur.salle].ennemis[i].x
+                    objet.y = etage.salles[joueur.salle].ennemis[i].y
                     objet.type = 7
                     objet.image = OBJETS.subsurface((448, 0, 64, 64))
-                    objet.hitbox.x = map.salles[joueur.salle].ennemis[i].x
-                    objet.hitbox.y = map.salles[joueur.salle].ennemis[i].y
+                    objet.hitbox.x = etage.salles[joueur.salle].ennemis[i].x
+                    objet.hitbox.y = etage.salles[joueur.salle].ennemis[i].y
                     objet.hitbox.w = 64
                     objet.hitbox.h = 64
-                    map.salles[joueur.salle].objets.append(objet)
+                    etage.salles[joueur.salle].objets.append(objet)
 
                 # OBTENIR EXPERIENCE
 
@@ -1838,14 +2339,14 @@ def gerer_mort_monstres(map, joueur, liste_rafraichir, position_ecran_x, positio
 
                 liste_rafraichir, joueur = \
                     rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir,
-                                    session, joueur.mana+10+(5*session.competences[3]))
+                                    session, joueur.mana+5+(2*session.competences[3]))
 
-                del map.salles[joueur.salle].ennemis[i]
+                del etage.salles[joueur.salle].ennemis[i]
                 i -= 1
 
         i += 1
 
-    return map, liste_rafraichir, session
+    return etage, liste_rafraichir, session
 
 
 def gerer_invincibilite(joueur):
@@ -1878,7 +2379,7 @@ def gerer_invincibilite(joueur):
     return joueur
 
 
-def charger_minimap(map, joueur):
+def charger_minimap(etage, joueur):
 
     # CREER L'IMAGE DE LA MINIMAP
 
@@ -1891,8 +2392,8 @@ def charger_minimap(map, joueur):
 
     for y in range(5):
         for x in range(5):
-            for salle in map.salles:
-                if salle.x == map.salles[joueur.salle].x+(x-2) and salle.y == map.salles[joueur.salle].y+(y-2):
+            for salle in etage.salles:
+                if salle.x == etage.salles[joueur.salle].x+(x-2) and salle.y == etage.salles[joueur.salle].y+(y-2):
                     if salle.visited:
                         if salle.type_salle == 1 or \
                            salle.type_salle == 2:
@@ -2044,7 +2545,7 @@ def obtenir_choix_menu_et_afficher_selection(menu, position_souris, liste_rafrai
                        menu.options[i].y+menu.options[i].h > entree.pos[1] > menu.options[i].y:
                         choix = i+1
         if entree.type == pygame.MOUSEMOTION:
-            position_souris = [entree.pos[0],entree.pos[1]]
+            position_souris = [entree.pos[0], entree.pos[1]]
 
     # AFFICHER LE MENU
 
@@ -2076,7 +2577,7 @@ def creer_session(ecran, resolution, liste_rafraichir, liste_messages):
     session = Session()
     session.competences = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     session.points_de_competences = 0
-    session.sorts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    session.sorts = [0, 0]
     session.points_de_sorts = 0
     session.niveau = 0
     session.xp = 0
@@ -2494,72 +2995,72 @@ def gerer_menu_jeu(ecran, position_souris, position_ecran_x, position_ecran_y, r
     return choix, joueur
 
 
-def charger_images_monstres(map):
+def charger_images_monstres(etage):
 
     global PERSONNAGES
 
-    for i in range(len(map.salles)):
-        for j in range(len(map.salles[i].ennemis)):
+    for i in range(len(etage.salles)):
+        for j in range(len(etage.salles[i].ennemis)):
 
             # CHARGER LES SKINS DES MONSTRES
 
-            map.salles[i].ennemis[j].images.bas = []
-            map.salles[i].ennemis[j].images.haut = []
-            map.salles[i].ennemis[j].images.droite = []
-            map.salles[i].ennemis[j].images.gauche = []
+            etage.salles[i].ennemis[j].images.bas = []
+            etage.salles[i].ennemis[j].images.haut = []
+            etage.salles[i].ennemis[j].images.droite = []
+            etage.salles[i].ennemis[j].images.gauche = []
 
             for l in range(6):
-                map.salles[i].ennemis[j].images.bas.append(
-                    PERSONNAGES.subsurface((l*64, (map.salles[i].ennemis[j].type+1)*64, 64, 64)))
-                map.salles[i].ennemis[j].images.haut.append(
-                    PERSONNAGES.subsurface(((l+6)*64, (map.salles[i].ennemis[j].type+1)*64, 64, 64)))
-                map.salles[i].ennemis[j].images.droite.append(
-                    PERSONNAGES.subsurface(((l+12)*64, (map.salles[i].ennemis[j].type+1)*64, 64, 64)))
-                map.salles[i].ennemis[j].images.gauche.append(
-                    PERSONNAGES.subsurface(((l+18)*64, (map.salles[i].ennemis[j].type+1)*64, 64, 64)))
-                map.salles[i].ennemis[j].images.bas[l].set_colorkey((255, 255, 255))
-                map.salles[i].ennemis[j].images.haut[l].set_colorkey((255, 255, 255))
-                map.salles[i].ennemis[j].images.droite[l].set_colorkey((255, 255, 255))
-                map.salles[i].ennemis[j].images.gauche[l].set_colorkey((255, 255, 255))
+                etage.salles[i].ennemis[j].images.bas.append(
+                    PERSONNAGES.subsurface((l*64, (etage.salles[i].ennemis[j].type+1)*64, 64, 64)))
+                etage.salles[i].ennemis[j].images.haut.append(
+                    PERSONNAGES.subsurface(((l+6)*64, (etage.salles[i].ennemis[j].type+1)*64, 64, 64)))
+                etage.salles[i].ennemis[j].images.droite.append(
+                    PERSONNAGES.subsurface(((l+12)*64, (etage.salles[i].ennemis[j].type+1)*64, 64, 64)))
+                etage.salles[i].ennemis[j].images.gauche.append(
+                    PERSONNAGES.subsurface(((l+18)*64, (etage.salles[i].ennemis[j].type+1)*64, 64, 64)))
+                etage.salles[i].ennemis[j].images.bas[l].set_colorkey((255, 255, 255))
+                etage.salles[i].ennemis[j].images.haut[l].set_colorkey((255, 255, 255))
+                etage.salles[i].ennemis[j].images.droite[l].set_colorkey((255, 255, 255))
+                etage.salles[i].ennemis[j].images.gauche[l].set_colorkey((255, 255, 255))
 
             # CHARGER LA MINIBARRE DES MONSTRES
 
-            map.salles[i].ennemis[j].minibarre.image = pygame.Surface((64, 8))
-            map.salles[i].ennemis[j].minibarre.image.fill((0, 0, 0))
-            map.salles[i].ennemis[j].minibarre.image.set_colorkey((255, 255, 255))
-            map.salles[i].ennemis[j].minibarre.image.fill(
-                (255, 0, 0), (2, 2, int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60), 4))
-            map.salles[i].ennemis[j].minibarre.image.fill(
-                (255, 255, 255), (2+int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60), 2,
-                                  62-(2+int((map.salles[i].ennemis[j].points_de_vies/map.salles[i].ennemis[j].points_de_vies_maximum)*60)), 4))
+            etage.salles[i].ennemis[j].minibarre.image = pygame.Surface((64, 8))
+            etage.salles[i].ennemis[j].minibarre.image.fill((0, 0, 0))
+            etage.salles[i].ennemis[j].minibarre.image.set_colorkey((255, 255, 255))
+            etage.salles[i].ennemis[j].minibarre.image.fill(
+                (255, 0, 0), (2, 2, int((etage.salles[i].ennemis[j].points_de_vies/etage.salles[i].ennemis[j].points_de_vies_maximum)*60), 4))
+            etage.salles[i].ennemis[j].minibarre.image.fill(
+                (255, 255, 255), (2+int((etage.salles[i].ennemis[j].points_de_vies/etage.salles[i].ennemis[j].points_de_vies_maximum)*60), 2,
+                                  62-(2+int((etage.salles[i].ennemis[j].points_de_vies/etage.salles[i].ennemis[j].points_de_vies_maximum)*60)), 4))
 
-    return map
+    return etage
 
 
-def charger_images_objets(map):
+def charger_images_objets(etage):
 
     global OBJETS
     global OBJETS_RARES
 
-    for i in range(len(map.salles)):
+    for i in range(len(etage.salles)):
 
-        for j in range(len(map.salles[i].objets)):
+        for j in range(len(etage.salles[i].objets)):
 
-            if map.salles[i].objets[j].type < 1000:
-                map.salles[i].objets[j].image = \
-                    OBJETS.subsurface(((map.salles[i].objets[j].type % 10)*64,
-                                       (map.salles[i].objets[j].type//10)*64, 64, 64))
+            if etage.salles[i].objets[j].type < 1000:
+                etage.salles[i].objets[j].image = \
+                    OBJETS.subsurface(((etage.salles[i].objets[j].type % 10)*64,
+                                       (etage.salles[i].objets[j].type//10)*64, 64, 64))
 
-            if map.salles[i].objets[j].type >= 1000:
-                map.salles[i].objets[j].type -= 1000
-                map.salles[i].objets[j].image = \
-                    OBJETS_RARES.subsurface(((map.salles[i].objets[j].type % 10)*64,
-                                             (int(map.salles[i].objets[j].type/10))*64, 64, 64))
-                map.salles[i].objets[j].type += 1000
+            if etage.salles[i].objets[j].type >= 1000:
+                etage.salles[i].objets[j].type -= 1000
+                etage.salles[i].objets[j].image = \
+                    OBJETS_RARES.subsurface(((etage.salles[i].objets[j].type % 10)*64,
+                                             (int(etage.salles[i].objets[j].type/10))*64, 64, 64))
+                etage.salles[i].objets[j].type += 1000
 
-            map.salles[i].objets[j].image.set_colorkey((255, 255, 255))
+            etage.salles[i].objets[j].image.set_colorkey((255, 255, 255))
 
-    return map
+    return etage
 
 
 def creer_message(liste_messages, resolution, mots):
@@ -2596,8 +3097,8 @@ def creer_message(liste_messages, resolution, mots):
     message.y = (resolution.current_h-message.h)//2
 
     message.image = pygame.Surface((message.w, message.h))
-    message.image.fill((126, 88, 63))
-    message.image.fill((205, 133, 63), (2, 2, message.w-4, message.h-4))
+    message.image.fill((100, 100, 255))
+    message.image.fill((200, 200, 255), (2, 2, message.w-4, message.h-4))
 
     if split:
         for i in range(len(mots)):
@@ -2753,6 +3254,7 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
         session.competences.append(0)
     liste = list(session.competences)
     points = session.points_de_competences
+    points = 100
 
     # texte = [x, y, w, h, message, image, points]
     texte = [0, 32, 0, 64, "Points restants: "+str(points), 0, points]
@@ -2806,10 +3308,7 @@ def choisir_competences(ecran, resolution, liste_rafraichir, liste_messages, ses
         # MISE A JOUR DE CERTAINES VARIABLES
 
         fenetre_effaceur = [fenetre[0], fenetre[1], fenetre[2], fenetre[3]]
-        fenetre[7] = fenetre[5]
-        fenetre[8] = fenetre[6]
-        fenetre[5] = -1
-        fenetre[6] = -1
+        fenetre[5], fenetre[6], fenetre[7], fenetre[8] = -1, -1, fenetre[5], fenetre[6]
         if choix[0] != -1 or choix[1] != -1:
             fenetre[7] = -1
             fenetre[8] = -1
@@ -3100,7 +3599,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
                 chaine += "Aucune\n"
             else:
                 chaine += "Vos attaques infligent\n" + \
-                          str(10*liste[0])+" points de degats supplementaires\n"
+                          str(2*liste[0])+" points de degats supplementaires\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
@@ -3108,7 +3607,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
                 chaine += "Aucune\n"
             else:
                 chaine += "Vos attaques infligent\n" + \
-                          str(10*(liste[0]+1))+" points de degats supplementaires\n"
+                          str(2*(liste[0]+1))+" points de degats supplementaires\n"
 
             chaine += "\nniveau actuel: "+str(liste[0])+"/3"
 
@@ -3154,14 +3653,14 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[2] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vos points de vie maximums sont augmentes de "+str(liste[2]*30)+"\n"
+                chaine += "Vos points de vie maximums sont augmentes de "+str(liste[2]*10)+"\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
             if liste[2] == 2:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vos points de vie maximums sont augmentes de "+str((liste[2]+1)*30)+"\n"
+                chaine += "Vos points de vie maximums sont augmentes de "+str((liste[2]+1)*10)+"\n"
 
             chaine += "\nniveau actuel: "+str(liste[2])+"/2\n"
 
@@ -3178,7 +3677,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[3] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous gagnez "+str(5*liste[3])+" points de mana supplementaires\n" \
+                chaine += "Vous gagnez "+str(2*liste[3])+" points de mana supplementaires\n" \
                           "lorsque vous tuez un ennemi\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
@@ -3186,7 +3685,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[3] == 2:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous gagnez "+str(5*(liste[3]+1))+" points de mana supplementaires\n" \
+                chaine += "Vous gagnez "+str(2*(liste[3]+1))+" points de mana supplementaires\n" \
                           "lorsque vous tuez un ennemi\n"
 
             chaine += "\nniveau actuel: "+str(liste[3])+"/2\n"
@@ -3203,23 +3702,15 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
 
             if liste[4] == 0:
                 chaine += "Aucune\n"
-            elif liste[4] == 1:
-                chaine += "Vos attaques de base se deplacent 20 % plus vite\n"
-            elif liste[4] == 2:
-                chaine += "Vos attaques de base se deplacent 30 % plus vite\n"
-            elif liste[4] == 3:
-                chaine += "Vos attaques de base se deplacent 50 % plus vite\n"
+            else:
+                chaine += "Vos attaques de base se deplacent "+str(10*liste[4])+" % plus vite\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
             if liste[4] == 3:
                 chaine += "Aucune\n"
-            elif liste[4] == 0:
-                chaine += "Vos attaques de base se deplacent 20 % plus vite\n"
-            elif liste[4] == 1:
-                chaine += "Vos attaques de base se deplacent 30 % plus vite\n"
-            elif liste[4] == 2:
-                chaine += "Vos attaques de base se deplacent 50 % plus vite\n"
+            else:
+                chaine += "Vos attaques de base se deplacent "+str(10*(liste[4]+1))+" % plus vite\n"
 
             chaine += "\nniveau actuel: "+str(liste[4])+"/3\n"
 
@@ -3260,7 +3751,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[6] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous avez "+str(100+100*liste[6])+"% de chances supplementaires\n" \
+                chaine += "Vous avez "+str(20*liste[6])+"% de chances supplementaires\n" \
                           "d'obtenir un coeur sur les ennemis\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
@@ -3268,7 +3759,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[6] == 2:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous avez "+str(100+100*(liste[6]+1))+"% de chances supplementaires\n" \
+                chaine += "Vous avez "+str(20*(liste[6]+1))+"% de chances supplementaires\n" \
                           "d'obtenir un coeur sur les ennemis\n"
 
             chaine += "\nniveau actuel: "+str(liste[6])+"/2\n"
@@ -3286,14 +3777,14 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[7] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Votre mana maximum augmente de "+str(20*liste[7])+"\n"
+                chaine += "Votre mana maximum augmente de "+str(10*liste[7])+"\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
             if liste[7] == 2:
                 chaine += "Aucune\n"
             else:
-                chaine += "Votre mana maximum augmente de "+str(20*(liste[7]+1))+"\n"
+                chaine += "Votre mana maximum augmente de "+str(10*(liste[7]+1))+"\n"
 
             chaine += "\nniveau actuel: "+str(liste[7])+"/2\n"
 
@@ -3310,7 +3801,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[8] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vos attaques explosent a l'impact et infligent "+str(50*liste[8])+"%\n" \
+                chaine += "Vos attaques explosent a l'impact et infligent "+str(25*liste[8])+"%\n" \
                           "d'une attaque normale aux ennemis proches\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
@@ -3318,7 +3809,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[8] == 2:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vos attaques explosent a l'impact et infligent "+str(50*(liste[8]+1))+"%\n" \
+                chaine += "Vos attaques explosent a l'impact et infligent "+str(25*(liste[8]+1))+"%\n" \
                           "d'une attaque normale aux ennemis proches\n"
 
             chaine += "\nniveau actuel: "+str(liste[8])+"/2\n"
@@ -3336,7 +3827,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[9] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Lorsqu'un ennemi vous touche, vous avez "+str(15*liste[9])+"%\n" \
+                chaine += "Lorsqu'un ennemi vous touche, vous avez "+str(5*liste[9])+"%\n" \
                           "de chances d'obtenir un temps d'invincibilite\nsans perdre de points de vie\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
@@ -3344,7 +3835,7 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[9] == 3:
                 chaine += "Aucune\n"
             else:
-                chaine += "Lorsqu'un ennemi vous touche, vous avez "+str(15*(liste[9]+1))+"%\n" \
+                chaine += "Lorsqu'un ennemi vous touche, vous avez "+str(5*(liste[9]+1))+"%\n" \
                           "de chances d'obtenir un temps d'invincibilite\nsans perdre de points de vie\n"
 
             chaine += "\nniveau actuel: "+str(liste[9])+"/3\n"
@@ -3362,16 +3853,18 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[10] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous regagnez "+str(2*liste[10])+" points de vie a chaque\n" \
-                          "fois que vous attaquez un ennemi\n"
+                chaine += "Vous regagnez "+str(liste[10])+" points de vie a chaque\n" \
+                          "fois que vous attaquez un ennemi \n" \
+                          "avec une attaque de base\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
             if liste[10] == 3:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous regagnez "+str(2*(liste[10]+1))+" points de vie a chaque\n" \
-                          "fois que vous attaquez un ennemi\n"
+                chaine += "Vous regagnez "+str(liste[10]+1)+" points de vie a chaque\n" \
+                          "fois que vous attaquez un ennemi \n" \
+                          "avec une attaque de base\n"
 
             chaine += "\nniveau actuel: "+str(liste[10])+"/3\n"
 
@@ -3388,16 +3881,18 @@ def creer_fenetre_competences(fenetre, liste, liste_impossibles):
             if liste[11] == 0:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous gagnez "+str(liste[11])+" points de mana par seconde\n" \
-                          "tant qu'il y a des ennemis dans la meme salle\n"
+                chaine += "Vous gagnez "+str(liste[11])+" points de mana a chaque\n" \
+                          "fois que vous attaquez un ennemi\n" \
+                          "avec une attaque de base\n"
 
             chaine += "\nAmelioration du niveau suivant:\n"
 
             if liste[11] == 3:
                 chaine += "Aucune\n"
             else:
-                chaine += "Vous gagnez "+str(liste[11]+1)+" points de mana par seconde\n" \
-                          "tant qu'il y a des ennemis dans la meme salle\n"
+                chaine += "Vous gagnez "+str(liste[11]+1)+" points de mana a chaque\n" \
+                          "fois que vous attaquez un ennemi\n" \
+                          "avec une attaque de base\n"
 
             chaine += "\nniveau actuel: "+str(liste[11])+"/3\n"
 
@@ -3430,13 +3925,13 @@ def gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel):
     return liste_rafraichir, temps_actuel, tempo
 
 
-def afficher_minibar(map, joueur, position_ecran_x, position_ecran_y, liste_rafraichir):
+def afficher_minibar(etage, joueur, position_ecran_x, position_ecran_y, liste_rafraichir):
 
-    for ennemi in map.salles[joueur.salle].ennemis:
+    for ennemi in etage.salles[joueur.salle].ennemis:
 
         # EFFACER L'ANCIENNE MINIBARRE
 
-        liste_rafraichir.append([map.salles[joueur.salle].image.subsurface(
+        liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
             (ennemi.minibarre.x, ennemi.minibarre.y, 64, 8)),
             (position_ecran_x+ennemi.minibarre.x, position_ecran_y+ennemi.minibarre.y, 64, 8), 1])
 
@@ -3482,6 +3977,7 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
 
     global CARACTERES
     global CARACTERES_SELECTIONNES
+    global FOND
 
     # CALCULER L'ESPACE DISPONIBLE ENTRE LES BORDS ET LE TEXTE
 
@@ -3498,7 +3994,6 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
     cadre_noir.fill((150, 150, 150), (resolution.current_w-306-(2*espace_restant), 100, 2, resolution.current_h-270))
     cadre_noir.set_colorkey((255, 255, 255))
     liste_rafraichir.append([cadre_noir, (0, 0, resolution.current_w, resolution.current_h), 0])
-    del cadre_noir
 
     # RECUPERER UNE COPIE DES RACCOURCIS
 
@@ -3583,7 +4078,7 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
         for entree in pygame.event.get():
 
             if entree.type == pygame.KEYDOWN:  # CHANGER LE RACCOURCIS
-                if entree.unicode != str() and choix != 0:
+                if entree.unicode != str() and choix[1] != 0:
 
                     raccourcis_copie[choix[1]-1] = [entree.key, entree.unicode.upper()]
 
@@ -3604,6 +4099,13 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                                 pygame.Surface((liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
                                 (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 0])
 
+                    # EFFACER LE MESSAGE D'AIDE
+
+                    chaine = "Appuyez sur une touche"
+                    espace_restant = (resolution.current_w-32*len(chaine))//2
+                    liste_rafraichir.append([FOND.subsurface((espace_restant, 18, len(chaine)*32, 64)),
+                                             (espace_restant, 18, len(chaine)*32, 64), 0])
+
                     # EFFACER L'ANCIENNE TOUCHE
 
                     if menu_touches.options[choix[1]-1].y < resolution.current_h-170 and \
@@ -3622,7 +4124,7 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                                 (menu_touches.options[choix[1]-1].x, menu_touches.options[choix[1]-1].y,
                                  menu_touches.options[choix[1]-1].w, resolution.current_h-170-menu_touches.options[choix[1]-1].y), 7])
 
-                        if menu_touches.options[i].y < 100:
+                        if menu_touches.options[choix[1]-1].y < 100:
                             liste_rafraichir.append([pygame.Surface(
                                 (menu_touches.options[choix[1]-1].w, menu_touches.options[choix[1]-1].h-(100-menu_touches.options[choix[1]-1].y))),
                                 (menu_touches.options[choix[1]-1].x, 100, menu_touches.options[choix[1]-1].w,
@@ -3667,7 +4169,7 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                            100 < entree.pos[0] < resolution.current_w-100 and 100 < entree.pos[1] < resolution.current_h-170:
                             choix[1] = i+1
 
-                            # EFFACER LE CADRE
+                            # EFFACER LE CADRE S'IL Y EN A UN
 
                             if liste_cadre[4] != 0:
                                 if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
@@ -3695,6 +4197,13 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                             liste_cadre[4].fill((255, 255, 0))
                             liste_cadre[4].fill((255, 255, 255), (2, 2, menu_description.options[i].w+4, menu_description.options[i].h+4))
                             liste_cadre[4].set_colorkey((255, 255, 255))
+
+                            # EFFACER LE MESSAGE D'AIDE
+
+                            chaine = "Selectionnez un raccourcis"
+                            espace_restant = (resolution.current_w-32*len(chaine))//2
+                            liste_rafraichir.append([FOND.subsurface((espace_restant, 18, len(chaine)*32, 64)),
+                                                     (espace_restant, 18, len(chaine)*32, 64), 0])
 
                 if 4 <= entree.button <= 5:  # FAIRE DEFILER LE MENU
                     if (menu_description.options[len(menu_description.options)-1].y >= resolution.current_h-298 and
@@ -3881,7 +4390,7 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                             (menu_description.options[i].x, 100, menu_description.options[i].w,
                              menu_description.options[i].y+menu_description.options[i].h-100), 7])
 
-        # AFFICHER LE CADRE
+        # AFFICHER LE CADRE DE SELECTION
 
         if choix[1] != 0:
             if liste_cadre[1] < resolution.current_h-170 and liste_cadre[1]+liste_cadre[3] > 100:
@@ -3896,6 +4405,17 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
                     liste_rafraichir.append([liste_cadre[4].subsurface(
                         (0, 100-liste_cadre[1], liste_cadre[2], liste_cadre[3]-(100-liste_cadre[1]))),
                         (liste_cadre[0], liste_cadre[1], liste_cadre[2], liste_cadre[3]), 7])
+
+        # AFFICHER LES MESSAGES D'AIDE
+
+        if choix[1]==0:
+            chaine = "Selectionnez un raccourcis"
+        else:
+            chaine = "Appuyez sur une touche"
+        espace_restant = (resolution.current_w-32*len(chaine))//2
+        for i in range(len(chaine)):
+            liste_rafraichir.append([CARACTERES.subsurface(((ord(chaine[i]) % 10)*32, (ord(chaine[i])//10)*64, 32, 64)),
+                                     (espace_restant+(32*i), 18, 32, 64), 7])
 
         # GERER LES CHOIX
 
@@ -3919,3 +4439,966 @@ def choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis):
             continuer = False
 
     return raccourcis
+
+
+def afficher_animation_joueur(joueur, etage, position_ecran_x, position_ecran_y, liste_rafraichir):
+
+    if joueur.animation_tete.activee:
+
+        if joueur.animation_tete.temps_restant == 0:
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                        (joueur.animation_tete.x, joueur.animation_tete.y,
+                         joueur.animation_tete.w, joueur.animation_tete.h)),
+                        (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                         joueur.animation_tete.w, joueur.animation_tete.h), 0])
+            joueur.animation_tete.activee = False
+        else:
+            liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface(
+                (joueur.animation_tete.x, joueur.animation_tete.y,
+                 joueur.animation_tete.w, joueur.animation_tete.h)),
+                (joueur.animation_tete.x+position_ecran_x, joueur.animation_tete.y+position_ecran_y,
+                 joueur.animation_tete.w, joueur.animation_tete.h), 0])
+
+            joueur.animation_tete.x = joueur.x
+            joueur.animation_tete.y = joueur.y-25
+            a = int(len(joueur.animation_tete.images)-((joueur.animation_tete.temps_restant*len(joueur.animation_tete.images))/joueur.animation_tete.temps_total))
+
+            liste_rafraichir.append([joueur.animation_tete.images[a], (joueur.animation_tete.x+position_ecran_x,
+                                                                       joueur.animation_tete.y+position_ecran_y,
+                                                                       joueur.animation_tete.w,
+                                                                       joueur.animation_tete.h), 4])
+            joueur.animation_tete.temps_restant -= 1
+
+    return liste_rafraichir, joueur
+
+
+def choisir_sorts(ecran, resolution, liste_rafraichir, liste_messages, session):
+
+    global ICONES_SORTS
+
+    # CREER LE MENU VALIDER/RETOUR/REINITIALISER
+
+    menu = Menu()
+    menu.x = 0
+    menu.y = resolution.current_h-96
+    menu.w = resolution.current_w
+    menu.h = 96
+    for i in range(3):
+        menu.options.append(Options_Menu())
+
+    menu.options[0].message = "Valider"
+    menu.options[1].message = "Retour"
+    menu.options[2].message = "Reinitialiser"
+    menu.type = 2
+    menu = creer_images_et_positions_menu(menu)
+
+    # CREER LE MENU DES ONGLETS
+
+    menu_onglets = Menu()
+    menu_onglets.x = 0
+    menu_onglets.y = 96
+    menu_onglets.w = resolution.current_w
+    menu_onglets.h = 128
+    for i in range(2):
+        menu_onglets.options.append(Options_Menu())
+
+    menu_onglets.options[0].message = "Poisons"
+    menu_onglets.options[1].message = "Maitrise du temps"
+    menu_onglets.type = 2
+    menu_onglets = creer_images_et_positions_menu(menu_onglets)
+
+    # INITIALISATION DE VARIABLES
+
+    liste = list()
+    for i in range(len(menu_onglets.options)):
+        liste.append(session.sorts[i])
+    points = session.points_de_sorts
+
+    # choix = [onglet, menu, competence_ajouter, competence_retirer]
+    choix = [1, 0, 0, 0]
+    position_souris = [0, 0]
+    tempo = 0
+    temps_actuel = pygame.time.get_ticks()
+    continuer = True
+
+    # BOUCLE DE LA PAGE
+
+    while continuer:
+
+        # ONGLET POISONS
+
+        if choix[0] == 1:
+
+            liste_rafraichir = mettre_fond(ecran)
+            # fenetre = [x, y, w, h, image, arbre y, arbre x, ancien arbre y, ancien arbre x]
+            fenetre = [0, 0, 0, 0, 0, -1, -1, -1, -1]
+
+            # CREER L'ARBRE DES SORTS DE POISONS
+
+            arbre_de_sorts = [Menu(), Menu(), Menu()]
+
+            for i in range(len(arbre_de_sorts)):
+                arbre_de_sorts[i].x = 0
+                arbre_de_sorts[i].y = 224+(resolution.current_h-320)-((i+1)*((resolution.current_h-320)//len(arbre_de_sorts)))
+                arbre_de_sorts[i].w = resolution.current_w
+                arbre_de_sorts[i].h = (resolution.current_h-320)//len(arbre_de_sorts)
+                arbre_de_sorts[i].type = 2
+
+            # ETAGE 0
+
+            arbre_de_sorts[0].options.append(Options_Menu())
+            arbre_de_sorts[0].options[0].images = [pygame.Surface((64, 64)),
+                                                   pygame.Surface((64, 64)),
+                                                   ICONES_SORTS.subsurface((640, 0, 64, 64))]
+            arbre_de_sorts[0].options[0].images[1].fill((255, 0, 0))
+            arbre_de_sorts[0].options[0].images[1].blit(ICONES_SORTS.subsurface((2, 2, 60, 60)), (2, 2))
+            arbre_de_sorts[0].options[0].images[0].fill((0, 0, 255))
+            arbre_de_sorts[0].options[0].images[0].blit(ICONES_SORTS.subsurface((2, 2, 60, 60)), (2, 2))
+
+            # ETAGE 1
+
+            for i in range(2):
+                arbre_de_sorts[1].options.append(Options_Menu())
+                arbre_de_sorts[1].options[i].images = [pygame.Surface((64, 64)),
+                                                       pygame.Surface((64, 64)),
+                                                       ICONES_SORTS.subsurface((704+(64*i), 0, 64, 64))]
+                arbre_de_sorts[1].options[i].images[1].fill((255, 0, 0))
+                arbre_de_sorts[1].options[i].images[1].blit(ICONES_SORTS.subsurface((66+(64*i), 2, 60, 60)), (2, 2))
+                arbre_de_sorts[1].options[i].images[0].fill((0, 0, 255))
+                arbre_de_sorts[1].options[i].images[0].blit(ICONES_SORTS.subsurface((66+(64*i), 2, 60, 60)), (2, 2))
+
+            # ETAGE 2
+
+            for i in range(4):
+                arbre_de_sorts[2].options.append(Options_Menu())
+                arbre_de_sorts[2].options[i].images = [pygame.Surface((64, 64)),
+                                                       pygame.Surface((64, 64)),
+                                                       ICONES_SORTS.subsurface((832+(64*i), 0, 64, 64))]
+                arbre_de_sorts[2].options[i].images[1].fill((255, 0, 0))
+                arbre_de_sorts[2].options[i].images[1].blit(ICONES_SORTS.subsurface((194+(64*i), 2, 60, 60)), (2, 2))
+                arbre_de_sorts[2].options[i].images[0].fill((0, 0, 255))
+                arbre_de_sorts[2].options[i].images[0].blit(ICONES_SORTS.subsurface((194+(64*i), 2, 60, 60)), (2, 2))
+
+            # CALCULER L'EMPLACEMENT DE CHAQUE OPTION
+
+            for i in range(len(arbre_de_sorts)):
+                for j in range(len(arbre_de_sorts[i].options)):
+                    arbre_de_sorts[i].options[j].w = 64
+                    arbre_de_sorts[i].options[j].h = 64
+                    arbre_de_sorts[i].options[j].x = (((resolution.current_w-(len(arbre_de_sorts[i].options)*64))//(len(arbre_de_sorts[i].options)+1))*(j+1))+(j*64)
+                    arbre_de_sorts[i].options[j].y = arbre_de_sorts[i].y+((arbre_de_sorts[i].h-64)//2)
+
+            # BOUCLE DE L'ONGLET
+
+            while choix[0] == 1:
+
+                # RAFRAICHIR L'IMAGE
+
+                liste_messages, liste_rafraichir = afficher_messages(liste_messages, liste_rafraichir, resolution)
+                liste_rafraichir, temps_actuel, tempo = gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel)
+
+                # DEFINIR L'ETAT DE L'ARBRE
+
+                liste_valides = [liste[0] != 0,
+                                 (liste[0] == 2 or liste[0] == 4 or liste[0] == 5),
+                                 (liste[0] == 3 or liste[0] == 6 or liste[0] == 7),
+                                 liste[0] == 4,
+                                 liste[0] == 5,
+                                 liste[0] == 6,
+                                 liste[0] == 7]
+
+                liste_impossibles = [False,
+                                     (not liste_valides[0] or liste_valides[2]),
+                                     (not liste_valides[0] or liste_valides[1]),
+                                     (not liste_valides[1] or liste_valides[4]),
+                                     (not liste_valides[1] or liste_valides[3]),
+                                     (not liste_valides[2] or liste_valides[6]),
+                                     (not liste_valides[2] or liste_valides[5])]
+
+                # RAFRAICHIR LES DONNEES DE LA FENETRE
+
+                fenetre_effaceur = [fenetre[0], fenetre[1], fenetre[2], fenetre[3]]
+                fenetre[5], fenetre[6], fenetre[7], fenetre[8] = -1, -1, fenetre[5], fenetre[6]
+                if choix[2] != 0 or choix[3] != 0:
+                    fenetre[7] = -1
+                    fenetre[8] = -1
+                choix = [choix[0], 0, 0, 0]
+
+                # GERER LES ENTREES UTILISATEUR
+
+                for entree in pygame.event.get():
+                    if entree.type == pygame.MOUSEBUTTONUP:
+
+                        if entree.button == 1:
+                            for i in range(len(menu.options)):
+                                if menu.options[i].x+menu.options[i].w > entree.pos[0] > menu.options[i].x and \
+                                   menu.options[i].y+menu.options[i].h > entree.pos[1] > menu.options[i].y:
+                                    choix[1] = i+1
+                            for i in range(len(menu_onglets.options)):
+                                if menu_onglets.options[i].x+menu_onglets.options[i].w > entree.pos[0] > menu_onglets.options[i].x and \
+                                   menu_onglets.options[i].y+menu_onglets.options[i].h > entree.pos[1] > menu_onglets.options[i].y:
+                                    choix[0] = i+1
+                            if arbre_de_sorts[0].options[0].x+arbre_de_sorts[0].options[0].w > entree.pos[0] > arbre_de_sorts[0].options[0].x and \
+                               arbre_de_sorts[0].options[0].y+arbre_de_sorts[0].options[0].h > entree.pos[1] > arbre_de_sorts[0].options[0].y:
+                                choix[2] = 1
+                            for i in range(len(arbre_de_sorts[1].options)):
+                                if arbre_de_sorts[1].options[i].x+arbre_de_sorts[1].options[i].w > entree.pos[0] > arbre_de_sorts[1].options[i].x and \
+                                   arbre_de_sorts[1].options[i].y+arbre_de_sorts[1].options[i].h > entree.pos[1] > arbre_de_sorts[1].options[i].y:
+                                    choix[2] = i+2
+                            for i in range(len(arbre_de_sorts[2].options)):
+                                if arbre_de_sorts[2].options[i].x+arbre_de_sorts[2].options[i].w > entree.pos[0] > arbre_de_sorts[2].options[i].x and \
+                                   arbre_de_sorts[2].options[i].y+arbre_de_sorts[2].options[i].h > entree.pos[1] > arbre_de_sorts[2].options[i].y:
+                                    choix[2] = i+4
+
+                        if entree.button == 3:
+                            if arbre_de_sorts[0].options[0].x+arbre_de_sorts[0].options[0].w > entree.pos[0] > arbre_de_sorts[0].options[0].x and \
+                               arbre_de_sorts[0].options[0].y+arbre_de_sorts[0].options[0].h > entree.pos[1] > arbre_de_sorts[0].options[0].y:
+                                choix[3] = 1
+                            for i in range(len(arbre_de_sorts[1].options)):
+                                if arbre_de_sorts[1].options[i].x+arbre_de_sorts[1].options[i].w > entree.pos[0] > arbre_de_sorts[1].options[i].x and \
+                                   arbre_de_sorts[1].options[i].y+arbre_de_sorts[1].options[i].h > entree.pos[1] > arbre_de_sorts[1].options[i].y:
+                                    choix[3] = i+2
+                            for i in range(len(arbre_de_sorts[2].options)):
+                                if arbre_de_sorts[2].options[i].x+arbre_de_sorts[2].options[i].w > entree.pos[0] > arbre_de_sorts[2].options[i].x and \
+                                   arbre_de_sorts[2].options[i].y+arbre_de_sorts[2].options[i].h > entree.pos[1] > arbre_de_sorts[2].options[i].y:
+                                    choix[3] = i+4
+
+                    if entree.type == pygame.MOUSEMOTION:
+                        position_souris = [entree.pos[0], entree.pos[1]]
+
+                # AFFICHER LE MENU VALIDER/RETOUR/REINITIALISER
+
+                for i in range(len(menu.options)):
+                    if menu.options[i].x+menu.options[i].w > position_souris[0] > menu.options[i].x and \
+                       menu.options[i].y+menu.options[i].h > position_souris[1] > menu.options[i].y:
+                        liste_rafraichir.append([menu.options[i].images[1], (menu.options[i].x, menu.options[i].y,
+                                                                             menu.options[i].w, menu.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu.options[i].images[0], (menu.options[i].x, menu.options[i].y,
+                                                                             menu.options[i].w, menu.options[i].h), 7])
+
+                # AFFICHER LE MENU DES ONGLETS
+
+                for i in range(len(menu_onglets.options)):
+                    if menu_onglets.options[i].x+menu_onglets.options[i].w > position_souris[0] > menu_onglets.options[i].x and \
+                       menu_onglets.options[i].y+menu_onglets.options[i].h > position_souris[1] > menu_onglets.options[i].y:
+                        liste_rafraichir.append([menu_onglets.options[i].images[1],
+                                                 (menu_onglets.options[i].x, menu_onglets.options[i].y,
+                                                  menu_onglets.options[i].w, menu_onglets.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu_onglets.options[i].images[0],
+                                                 (menu_onglets.options[i].x, menu_onglets.options[i].y,
+                                                  menu_onglets.options[i].w, menu_onglets.options[i].h), 7])
+
+                # AFFICHER L'ARBRE DE SORTS
+
+                i = 0
+                for j in range(len(arbre_de_sorts)):
+                    for k in range(len(arbre_de_sorts[j].options)):
+                        if liste_valides[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[1],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        if liste_impossibles[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[2],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        if not liste_impossibles[i] and not liste_valides[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[0],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        i += 1
+
+                        if arbre_de_sorts[j].options[k].x+arbre_de_sorts[j].options[k].w > position_souris[0] > arbre_de_sorts[j].options[k].x and \
+                           arbre_de_sorts[j].options[k].y+arbre_de_sorts[j].options[k].h > position_souris[1] > arbre_de_sorts[j].options[k].y:
+                            fenetre[5] = j
+                            fenetre[6] = k
+
+                # AFFICHER LA FENETRE
+
+                fenetre[0] = position_souris[0]
+                fenetre[1] = position_souris[1]
+
+                if fenetre[5] != -1 and fenetre[6] != -1:
+                    fenetre = creer_fenetre_sorts_poisons(fenetre, liste, liste_impossibles, liste_valides)
+
+                if fenetre[0]+fenetre[2] >= resolution.current_w:
+                    fenetre[0] = resolution.current_w-fenetre[2]
+                if fenetre[1]+fenetre[3] >= resolution.current_h:
+                    fenetre[1] = resolution.current_h-fenetre[3]
+
+                if (fenetre[7] != -1 and fenetre[8] != -1) or (fenetre[5] != -1 and fenetre[6] != -1):
+                    liste_rafraichir.append([
+                        FOND.subsurface((fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3])),
+                        (fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3]), 0])
+
+                if fenetre[5] != -1 and fenetre[6] != -1:
+                    liste_rafraichir.append([fenetre[4], (fenetre[0], fenetre[1], fenetre[2], fenetre[3]), 8])
+
+                # GERER LES CHOIX
+
+                if choix[1] == 1:
+                    session.sorts = list()
+                    for i in range(len(menu_onglets.options)):
+                        session.sorts.append(liste[i])
+                    session.points_de_sorts = points
+                    choix[0] = 0
+                    continuer = False
+                if choix[1] == 2:
+                    if len(session.sorts) > len(menu_onglets.options):
+                        session.sorts = list(session.sorts[:len(menu_onglets.options)])
+                    while len(session.sorts) < len(menu_onglets.options):
+                        session.sorts.append(0)
+                    choix[0] = 0
+                    continuer = False
+                if choix[1] == 3:
+                    liste = list()
+                    for i in range(len(menu_onglets.options)):
+                        liste.append(0)
+                    points = session.niveau
+
+                if choix[2] != 0:
+                    if not liste_impossibles[choix[2]-1] and not liste_valides[choix[2]-1] and points > 0:
+                        liste[0] = choix[2]
+                        points -= 1
+
+                if choix[3] != 0:
+                    if choix[3] == 1 and liste[0] == 1:
+                        liste[0] = 0
+                        points += 1
+                    if (choix[3] == 2 and liste[0] == 2) or (choix[3] == 3 and liste[0] == 3):
+                        liste[0] = 1
+                        points += 1
+                    if (choix[3] == 4 and liste[0] == 4) or (choix[3] == 5 and liste[0] == 5):
+                        liste[0] = 2
+                        points += 1
+                    if (choix[3] == 6 and liste[0] == 6) or (choix[3] == 7 and liste[0] == 7):
+                        liste[0] = 3
+                        points += 1
+
+        # ONGLET MAITRISE DU TEMPS
+
+        if choix[0] == 2:
+
+            liste_rafraichir = mettre_fond(ecran)
+            # fenetre = [x, y, w, h, image, arbre y, arbre x, ancien arbre y, ancien arbre x]
+            fenetre = [0, 0, 0, 0, 0, -1, -1, -1, -1]
+
+            # CREER L'ARBRE DES SORTS DE MAITRISE DU TEMPS
+
+            arbre_de_sorts = [Menu(), Menu(), Menu()]
+
+            for i in range(len(arbre_de_sorts)):
+                arbre_de_sorts[i].x = 0
+                arbre_de_sorts[i].y = 224+(resolution.current_h-320)-((i+1)*((resolution.current_h-320)//len(arbre_de_sorts)))
+                arbre_de_sorts[i].w = resolution.current_w
+                arbre_de_sorts[i].h = (resolution.current_h-320)//len(arbre_de_sorts)
+                arbre_de_sorts[i].type = 2
+
+            # ETAGE 0
+
+            arbre_de_sorts[0].options.append(Options_Menu())
+            arbre_de_sorts[0].options[0].images = [pygame.Surface((64, 64)),
+                                                   pygame.Surface((64, 64)),
+                                                   ICONES_SORTS.subsurface((1088, 0, 64, 64))]
+            arbre_de_sorts[0].options[0].images[1].fill((255, 0, 0))
+            arbre_de_sorts[0].options[0].images[1].blit(ICONES_SORTS.subsurface((450, 2, 60, 60)), (2, 2))
+            arbre_de_sorts[0].options[0].images[0].fill((0, 0, 255))
+            arbre_de_sorts[0].options[0].images[0].blit(ICONES_SORTS.subsurface((450, 2, 60, 60)), (2, 2))
+
+            # ETAGE 1
+
+            for i in range(2):
+                arbre_de_sorts[1].options.append(Options_Menu())
+                arbre_de_sorts[1].options[i].images = [pygame.Surface((64, 64)),
+                                                       pygame.Surface((64, 64)),
+                                                       ICONES_SORTS.subsurface((1152+(64*i), 0, 64, 64))]
+                arbre_de_sorts[1].options[i].images[1].fill((255, 0, 0))
+                arbre_de_sorts[1].options[i].images[1].blit(ICONES_SORTS.subsurface((514+(64*i), 2, 60, 60)), (2, 2))
+                arbre_de_sorts[1].options[i].images[0].fill((0, 0, 255))
+                arbre_de_sorts[1].options[i].images[0].blit(ICONES_SORTS.subsurface((514+(64*i), 2, 60, 60)), (2, 2))
+
+            # ETAGE 2
+
+            for i in range(4):
+                arbre_de_sorts[2].options.append(Options_Menu())
+                arbre_de_sorts[2].options[i].images = [pygame.Surface((64, 64)),
+                                                       pygame.Surface((64, 64)),
+                                                       ICONES_SORTS.subsurface((640+(64*i), 64, 64, 64))]
+                arbre_de_sorts[2].options[i].images[1].fill((255, 0, 0))
+                arbre_de_sorts[2].options[i].images[1].blit(ICONES_SORTS.subsurface((2+(64*i), 66, 60, 60)), (2, 2))
+                arbre_de_sorts[2].options[i].images[0].fill((0, 0, 255))
+                arbre_de_sorts[2].options[i].images[0].blit(ICONES_SORTS.subsurface((2+(64*i), 66, 60, 60)), (2, 2))
+
+            # CALCULER L'EMPLACEMENT DE CHAQUE OPTION
+
+            for i in range(len(arbre_de_sorts)):
+                for j in range(len(arbre_de_sorts[i].options)):
+                    arbre_de_sorts[i].options[j].w = 64
+                    arbre_de_sorts[i].options[j].h = 64
+                    arbre_de_sorts[i].options[j].x = (((resolution.current_w-(len(arbre_de_sorts[i].options)*64))//(len(arbre_de_sorts[i].options)+1))*(j+1))+(j*64)
+                    arbre_de_sorts[i].options[j].y = arbre_de_sorts[i].y+((arbre_de_sorts[i].h-64)//2)
+
+            # BOUCLE DE L'ONGLET
+
+            while choix[0] == 2:
+
+                # RAFRAICHIR L'IMAGE
+
+                liste_messages, liste_rafraichir = afficher_messages(liste_messages, liste_rafraichir, resolution)
+                liste_rafraichir, temps_actuel, tempo = gerer_temps(ecran, tempo, liste_rafraichir, temps_actuel)
+
+                # DEFINIR L'ETAT DE L'ARBRE
+
+                liste_valides = [liste[1] != 0,
+                                 (liste[1] == 9 or liste[1] == 11 or liste[1] == 12),
+                                 (liste[1] == 10 or liste[1] == 13 or liste[1] == 14),
+                                 liste[1] == 11,
+                                 liste[1] == 12,
+                                 liste[1] == 13,
+                                 liste[1] == 14]
+
+                liste_impossibles = [False,
+                                     (not liste_valides[0] or liste_valides[2]),
+                                     (not liste_valides[0] or liste_valides[1]),
+                                     (not liste_valides[1] or liste_valides[4]),
+                                     (not liste_valides[1] or liste_valides[3]),
+                                     (not liste_valides[2] or liste_valides[6]),
+                                     (not liste_valides[2] or liste_valides[5])]
+
+                # RAFRAICHIR LES DONNEES DE LA FENETRE
+
+                fenetre_effaceur = [fenetre[0], fenetre[1], fenetre[2], fenetre[3]]
+                fenetre[5], fenetre[6], fenetre[7], fenetre[8] = -1, -1, fenetre[5], fenetre[6]
+                if choix[2] != 0 or choix[3] != 0:
+                    fenetre[7] = -1
+                    fenetre[8] = -1
+                choix = [choix[0], 0, 0, 0]
+
+                # GERER LES ENTREES UTILISATEUR
+
+                for entree in pygame.event.get():
+                    if entree.type == pygame.MOUSEBUTTONUP:
+                        if entree.button == 1:
+                            for i in range(len(menu.options)):
+                                if menu.options[i].x+menu.options[i].w > entree.pos[0] > menu.options[i].x and \
+                                   menu.options[i].y+menu.options[i].h > entree.pos[1] > menu.options[i].y:
+                                    choix[1] = i+1
+                            for i in range(len(menu_onglets.options)):
+                                if menu_onglets.options[i].x+menu_onglets.options[i].w > entree.pos[0] > menu_onglets.options[i].x and \
+                                   menu_onglets.options[i].y+menu_onglets.options[i].h > entree.pos[1] > menu_onglets.options[i].y:
+                                    choix[0] = i+1
+                            if arbre_de_sorts[0].options[0].x+arbre_de_sorts[0].options[0].w > entree.pos[0] > arbre_de_sorts[0].options[0].x and \
+                               arbre_de_sorts[0].options[0].y+arbre_de_sorts[0].options[0].h > entree.pos[1] > arbre_de_sorts[0].options[0].y:
+                                choix[2] = 8
+                            for i in range(len(arbre_de_sorts[1].options)):
+                                if arbre_de_sorts[1].options[i].x+arbre_de_sorts[1].options[i].w > entree.pos[0] > arbre_de_sorts[1].options[i].x and \
+                                   arbre_de_sorts[1].options[i].y+arbre_de_sorts[1].options[i].h > entree.pos[1] > arbre_de_sorts[1].options[i].y:
+                                    choix[2] = i+9
+                            for i in range(len(arbre_de_sorts[2].options)):
+                                if arbre_de_sorts[2].options[i].x+arbre_de_sorts[2].options[i].w > entree.pos[0] > arbre_de_sorts[2].options[i].x and \
+                                   arbre_de_sorts[2].options[i].y+arbre_de_sorts[2].options[i].h > entree.pos[1] > arbre_de_sorts[2].options[i].y:
+                                    choix[2] = i+11
+
+                        if entree.button == 3:
+                            if arbre_de_sorts[0].options[0].x+arbre_de_sorts[0].options[0].w > entree.pos[0] > arbre_de_sorts[0].options[0].x and \
+                               arbre_de_sorts[0].options[0].y+arbre_de_sorts[0].options[0].h > entree.pos[1] > arbre_de_sorts[0].options[0].y:
+                                choix[3] = 8
+                            for i in range(len(arbre_de_sorts[1].options)):
+                                if arbre_de_sorts[1].options[i].x+arbre_de_sorts[1].options[i].w > entree.pos[0] > arbre_de_sorts[1].options[i].x and \
+                                   arbre_de_sorts[1].options[i].y+arbre_de_sorts[1].options[i].h > entree.pos[1] > arbre_de_sorts[1].options[i].y:
+                                    choix[3] = i+9
+                            for i in range(len(arbre_de_sorts[2].options)):
+                                if arbre_de_sorts[2].options[i].x+arbre_de_sorts[2].options[i].w > entree.pos[0] > arbre_de_sorts[2].options[i].x and \
+                                   arbre_de_sorts[2].options[i].y+arbre_de_sorts[2].options[i].h > entree.pos[1] > arbre_de_sorts[2].options[i].y:
+                                    choix[3] = i+11
+
+                    if entree.type == pygame.MOUSEMOTION:
+                        position_souris = [entree.pos[0], entree.pos[1]]
+
+                # AFFICHER LE MENU VALIDER/RETOUR/REINITIALISER
+
+                for i in range(len(menu.options)):
+                    if menu.options[i].x+menu.options[i].w > position_souris[0] > menu.options[i].x and \
+                       menu.options[i].y+menu.options[i].h > position_souris[1] > menu.options[i].y:
+                        liste_rafraichir.append([menu.options[i].images[1], (menu.options[i].x, menu.options[i].y,
+                                                                             menu.options[i].w, menu.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu.options[i].images[0], (menu.options[i].x, menu.options[i].y,
+                                                                             menu.options[i].w, menu.options[i].h), 7])
+
+                # AFFICHER LE MENU DES ONGLETS
+
+                for i in range(len(menu_onglets.options)):
+                    if menu_onglets.options[i].x+menu_onglets.options[i].w > position_souris[0] > menu_onglets.options[i].x and \
+                       menu_onglets.options[i].y+menu_onglets.options[i].h > position_souris[1] > menu_onglets.options[i].y:
+                        liste_rafraichir.append([menu_onglets.options[i].images[1],
+                                                 (menu_onglets.options[i].x, menu_onglets.options[i].y,
+                                                  menu_onglets.options[i].w, menu_onglets.options[i].h), 7])
+                    else:
+                        liste_rafraichir.append([menu_onglets.options[i].images[0],
+                                                 (menu_onglets.options[i].x, menu_onglets.options[i].y,
+                                                  menu_onglets.options[i].w, menu_onglets.options[i].h), 7])
+
+                # AFFICHER L'ARBRE DE SORTS
+
+                i = 0
+                for j in range(len(arbre_de_sorts)):
+                    for k in range(len(arbre_de_sorts[j].options)):
+                        if liste_valides[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[1],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        if liste_impossibles[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[2],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        if not liste_impossibles[i] and not liste_valides[i]:
+                            liste_rafraichir.append(
+                                [arbre_de_sorts[j].options[k].images[0],
+                                 (arbre_de_sorts[j].options[k].x, arbre_de_sorts[j].options[k].y,
+                                  arbre_de_sorts[j].options[k].w, arbre_de_sorts[j].options[k].h,), 7])
+                        i += 1
+                        if arbre_de_sorts[j].options[k].x+arbre_de_sorts[j].options[k].w > position_souris[0] > arbre_de_sorts[j].options[k].x and \
+                           arbre_de_sorts[j].options[k].y+arbre_de_sorts[j].options[k].h > position_souris[1] > arbre_de_sorts[j].options[k].y:
+                            fenetre[5] = j
+                            fenetre[6] = k
+
+                # AFFICHER LA FENETRE
+
+                fenetre[0] = position_souris[0]
+                fenetre[1] = position_souris[1]
+
+                if fenetre[5] != -1 and fenetre[6] != -1:
+                    fenetre = creer_fenetre_sorts_maitrise_du_temps(fenetre, liste, liste_impossibles, liste_valides)
+
+                if fenetre[0]+fenetre[2] >= resolution.current_w:
+                    fenetre[0] = resolution.current_w-fenetre[2]
+                if fenetre[1]+fenetre[3] >= resolution.current_h:
+                    fenetre[1] = resolution.current_h-fenetre[3]
+
+                if (fenetre[7] != -1 and fenetre[8] != -1) or (fenetre[5] != -1 and fenetre[6] != -1):
+                    liste_rafraichir.append([
+                        FOND.subsurface((fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3])),
+                        (fenetre_effaceur[0], fenetre_effaceur[1], fenetre_effaceur[2], fenetre_effaceur[3]), 0])
+
+                if fenetre[5] != -1 and fenetre[6] != -1:
+                    liste_rafraichir.append([fenetre[4], (fenetre[0], fenetre[1], fenetre[2], fenetre[3]), 8])
+
+                # GERER LES CHOIX
+
+                if choix[1] == 1:
+                    session.sorts = list()
+                    for i in range(len(menu_onglets.options)):
+                        session.sorts.append(liste[i])
+                    session.points_de_sorts = points
+                    choix[0] = 0
+                    continuer = False
+                if choix[1] == 2:
+                    if len(session.sorts) > len(menu_onglets.options):
+                        session.sorts = list(session.sorts[:len(menu_onglets.options)])
+                    while len(session.sorts) < len(menu_onglets.options):
+                        session.sorts.append(0)
+                    choix[0] = 0
+                    continuer = False
+                if choix[1] == 3:
+                    liste = list()
+                    for i in range(len(menu_onglets.options)):
+                        liste.append(0)
+                    points = session.niveau
+
+                if choix[2] != 0:
+                    if not liste_impossibles[choix[2]-8] and not liste_valides[choix[2]-8] and points > 0:
+                        liste[1] = choix[2]
+                        points -= 1
+
+                if choix[3] != 0:
+                    if choix[3] == 8 and liste[1] == 8:
+                        liste[1] = 0
+                        points += 1
+                    if (choix[3] == 9 and liste[1] == 9) or (choix[3] == 10 and liste[1] == 10):
+                        liste[1] = 8
+                        points += 1
+                    if (choix[3] == 11 and liste[1] == 11) or (choix[3] == 12 and liste[1] == 12):
+                        liste[1] = 9
+                        points += 1
+                    if (choix[3] == 13 and liste[1] == 13) or (choix[3] == 14 and liste[1] == 14):
+                        liste[1] = 10
+                        points += 1
+
+    return session, liste_rafraichir, liste_messages
+
+
+def creer_fenetre_sorts_poisons(fenetre, liste, liste_impossibles, liste_valides):
+
+    if fenetre[5] == 0 and fenetre[6] == 0:
+        if not (fenetre[7] == 0 and fenetre[8] == 0):
+
+            chaine = "Poison paralysant\n" \
+                     "\n" \
+                     "Vous lancez une attaques empoisonnee,\n" \
+                     "si elle touche un ennemi, celui ci est\n" \
+                     "paralyse pendant 3 secondes"
+            chaine += "\n\nCout: 25 points de mana"
+            if liste_valides[0]:
+                chaine += "\n\nCe sort a ete debloquee"
+            else:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 1 and fenetre[6] == 0:
+        if not (fenetre[7] == 1 and fenetre[8] == 0):
+
+            chaine = "Nuage paralysant\n" \
+                     "\n" \
+                     "Votre attaque se disperse instantanement en\n" \
+                     "un nuage empoisonnes autour de vous. Si un\n" \
+                     "ennemi se trouve dans ce nuage, il\n" \
+                     "est paralyse pendant 2.5 secondes"
+            chaine += "\n\nCout: 30 points de mana"
+            if liste[0] == 0:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[1]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 1:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 1 and fenetre[6] == 1:
+        if not (fenetre[7] == 1 and fenetre[8] == 1):
+
+            chaine = "Maladie\n" \
+                     "\n" \
+                     "En plus de la paralysie de 3 secondes,\n" \
+                     "votre attaque provoque une perte reguliere de\n" \
+                     "points de vies pendant 5 secondes, infligeant\n" \
+                     "un total de 125% des degats d'une attaque de base"
+            chaine += "\n\nCout: 40 points de mana"
+            if liste[0] == 0:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[2]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 1:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 0:
+        if not (fenetre[7] == 2 and fenetre[8] == 0):
+
+            chaine = "Gros nuage paralysant\n" \
+                     "\n" \
+                     "Ce sort paralyse desormais\n" \
+                     "tous les ennemis presents dans la salle\n" \
+                     "pendant 2.5 secondes"
+            chaine += "\n\nCout: 50 points de mana"
+            if liste[0] == 0 or liste[0] == 1:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[3]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 2:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 1:
+        if not (fenetre[7] == 2 and fenetre[8] == 1):
+
+            chaine = "Poison affaiblissant\n" \
+                     "\n" \
+                     "Les ennemis paralyses par ce sort\n" \
+                     "subissent 400% de degats supplementaires\n" \
+                     "par vos attaques de base durant la paralysie"
+            chaine += "\n\nCout: 45 points de mana"
+            if liste[0] == 0 or liste[0] == 1:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[4]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 2:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 2:
+        if not (fenetre[7] == 2 and fenetre[8] == 2):
+
+            chaine = "Pandemie\n" \
+                     "\n" \
+                     "Le sort traverse maintenant les ennemis"
+            chaine += "\n\nCout: 60 points de mana"
+            if liste[0] == 0 or liste[0] == 1:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[5]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 3:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 3:
+        if not (fenetre[7] == 2 and fenetre[8] == 3):
+
+            chaine = "Peste\n" \
+                     "\n" \
+                     "La perte reguliere de points de vie est remplacee\n" \
+                     "par une perte permanente de 5% des points de vie\n" \
+                     "restant de l'ennemi par seconde,\n" \
+                     "les degats minimum sont de 1"
+            chaine += "\n\nCout: 45 points de mana"
+            if liste[0] == 0 or liste[0] == 1:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            elif liste_valides[6]:
+                chaine += "\n\nCe sort a ete debloquee"
+            elif liste[0] == 3:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+
+    return fenetre
+
+
+def creer_fenetre_sorts_maitrise_du_temps(fenetre, liste, liste_impossibles, liste_valides):
+
+    if fenetre[5] == 0 and fenetre[6] == 0:
+        if not (fenetre[7] == 0 and fenetre[8] == 0):
+
+            chaine = "Distorsion\n" \
+                     "\n" \
+                     "Vous ralentissez le temps autour\n" \
+                     "de vous afin de vous deplacer\n" \
+                     "50% plus vite pendant 10 secondes"
+            chaine += "\n\nCout: 15 points de mana"
+            if liste_valides[0]:
+                chaine += "\n\nCe sort a ete debloque"
+            else:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 1 and fenetre[6] == 0:
+        if not (fenetre[7] == 1 and fenetre[8] == 0):
+
+            chaine = "Effondrement\n" \
+                     "\n" \
+                     "Le temps s'effondre sur lui meme\n" \
+                     "provoquant une explosion autour\n" \
+                     "de vous, infligeant 200% des degats\n" \
+                     "d'une attaque de base aux ennemis\n" \
+                     "proches"
+            chaine += "\n\nCout: 35 points de mana"
+            if liste_valides[1]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 8:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 1 and fenetre[6] == 1:
+        if not (fenetre[7] == 1 and fenetre[8] == 1):
+
+            chaine = "Acceleration\n" \
+                     "\n" \
+                     "Vous arrivez mieu a vous controler\n" \
+                     "pendant le ralentissement du temps,\n" \
+                     "ce qui vous permet d'augmenter votre\n" \
+                     "vitesse d'attaque de 50% pendant 10 secondes"
+            chaine += "\n\nCout: 40 points de mana"
+            if liste_valides[2]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 8:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 0:
+        if not (fenetre[7] == 2 and fenetre[8] == 0):
+
+            chaine = "Effondrement distant\n" \
+                     "\n" \
+                     "L'explosion peut maintenant\n" \
+                     "etre provoquee n'importe ou\n" \
+                     "dans la salle"
+            chaine += "\n\nCout: 60 points de mana"
+            if liste_valides[3]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 9:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0 or liste[1] == 8:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 1:
+        if not (fenetre[7] == 2 and fenetre[8] == 1):
+
+            chaine = "Implosion\n" \
+                     "\n" \
+                     "Le temps implose autour de vous\n" \
+                     "doublant la portee de l'explosion"
+            chaine += "\n\nCout: 55 points de mana"
+            if liste_valides[4]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 9:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0 or liste[1] == 8:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 2:
+        if not (fenetre[7] == 2 and fenetre[8] == 2):
+
+            chaine = "Irrealite\n" \
+                     "\n" \
+                     "En plus des effets precedants, les\n" \
+                     "attaques de bases traversent les rochers\n" \
+                     "pendant 10 secondes"
+            chaine += "\n\nCout: 75 points de mana"
+            if liste_valides[5]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 10:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0 or liste[1] == 8:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+    if fenetre[5] == 2 and fenetre[6] == 3:
+        if not (fenetre[7] == 2 and fenetre[8] == 3):
+
+            chaine = "Equilibre\n" \
+                     "\n" \
+                     "En plus des effets precedants, pendant\n" \
+                     "10 secondes, lorsque votre attaque touche\n" \
+                     "un ennemi, les degats sont equitablement repartis\n" \
+                     "entre tout les ennemis present dans la salle"
+            chaine += "\n\nCout: 40 points de mana"
+            if liste_valides[6]:
+                chaine += "\n\nCe sort a ete debloque"
+            elif liste[1] == 10:
+                chaine += "\n\nCliquez sur l'icone pour debloquer ce sort"
+            elif liste[1] == 0 or liste[1] == 8:
+                chaine += "\n\nVous ne pouvez pas debloquer ce sort"
+            else:
+                chaine += "\n\nVous avez choisi une autre branche"
+
+            fenetre[4], fenetre[2], fenetre[3] = creer_fenetre_souris(chaine)
+
+    return fenetre
+
+
+def changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, nouveau_sort_selectionne):
+
+    global ICONES_SORTS
+
+    nouveau_sort_selectionne %= len(joueur.sorts) # OBTENIR LE VRAI SORT SELECTIONNE
+
+    if joueur.sorts[sort_selectionne] != 0:  # AFFICHER L'ICONE NORMALE DE SORT S'IL Y EN A UNE
+        liste_rafraichir.append([ICONES_SORTS.subsurface((((joueur.sorts[sort_selectionne]-1) % 10)*64,
+                                                          ((joueur.sorts[sort_selectionne]-1)//10)*64, 64, 64)),
+                                 (position_ecran_x+960, position_ecran_y+(64*sort_selectionne), 64, 64), 6])
+    else:  # SINON AFFICHER UN CARRE GRIS
+        icone = pygame.Surface((64, 64))
+        icone.fill((150, 150, 150))
+        liste_rafraichir.append([icone, (position_ecran_x+960, position_ecran_y+(64*sort_selectionne), 64, 64), 6])
+
+    icone_selectionnee = pygame.Surface((64, 64))  # CREER UNE ICONE SELECTIONNEE
+    icone_selectionnee.fill((254, 254, 254))
+    if joueur.sorts[nouveau_sort_selectionne] != 0:  # S'IL Y A UN SORT
+        icone_selectionnee.blit(ICONES_SORTS.subsurface((((joueur.sorts[nouveau_sort_selectionne]-1) % 10)*64+2,
+                                                         ((joueur.sorts[nouveau_sort_selectionne]-1)//10)*64+2, 60, 60)), (2, 2))
+    else:  # SINON ON CREER UN CARRE GRIS SELECTIONNE
+        icone_selectionnee.fill((150, 150, 150), (2, 2, 60, 60))
+
+    liste_rafraichir.append([icone_selectionnee,
+                             (position_ecran_x+960, position_ecran_y+(64*nouveau_sort_selectionne), 64, 64), 6])
+
+    sort_selectionne = nouveau_sort_selectionne
+
+    return liste_rafraichir, sort_selectionne
+
+
+def gerer_poison(joueur, etage):
+
+    if joueur.sorts[0] == 3 or joueur.sorts[0] == 6:  # LES EMPOISONNEMENTS NORMAUX, A DUREE LIMITEE
+        for ennemi in etage.salles[joueur.salle].ennemis:
+            if ennemi.empoisonne and \
+               pygame.time.get_ticks() >= ennemi.fin_empoisonne-4500 and \
+               pygame.time.get_ticks()//500 >= (ennemi.temps_dernier_poison//500)+2:
+                ennemi.temps_dernier_poison = pygame.time.get_ticks()
+                ennemi.points_de_vies -= int(0.25*joueur.attaque)
+                if ennemi.points_de_vies <= 0:
+                    ennemi.mort = True
+            if ennemi.empoisonne and pygame.time.get_ticks() > ennemi.fin_empoisonne:
+                ennemi.empoisonne = False
+
+    if joueur.sorts[0] == 7:  # L'EMPOISONNEMENT DEFINITIF
+        for ennemi in etage.salles[joueur.salle].ennemis:
+            if ennemi.empoisonne and \
+               pygame.time.get_ticks() >= ennemi.fin_empoisonne-4500 and \
+               pygame.time.get_ticks()//500 >= (ennemi.temps_dernier_poison//500)+2:
+                ennemi.temps_dernier_poison = pygame.time.get_ticks()
+                ennemi.points_de_vies = int(0.95*ennemi.points_de_vies)
+                if ennemi.points_de_vies <= 0:
+                    ennemi.mort = True
+
+    return etage
+
+
+def enlever_mana_sorts(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, sort_selectionne):
+
+    sort_valide = False
+    mana_a_enlever = 0
+
+    if joueur.sorts[sort_selectionne] == 8:
+        mana_a_enlever = 15
+    if joueur.sorts[sort_selectionne] == 1:
+        mana_a_enlever = 25
+    if joueur.sorts[sort_selectionne] == 2:
+        mana_a_enlever = 30
+    if joueur.sorts[sort_selectionne] == 9:
+        mana_a_enlever = 35
+    if joueur.sorts[sort_selectionne] == 3 or \
+       joueur.sorts[sort_selectionne] == 10 or \
+       joueur.sorts[sort_selectionne] == 14:
+        mana_a_enlever = 40
+    if joueur.sorts[sort_selectionne] == 5 or \
+       joueur.sorts[sort_selectionne] == 7:
+        mana_a_enlever = 45
+    if joueur.sorts[sort_selectionne] == 4:
+        mana_a_enlever = 50
+    if joueur.sorts[sort_selectionne] == 12:
+        mana_a_enlever = 55
+    if joueur.sorts[sort_selectionne] == 6 or \
+       joueur.sorts[sort_selectionne] == 11:
+        mana_a_enlever = 60
+    if joueur.sorts[sort_selectionne] == 13:
+        mana_a_enlever = 75
+
+    if joueur.mana-mana_a_enlever >= 0:
+        liste_rafraichir, joueur = rafraichir_mana(position_ecran_x, position_ecran_y, joueur, liste_rafraichir,
+                                                   session, joueur.mana-mana_a_enlever)
+        sort_valide = True
+
+    return joueur, liste_rafraichir, sort_valide

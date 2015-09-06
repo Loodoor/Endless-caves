@@ -1,0 +1,14 @@
+1 = Poison paralysant
+2 = Nuage paralysant
+3 = Maladie
+4 = Gros nuage paralysant
+5 = Poison affaiblissant
+6 = Pandemie
+7 = Peste
+8 = Distorsion
+9 = Effondrement
+10 = Acceleration
+11 = Effondrement distant
+12 = Implosion
+13 = Irrealite
+14 = Duplication
