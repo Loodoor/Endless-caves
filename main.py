@@ -5,7 +5,7 @@ import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.2"
+VERSION = "0.2.1"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -99,18 +99,23 @@ except:
 
 # OBTENTION / CREATION DES RACCOURCIS
 
+raccourcis = [[pygame.K_w, "Defaut"],
+              [pygame.K_s, "Defaut"],
+              [pygame.K_a, "Defaut"],
+              [pygame.K_d, "Defaut"],
+              [pygame.K_e, "Defaut"],
+              [pygame.K_EXCLAIM, "Defaut"],
+              [pygame.K_AT, "Defaut"],
+              [pygame.K_SEMICOLON, "Defaut"]]
+
 try:
     with open("raccourcis.txt", "r") as fichier_raccourcis:
-        raccourcis = fichier_raccourcis.read().split("\n")
-        for i in range(len(raccourcis)):
-            raccourcis[i] = raccourcis[i].split("=")
+        raccourcis_obtenus = fichier_raccourcis.read().split("\n")
+        for i in range(len(raccourcis_obtenus)):
+            raccourcis[i] = raccourcis_obtenus[i].split("=")
             raccourcis[i][0] = int(raccourcis[i][0])
 except:
-    raccourcis = [[pygame.K_w, "Defaut"],
-                  [pygame.K_s, "Defaut"],
-                  [pygame.K_a, "Defaut"],
-                  [pygame.K_d, "Defaut"],
-                  [pygame.K_e, "Defaut"]]
+    None
 
 # DEBUT PROGRAMME
 
@@ -359,10 +364,25 @@ while programme_continuer:  # MENU PRINCIPALE
                                     rafraichir_bombes(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.bombes-1)
                             if entree.key == pygame.K_PRINT:
                                 pygame.image.save(ecran, "screenshots/"+str(int(time.time()))+".png")
+                            if entree.key == raccourcis[5][0]:
+                                joueur, liste_rafraichir, sort_valide = enlever_mana_sorts(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, 0)
+                                if sort_valide:
+                                    joueur.sorts_actifs[0] = True
+                                joueur.sorts_temps_activation[0] = pygame.time.get_ticks()
+                            if entree.key == raccourcis[6][0]:
+                                joueur, liste_rafraichir, sort_valide = enlever_mana_sorts(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, 1)
+                                if sort_valide:
+                                    joueur.sorts_actifs[1] = True
+                                joueur.sorts_temps_activation[1] = pygame.time.get_ticks()
+                            if entree.key == raccourcis[7][0]:
+                                liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minimap, resolution, raccourcis)
 
                         if entree.type == pygame.MOUSEBUTTONDOWN:
                             if entree.button == 1:
                                 joueur.attaques.autorisation.append(1)
+                                if position_ecran_x+960 < entree.pos[0] < position_ecran_x+1024 and \
+                                   position_ecran_y+576 < entree.pos[1] < position_ecran_y+640:
+                                    liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minimap, resolution, raccourcis)
                             if entree.button == 4:
                                 liste_rafraichir, sort_selectionne = \
                                     changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne-1)
@@ -381,6 +401,7 @@ while programme_continuer:  # MENU PRINCIPALE
                                 joueur.sorts_temps_activation[sort_selectionne] = pygame.time.get_ticks()
 
                         if entree.type == pygame.MOUSEMOTION:
+                            liste_rafraichir = afficher_bouton_map(position_ecran_x, position_ecran_y, entree, liste_rafraichir)
                             joueur.attaques.position_souris = [entree.pos[0], entree.pos[1]]
 
                     # DIFFERENTES CHOSES A GERER PENDANT QUE LE JEU TOURNE
