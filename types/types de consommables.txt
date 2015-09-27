@@ -1,0 +1,2 @@
+0 = piege
+1 = tourelle

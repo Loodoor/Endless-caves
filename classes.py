@@ -2,7 +2,7 @@
 
 import pygame
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 
 
 class Salle:
@@ -74,6 +74,8 @@ class Joueur:
 
         self.x = 0
         self.y = 0
+        self.w = 64
+        self.h = 64
         self.hitbox = Hitbox()
         self.salle = 0
         self.images = Image()

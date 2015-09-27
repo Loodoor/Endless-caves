@@ -5,7 +5,7 @@ import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -115,7 +115,7 @@ try:
             raccourcis[i] = raccourcis_obtenus[i].split("=")
             raccourcis[i][0] = int(raccourcis[i][0])
 except:
-    None
+    pass
 
 # DEBUT PROGRAMME
 
@@ -155,7 +155,7 @@ while programme_continuer:  # MENU PRINCIPALE
     elif choix == 3:  # CHOISIR LES CONTROLES
 
         liste_rafraichir = mettre_fond(ecran)
-        raccourcis = choisir_raccourcis(ecran, resolution, liste_rafraichir, raccourcis)
+        raccourcis = choisir_raccourcis(ecran, resolution, liste_rafraichir, liste_messages, raccourcis)
         liste_rafraichir = mettre_fond(ecran)
         temps_actuel = pygame.time.get_ticks()
 
@@ -425,7 +425,7 @@ while programme_continuer:  # MENU PRINCIPALE
 
                     liste_rafraichir = afficher_objets(etage, liste_rafraichir, position_ecran_x, position_ecran_y, joueur)
 
-                    joueur, etage = creer_attaque(joueur, position_ecran_x, position_ecran_y, session, etage)
+                    joueur, etage = creer_attaque(joueur, position_ecran_x, position_ecran_y, session, etage, tempo)
 
                     joueur, etage, liste_rafraichir = gerer_attaques(joueur, position_ecran_x, position_ecran_y, etage, liste_rafraichir, session)
 
@@ -454,9 +454,11 @@ while programme_continuer:  # MENU PRINCIPALE
                             salle_continuer = False
                             boucle_jeu_continuer = False
                             jeu_continuer = False
+                            afficher_game_over(ecran, resolution)
+                            pygame.event.get()
                             menu_session = creer_menu_session(resolution, session)
-                            afficher_game_over(ecran, resolution, niveau)
                             liste_rafraichir = mettre_fond(ecran)
+                            temps_actuel = pygame.time.get_ticks()
                         else:
                             liste_rafraichir, joueur = rafraichir_nombre_de_vies(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.nombre_de_vies-1)
                             liste_rafraichir, joueur = rafraichir_vie(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.vie_maximum, joueur.vie_maximum)

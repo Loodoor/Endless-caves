@@ -2,7 +2,7 @@
 
 from sous_fonctions import *
 
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 
 
 def generer_map(niveau):

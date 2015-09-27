@@ -5,3 +5,4 @@
 4 = nuage paralysant
 5 = explosion temporelle
 6 = explosion temporelle (x2)
+7 = attaque des monstres a distance
