@@ -2,7 +2,7 @@
 
 import pygame
 
-VERSION = "0.2.2"
+VERSION = "0.3.0"
 
 
 class Salle:
@@ -93,6 +93,7 @@ class Joueur:
         self.cles = 0
         self.bombes = 0
         self.temps_invincibilite = 0
+        self.armure = 0
 
         self.invincible = False
         self.temps_depuis_invincible = 0
@@ -185,6 +186,10 @@ class Session:
         self.points_de_competences = 0
         self.sorts = [0, 0]
         self.points_de_sorts = 0
+        self.argent = 0
+        self.inventaire = list()
+        self.equipement = list()
+        self.armure = 0
         self.niveau = 0
         self.xp = 0
         self.partie = False

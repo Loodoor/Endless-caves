@@ -1,0 +1,5 @@
+0 = vide
+1 = casque en cuir
+2 = Plastron en cuir
+3 = Jambieres en cuir
+4 = Bottes en cuir

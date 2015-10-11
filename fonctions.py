@@ -2,7 +2,7 @@
 
 from sous_fonctions import *
 
-VERSION = "0.2.2"
+VERSION = "0.3.0"
 
 
 def generer_map(niveau):
@@ -35,6 +35,7 @@ def reset_stats_joueur(joueur, session):
         joueur.vitesse_attaque = 475
     elif session.competences[1] == 2:
         joueur.vitesse_attaque = 425
+    joueur.armure = session.armure
 
     joueur.temps_invincibilite = 1000
     joueur.temps_depuis_invincible = 0
@@ -68,20 +69,24 @@ def creer_menu_session(resolution, session):
     menu_session.w = resolution.current_w
     menu_session.h = resolution.current_h-128
     if session.partie:
-        for i in range(5):
+        for i in range(7):
             menu_session.options.append(Options_Menu())
         menu_session.options[0].message = "Continuer la partie"
         menu_session.options[1].message = "Recommencer une partie"
         menu_session.options[2].message = "Arbre de competences"
         menu_session.options[3].message = "Arbre de sorts"
-        menu_session.options[4].message = "Quitter"
+        menu_session.options[4].message = "Acheter"
+        menu_session.options[5].message = "Inventaire"
+        menu_session.options[6].message = "Quitter"
     if not session.partie:
-        for i in range(4):
+        for i in range(6):
             menu_session.options.append(Options_Menu())
         menu_session.options[0].message = "Nouvelle partie"
         menu_session.options[1].message = "Arbre de competences"
         menu_session.options[2].message = "Arbre de sorts"
-        menu_session.options[3].message = "Quitter"
+        menu_session.options[3].message = "Acheter"
+        menu_session.options[4].message = "Inventaire"
+        menu_session.options[5].message = "Quitter"
     menu_session.type = 1
     menu_session = creer_images_et_positions_menu(menu_session)
 

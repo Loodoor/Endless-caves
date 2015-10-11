@@ -5,7 +5,7 @@ import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.2.2"
+VERSION = "0.3.0"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -14,6 +14,33 @@ resolution = pygame.display.Info()
 ecran = pygame.display.set_mode((resolution.current_w, resolution.current_h), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE)
 
 # INITIALISATION DE VARIABLES
+
+cible = ["           1            ",
+         "           1            ",
+         "        11 1 11         ",
+         "      11001110011       ",
+         "     10011 1 11001      ",
+         "    1011   1   1101     ",
+         "   101     1     101    ",
+         "   101     1     101    ",
+         "  101      1      101   ",
+         "  101      1      101   ",
+         "   1       1       1    ",
+         "11111111111111111111111 ",
+         "   1       1       1    ",
+         "  101      1      101   ",
+         "  101      1      101   ",
+         "   101     1     101    ",
+         "   101     1     101    ",
+         "    1011   1   1101     ",
+         "     10011 1 11001      ",
+         "      11001110011       ",
+         "        11 1 11         ",
+         "           1            ",
+         "           1            ",
+         "                        "]
+data = pygame.cursors.compile(cible, "1", "0")
+pygame.mouse.set_cursor((24, 24), (11, 11), data[0], data[1])
 
 programme_continuer = True
 jeu_continuer = False
@@ -178,7 +205,7 @@ while programme_continuer:  # MENU PRINCIPALE
         if session.partie:  # S'IL Y A UNE SAUVEGARDE DE PARTIE
             if choix == 1:  # CONTINUER LA PARTIE
 
-                etage = session.map
+                etage = session.etage
                 etage = charger_images_monstres(etage)
                 etage = charger_images_objets(etage)
                 for i in range(etage.nombre_de_salles):
@@ -232,7 +259,21 @@ while programme_continuer:  # MENU PRINCIPALE
                 liste_rafraichir = mettre_fond(ecran)
                 temps_actuel = pygame.time.get_ticks()
 
-            elif choix == 5:  # QUITTER LA SESSION
+            elif choix == 5:  # ACHETER
+                liste_rafraichir = mettre_fond(ecran)
+                liste_rafraichir, liste_messages, session = \
+                    achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 6:  # INVENTAIRE
+                liste_rafraichir = mettre_fond(ecran)
+                liste_rafraichir, liste_messages, session = \
+                    menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 7:  # QUITTER LA SESSION
 
                 chaine = "saves/"+session.nom+".txt"
                 with open(chaine, "wb") as sauvegarde:
@@ -271,7 +312,21 @@ while programme_continuer:  # MENU PRINCIPALE
                 liste_rafraichir = mettre_fond(ecran)
                 temps_actuel = pygame.time.get_ticks()
 
-            elif choix == 4:  # QUITTER LA SESSION
+            elif choix == 4:  # ACHETER
+                liste_rafraichir = mettre_fond(ecran)
+                liste_rafraichir, liste_messages, session = \
+                    achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 5:  # INVENTAIRE
+                liste_rafraichir = mettre_fond(ecran)
+                liste_rafraichir, liste_messages, session = \
+                    menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session)
+                liste_rafraichir = mettre_fond(ecran)
+                temps_actuel = pygame.time.get_ticks()
+
+            elif choix == 6:  # QUITTER LA SESSION
 
                 chaine = "saves/"+session.nom+".txt"
                 with open(chaine, "wb") as sauvegarde:
@@ -284,7 +339,7 @@ while programme_continuer:  # MENU PRINCIPALE
             temps_actuel = pygame.time.get_ticks()
             liste_rafraichir = mettre_fond(ecran)
 
-        while jeu_continuer:  # CREATION D'UN NOUVEL ETAGE
+        while jeu_continuer:  # CREATION D'UN NOUVEL etage
 
             if not session.partie:
 
@@ -301,13 +356,13 @@ while programme_continuer:  # MENU PRINCIPALE
                     joueur = initialiser_joueur(etage, joueur)
                     etage = initialiser_salle(etage, joueur)
                     etage = generer_images_salles(etage, joueur.salle)
-                    minimap = charger_minimap(etage, joueur)
+                    minietage = charger_minimap(etage, joueur)
 
                 if session.partie:
 
-                    etage = session.map
+                    etage = session.etage
                     joueur = session.joueur
-                    minimap = charger_minimap(etage, joueur)
+                    minietage = charger_minimap(etage, joueur)
 
                 liste_rafraichir = []
                 joueur.attaques.entites = []
@@ -316,7 +371,7 @@ while programme_continuer:  # MENU PRINCIPALE
                 liste_rafraichir, sort_selectionne = changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne)
                 ecran.blit(etage.salles[joueur.salle].image, (position_ecran_x, position_ecran_y))
                 ecran.blit(joueur.images.bas[0], (position_ecran_x+joueur.x, position_ecran_y+joueur.y))
-                ecran.blit(minimap, (position_ecran_x+824, position_ecran_y+10))
+                ecran.blit(minietage, (position_ecran_x+824, position_ecran_y+10))
                 pygame.display.flip()
 
                 tempo = 0
@@ -334,30 +389,32 @@ while programme_continuer:  # MENU PRINCIPALE
 
                     # OBTENIR LES ENTREES UTILISATEUR ET LES TRAITER
 
+                    touches = pygame.key.get_pressed()
+                    joueur.deplacement_y = 0
+                    joueur.deplacement_x = 0
+                    if touches[raccourcis[0][0]] and not touches[raccourcis[1][0]]:
+                        joueur.deplacement_y = -joueur.vitesse
+                    if touches[raccourcis[1][0]] and not touches[raccourcis[0][0]]:
+                        joueur.deplacement_y = joueur.vitesse
+                    if touches[raccourcis[2][0]] and not touches[raccourcis[3][0]]:
+                        joueur.deplacement_x = -joueur.vitesse
+                    if touches[raccourcis[3][0]] and not touches[raccourcis[2][0]]:
+                        joueur.deplacement_x = joueur.vitesse
+
+                    touches = pygame.mouse.get_pressed()
+                    if touches[0] and 1 not in joueur.attaques.autorisation:
+                        joueur.attaques.autorisation.append(1)
+                    if not touches[0] and 1 in joueur.attaques.autorisation:
+                        joueur.attaques.autorisation.remove(1)
+
                     for entree in pygame.event.get():
 
                         if entree.type == pygame.KEYDOWN:
                             if entree.key == pygame.K_ESCAPE:
                                 choix, joueur = gerer_menu_jeu(ecran, position_souris, position_ecran_x, position_ecran_y, raccourcis, joueur)
                                 temps_actuel = pygame.time.get_ticks()
-                            if entree.key == raccourcis[0][0]:
-                                joueur.deplacement_y -= joueur.vitesse
-                            if entree.key == raccourcis[1][0]:
-                                joueur.deplacement_y += joueur.vitesse
-                            if entree.key == raccourcis[2][0]:
-                                joueur.deplacement_x -= joueur.vitesse
-                            if entree.key == raccourcis[3][0]:
-                                joueur.deplacement_x += joueur.vitesse
 
                         if entree.type == pygame.KEYUP:
-                            if entree.key == raccourcis[0][0]:
-                                joueur.deplacement_y += joueur.vitesse
-                            if entree.key == raccourcis[1][0]:
-                                joueur.deplacement_y -= joueur.vitesse
-                            if entree.key == raccourcis[2][0]:
-                                joueur.deplacement_x += joueur.vitesse
-                            if entree.key == raccourcis[3][0]:
-                                joueur.deplacement_x -= joueur.vitesse
                             if entree.key == raccourcis[4][0]:
                                 if joueur.bombes > 0:
                                     joueur.attaques.autorisation.append(2)
@@ -375,14 +432,13 @@ while programme_continuer:  # MENU PRINCIPALE
                                     joueur.sorts_actifs[1] = True
                                 joueur.sorts_temps_activation[1] = pygame.time.get_ticks()
                             if entree.key == raccourcis[7][0]:
-                                liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minimap, resolution, raccourcis)
+                                liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minietage, resolution, raccourcis)
 
                         if entree.type == pygame.MOUSEBUTTONDOWN:
                             if entree.button == 1:
-                                joueur.attaques.autorisation.append(1)
                                 if position_ecran_x+960 < entree.pos[0] < position_ecran_x+1024 and \
                                    position_ecran_y+576 < entree.pos[1] < position_ecran_y+640:
-                                    liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minimap, resolution, raccourcis)
+                                    liste_rafraichir, joueur = regarder_la_map(etage, ecran, joueur, position_ecran_x, position_ecran_y, session, sort_selectionne, minietage, resolution, raccourcis)
                             if entree.button == 4:
                                 liste_rafraichir, sort_selectionne = \
                                     changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne-1)
@@ -391,8 +447,6 @@ while programme_continuer:  # MENU PRINCIPALE
                                     changer_selection_sort(liste_rafraichir, position_ecran_x, position_ecran_y, joueur, sort_selectionne, sort_selectionne+1)
 
                         if entree.type == pygame.MOUSEBUTTONUP:
-                            if entree.button == 1:
-                                joueur.attaques.autorisation.remove(1)
                             if entree.button == 3:
                                 joueur, liste_rafraichir, sort_valide = \
                                     enlever_mana_sorts(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, session, sort_selectionne)
@@ -444,7 +498,7 @@ while programme_continuer:  # MENU PRINCIPALE
                     etage = gerer_poison(joueur, etage)
 
                     liste_rafraichir.append([etage.salles[joueur.salle].image.subsurface((824, 10, 126, 88)), (position_ecran_x+824, position_ecran_y+10, 126, 88), 1])
-                    liste_rafraichir.append([minimap, (position_ecran_x+824, position_ecran_y+10, 126, 88), 6])
+                    liste_rafraichir.append([minietage, (position_ecran_x+824, position_ecran_y+10, 126, 88), 6])
 
                     # GERER LA MORT DU PERSONNAGE
 
@@ -455,9 +509,12 @@ while programme_continuer:  # MENU PRINCIPALE
                             boucle_jeu_continuer = False
                             jeu_continuer = False
                             afficher_game_over(ecran, resolution)
-                            pygame.event.get()
-                            menu_session = creer_menu_session(resolution, session)
                             liste_rafraichir = mettre_fond(ecran)
+                            liste_rafraichir, liste_messages, session = \
+                                fin_de_partie(ecran, resolution, liste_rafraichir, liste_messages, session, etage)
+                            liste_rafraichir = mettre_fond(ecran)
+                            menu_session = creer_menu_session(resolution, session)
+                            pygame.event.clear()
                             temps_actuel = pygame.time.get_ticks()
                         else:
                             liste_rafraichir, joueur = rafraichir_nombre_de_vies(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, joueur.nombre_de_vies-1)
@@ -487,7 +544,7 @@ while programme_continuer:  # MENU PRINCIPALE
                     if choix == 3:  # QUITTER LA PARTIE
 
                         session.partie = True
-                        session.map = etage
+                        session.etage = etage
                         session.joueur = joueur
                         salle_continuer = False
                         boucle_jeu_continuer = False
@@ -498,7 +555,7 @@ while programme_continuer:  # MENU PRINCIPALE
                     if choix == 4:  # QUITTER LE JEU
 
                         session.partie = True
-                        session.map = etage
+                        session.etage = etage
                         if joueur.animation_tete.activee:
                             joueur.animation_tete.activee = False
                         session.joueur = joueur

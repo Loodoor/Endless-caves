@@ -3,7 +3,7 @@
 import pygame
 import time
 
-surface = pygame.image.load("images/32/ascii_selectionnee.bmp")
+surface = pygame.image.load("joueur.bmp")
 surface_finale = pygame.Surface((surface.get_size()[0]*2, surface.get_size()[1]*2))
 for i in range(surface_finale.get_size()[1]):
     for j in range(surface_finale.get_size()[0]):
