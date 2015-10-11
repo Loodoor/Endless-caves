@@ -6619,8 +6619,6 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
 
     # METTRE A JOUR L'INVENTAIRE ET L'EQUIPEMENT SI CE N'EST PAS DEJA LE CAS
 
-    session.inventaire = [1, 2, 3, 4]
-
     for i in range(96-len(session.inventaire)):
         session.inventaire.append(0)
     for i in range(4-len(session.equipement)):
