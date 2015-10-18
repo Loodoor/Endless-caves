@@ -7,7 +7,7 @@ from math import acos, degrees
 from random import randrange
 from classes import *
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 
 FOND = pygame.image.load("images/fond.bmp")
 TILESET = pygame.image.load("images/tileset.bmp")
@@ -928,7 +928,7 @@ def ramasser_objets(etage, joueur, liste_rafraichir, position_ecran_x, position_
 
             if etage.salles[joueur.salle].objets[i].type == 1002:
                 liste_rafraichir, joueur = \
-                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+50)
+                    rafraichir_argent(position_ecran_x, position_ecran_y, joueur, liste_rafraichir, etage, joueur.argent+20)
 
             if etage.salles[joueur.salle].objets[i].type == 1003:
                 joueur.vitesse += 1
@@ -6239,12 +6239,21 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
     # CREER LE MENU DES ACHETABLES
 
     achetables = Menu()
-    for i in range(4):
+    for i in range(12):
         achetables.options.append(Options_Menu())
+    #Pour calculer: u(n) = u(n-1)*4
     achetables.options[0].message = "300$ - Casque en cuir"
-    achetables.options[1].message = "500$ - Plastron en cuir"
-    achetables.options[2].message = "450$ - Jambieres en cuir"
+    achetables.options[1].message = "500$ - Gilet en cuir"
+    achetables.options[2].message = "450$ - Pantalon en cuir"
     achetables.options[3].message = "250$ - Bottes en cuir"
+    achetables.options[4].message = "1200$ - Casque en fer"
+    achetables.options[5].message = "2000$ - Plastron en fer"
+    achetables.options[6].message = "1800$ - Jambières en fer"
+    achetables.options[7].message = "1000$ - Bottes en fer"
+    achetables.options[8].message = "4800$ - Casque en or"
+    achetables.options[9].message = "8000$ - Plastron en or"
+    achetables.options[10].message = "7200$ - Jambières en or"
+    achetables.options[11].message = "1000$ - Bottes en or"
     achetables.x = 100
     achetables.y = 100
     achetables.w = resolution.current_w-200
@@ -6501,30 +6510,7 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
 
         if choix[0] == 2:  # ACHETER
             if choix[1] != 0:
-                if choix[1] == 1 and session.argent >= 300:
-                    for i in range(len(session.inventaire)):
-                        if session.inventaire[i] == 0:
-                            session.inventaire[i] = 1
-                            session.argent -= 300
-                            break
-                if choix[1] == 2 and session.argent >= 500:
-                    for i in range(len(session.inventaire)):
-                        if session.inventaire[i] == 0:
-                            session.inventaire[i] = 2
-                            session.argent -= 500
-                            break
-                if choix[1] == 3 and session.argent >= 450:
-                    for i in range(len(session.inventaire)):
-                        if session.inventaire[i] == 0:
-                            session.inventaire[i] = 3
-                            session.argent -= 450
-                            break
-                if choix[1] == 4 and session.argent >= 250:
-                    for i in range(len(session.inventaire)):
-                        if session.inventaire[i] == 0:
-                            session.inventaire[i] = 4
-                            session.argent -= 250
-                            break
+                choix, session = placer_item_boutique_inventaire(choix, session)
 
             # METTRE A JOUR L'AFFICHAGE DE L'ARGENT
 
@@ -6546,11 +6532,90 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
     return liste_rafraichir, liste_messages, session
 
 
+def placer_item_boutique_inventaire(choix, session):
+
+    if choix[1] == 1 and session.argent >= 300:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 1
+                session.argent -= 300
+                break
+    if choix[1] == 2 and session.argent >= 500:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 2
+                session.argent -= 500
+                break
+    if choix[1] == 3 and session.argent >= 450:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 3
+                session.argent -= 450
+                break
+    if choix[1] == 4 and session.argent >= 250:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 4
+                session.argent -= 250
+                break
+    if choix[1] == 5 and session.argent >= 1200:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 5
+                session.argent -= 1200
+                break
+    if choix[1] == 6 and session.argent >= 2000:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 6
+                session.argent -= 2000
+                break
+    if choix[1] == 7 and session.argent >= 1800:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 7
+                session.argent -= 1800
+                break
+    if choix[1] == 8 and session.argent >= 1000:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 8
+                session.argent -= 1000
+                break
+    if choix[1] == 9 and session.argent >= 4800:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 9
+                session.argent -= 4800
+                break
+    if choix[1] == 10 and session.argent >= 8000:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 10
+                session.argent -= 8000
+                break
+    if choix[1] == 11 and session.argent >= 7200:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 11
+                session.argent -= 7200
+                break
+    if choix[1] == 12 and session.argent >= 4000:
+        for i in range(len(session.inventaire)):
+            if session.inventaire[i] == 0:
+                session.inventaire[i] = 12
+                session.argent -= 4000
+                break
+
+    return choix, session
+
+
 def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session):
 
     global MENU_INVENTAIRE
     global FOND
     global ITEMS
+    global CARACTERES
 
     # CREER LES CURSEURS
 
@@ -6613,7 +6678,7 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
     fond = pygame.Surface((resolution.current_w, resolution.current_h))
     fond.blit(FOND, (0, 0))
     fond.blit(MENU_INVENTAIRE.subsurface((0, 64, 336, 512)),
-              ((resolution.current_w//2-336)//2, (resolution.current_h-512)//2))
+              ((resolution.current_w-8*int(64*resolution.current_h/768)-336)//2, (resolution.current_h-512)//2))
     ecran.blit(fond, (0, 0))
     pygame.display.flip()
 
@@ -6639,9 +6704,9 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
     # CREER LES CASES DE L'INVENTAIRE ET LES AFFICHER
 
     cases = Menu()
-    cases.x = resolution.current_w//2
+    cases.x = resolution.current_w-8*int(64*resolution.current_h/768)
     cases.y = 0
-    cases.w = resolution.current_w//2
+    cases.w = 8*int(64*resolution.current_h/768)
     cases.h = resolution.current_h
 
     for i in range(96):
@@ -6649,9 +6714,9 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
         # COORDONNEES DE LA CASE
 
         cases.options.append(Options_Menu())
-        cases.options[i].w = int(64*resolution.current_w/1024)
-        cases.options[i].h = cases.options[i].w
-        cases.options[i].x = (resolution.current_w//2)+cases.options[i].w*(i % 8)
+        cases.options[i].h = int(64*resolution.current_h/768)
+        cases.options[i].w = cases.options[i].h
+        cases.options[i].x = (resolution.current_w-8*cases.options[i].h)+cases.options[i].w*(i % 8)
         cases.options[i].y = cases.options[i].h*(i//8)
 
         # CREER L'IMAGE
@@ -6686,7 +6751,7 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
     equipement = Menu()
     equipement.x = 0
     equipement.y = 0
-    equipement.w = resolution.current_w//2
+    equipement.w = resolution.current_w-8*int(64*resolution.current_h/768)
     equipement.h = resolution.current_h-128
 
     for i in range(4):
@@ -6694,9 +6759,10 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
         # COORDONNEES DE LA CASE
 
         equipement.options.append(Options_Menu())
-        equipement.options[i].w = int(64*resolution.current_w/1024)
-        equipement.options[i].h = equipement.options[i].w
-        equipement.options[i].x = (resolution.current_w//2-336)//2+(336-equipement.options[i].w)//2
+        equipement.options[i].h = int(64*resolution.current_h/768)
+        equipement.options[i].w = equipement.options[i].h
+        equipement.options[i].x = \
+            (resolution.current_w-8*int(64*resolution.current_h/768)-336)//2+(336-equipement.options[i].w)//2
         equipement.options[i].y = \
             (resolution.current_h-512)//2+i*(equipement.options[i].w+(512-4*equipement.options[i].w)//4)
 
@@ -6709,8 +6775,12 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
         equipement.options[i].images[0].set_colorkey((255, 255, 255))
         equipement.options[i].images[1].set_colorkey((255, 255, 255))
 
-        equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((0, 0, 64, 64)), (0, 0))
-        equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((64, 0, 64, 64)), (0, 0))
+        if session.equipement[i] == 0:
+            equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((i*64, 576, 64, 64)), (0, 0))
+            equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((i*64, 640, 64, 64)), (0, 0))
+        else:
+            equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((0, 0, 64, 64)), (0, 0))
+            equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((64, 0, 64, 64)), (0, 0))
 
         equipement.options[i].images[0].blit(ITEMS.subsurface(((session.equipement[i] % 10)*52,
                                                           (session.equipement[i]//10)*52, 52, 52)), (6, 6))
@@ -6726,12 +6796,69 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
         equipement.options[i].images[0].set_alpha(225)
         equipement.options[i].images[1].set_alpha(225)
 
+    # CREER LA POUBELLE
+
+    poubelle = Menu()
+    poubelle.x = 0
+    poubelle.y = 0
+    poubelle.w = int(64*resolution.current_h/768)
+    poubelle.h = poubelle.w
+
+    poubelle.options.append(Options_Menu())
+    poubelle.options[0].h = int(64*resolution.current_h/768)
+    poubelle.options[0].w = poubelle.options[0].h
+    poubelle.options[0].x = (resolution.current_w-9*cases.options[i].h)
+    poubelle.options[0].y = 0
+
+    poubelle.options[0].images = [pygame.Surface((64, 64)), pygame.Surface((64, 64))]
+
+    poubelle.options[0].images[0].fill((255, 255, 255))
+    poubelle.options[0].images[1].fill((255, 255, 255))
+    poubelle.options[0].images[0].set_colorkey((255, 255, 255))
+    poubelle.options[0].images[1].set_colorkey((255, 255, 255))
+
+    poubelle.options[0].images[0].blit(MENU_INVENTAIRE.subsurface((128, 0, 64, 64)), (0, 0))
+    poubelle.options[0].images[1].blit(MENU_INVENTAIRE.subsurface((192, 0, 64, 64)), (0, 0))
+
+    poubelle.options[0].images[0] = pygame.transform.scale(poubelle.options[0].images[0],
+                                                           (poubelle.options[0].w, poubelle.options[0].h))
+    poubelle.options[0].images[1] = pygame.transform.scale(poubelle.options[0].images[1],
+                                                           (poubelle.options[0].w, poubelle.options[0].h))
+
+    liste_rafraichir.append([poubelle.options[0].images[0], (poubelle.options[0].x, poubelle.options[0].y,
+                                                             poubelle.options[0].w, poubelle.options[0].h), 7])
+
+    # INITIALISATION DES VARIABLES POUR CALCULER L'ARMURE
+
+    # listes qui associent a un item son type: casque/plastron/jambiere/botte
+    liste_casques = [0, 1, 5, 9]
+    liste_plastrons = [0, 2, 6, 10]
+    liste_jambieres = [0, 3, 7, 11]
+    liste_bottes = [0, 4, 8, 12]
+    # liste qui associe a un type d'item ses points d'armure
+    liste_armure_equipement = [0, 1, 2, 2, 1, 2, 4, 4, 2, 4, 8, 8, 4]
+
+    # CREER LE MESSAGE QUI AFFICHE L'ARMURE
+
+    session.armure = 0
+    for item in session.equipement:
+        session.armure += liste_armure_equipement[item]
+
+    message = [0, 0, 0, 0, pygame.Surface((0, 0)), session.armure]
+    message[3] = 64
+    message[1] = (resolution.current_h-512)//2-message[3]-2
+    message[2] = 60+32*len(str(session.armure))
+    message[0] = (resolution.current_w-8*int(64*resolution.current_h/768)-message[2])//2
+    message[4] = pygame.Surface((message[2], message[3]))
+    message[4].fill((255, 255, 255))
+    message[4].set_colorkey((255, 255, 255))
+    message[4].blit(MENU_INVENTAIRE.subsurface((256, 0, 60, 64)), (message[2]-60, 0))
+    for i, lettre in enumerate(str(session.armure)):
+        message[4].blit(CARACTERES.subsurface(((ord(lettre) % 10)*32, (ord(lettre)//10)*64, 32, 64)), (32*i, 0))
+    liste_rafraichir.append([message[4], (message[0], message[1], message[2], message[3]), 7])
+
     # INITIALISATION DE VARIABLES AVANT LA BOUCLE
 
-    liste_casques = [0, 1]
-    liste_plastrons = [0, 2]
-    liste_jambieres = [0, 3]
-    liste_bottes = [0, 4]
     choix = [0, 0]
     tempo = 0
     case_selectionnee = -1
@@ -6764,6 +6891,14 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
                            menu.options[i].y+menu.options[i].h > entree.pos[1] > menu.options[i].y:
                             choix[0] = i+1
 
+                    # CLIQUER SUR LA POUBELLE
+
+                    if poubelle.options[0].x+poubelle.options[0].w > entree.pos[0] > poubelle.options[0].x and \
+                       poubelle.options[0].y+poubelle.options[0].h > entree.pos[1] > poubelle.options[0].y:
+
+                        item_selectionne = 0
+                        pygame.mouse.set_cursor((24, 24), (11, 11), data_cible[0], data_cible[1])
+
                     # CLIQUER SUR UNE CASE D'EQUIPEMENT
 
                     for i in range(len(equipement.options)):
@@ -6788,8 +6923,12 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
                             equipement.options[i].images[1].fill((255, 255, 255))
                             equipement.options[i].images[0].set_colorkey((255, 255, 255))
                             equipement.options[i].images[1].set_colorkey((255, 255, 255))
-                            equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((0, 0, 64, 64)), (0, 0))
-                            equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((64, 0, 64, 64)), (0, 0))
+                            if session.equipement[i] == 0:
+                                equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((i*64, 576, 64, 64)), (0, 0))
+                                equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((i*64, 640, 64, 64)), (0, 0))
+                            else:
+                                equipement.options[i].images[0].blit(MENU_INVENTAIRE.subsurface((0, 0, 64, 64)), (0, 0))
+                                equipement.options[i].images[1].blit(MENU_INVENTAIRE.subsurface((64, 0, 64, 64)), (0, 0))
                             equipement.options[i].images[0].blit(ITEMS.subsurface(((session.equipement[i] % 10)*52,
                                                                                    (session.equipement[i]//10)*52, 52, 52)), (6, 6))
                             equipement.options[i].images[1].blit(ITEMS.subsurface(((session.equipement[i] % 10)*52,
@@ -6803,6 +6942,25 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
                                                                                      (equipement.options[i].w, equipement.options[i].h))
                             equipement.options[i].images[0].set_alpha(225)
                             equipement.options[i].images[1].set_alpha(225)
+
+                            # AFFICHER L'ARMURE
+
+                            session.armure = 0
+                            for item in session.equipement:
+                                session.armure += liste_armure_equipement[item]
+                            liste_rafraichir.append([FOND.subsurface((message[0], message[1], message[2], message[3])),
+                                                     (message[0], message[1], message[2], message[3]), 7])
+                            message[3] = 64
+                            message[1] = (resolution.current_h-512)//2-message[3]-2
+                            message[2] = 60+32*len(str(session.armure))
+                            message[0] = (resolution.current_w-8*int(64*resolution.current_h/768)-message[2])//2
+                            message[4] = pygame.Surface((message[2], message[3]))
+                            message[4].fill((255, 255, 255))
+                            message[4].set_colorkey((255, 255, 255))
+                            message[4].blit(MENU_INVENTAIRE.subsurface((256, 0, 60, 64)), (message[2]-60, 0))
+                            for i, lettre in enumerate(str(session.armure)):
+                                message[4].blit(CARACTERES.subsurface(((ord(lettre) % 10)*32, (ord(lettre)//10)*64, 32, 64)), (32*i, 0))
+                            liste_rafraichir.append([message[4], (message[0], message[1], message[2], message[3]), 7])
 
                             # AJUSTER LE CURSEUR
 
@@ -6868,6 +7026,20 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
                 liste_rafraichir.append([menu.options[i].images[0],
                                          (menu.options[i].x, menu.options[i].y, menu.options[i].w, menu.options[i].h), 7])
 
+        # AFFICHER LA POUBELLE
+
+        if poubelle.options[0].x+poubelle.options[0].w > position_souris[0] > poubelle.options[0].x and \
+           poubelle.options[0].y+poubelle.options[0].h > position_souris[1] > poubelle.options[0].y:
+            liste_rafraichir.append([poubelle.options[0].images[1], (poubelle.options[0].x, poubelle.options[0].y,
+                                                                     poubelle.options[0].w, poubelle.options[0].h), 7])
+        else:
+            liste_rafraichir.append([fond.subsurface((poubelle.options[0].x, poubelle.options[0].y,
+                                                      poubelle.options[0].w, poubelle.options[0].h)),
+                                     (poubelle.options[0].x, poubelle.options[0].y,
+                                      poubelle.options[0].w, poubelle.options[0].h), 7])
+            liste_rafraichir.append([poubelle.options[0].images[0], (poubelle.options[0].x, poubelle.options[0].y,
+                                                                     poubelle.options[0].w, poubelle.options[0].h), 7])
+
         # AFFICHER LES CHANGEMENTS DE CASE
 
         for i in range(len(cases.options)):
@@ -6886,7 +7058,7 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
                                              cases.options[case_selectionnee].w, cases.options[case_selectionnee].h), 7])
                 case_selectionnee = i
 
-        if case_selectionnee != -1 and position_souris[0] < resolution.current_w//2:
+        if case_selectionnee != -1 and position_souris[0] < cases.x:
             liste_rafraichir.append([fond.subsurface((cases.options[case_selectionnee].x, cases.options[case_selectionnee].y,
                                      cases.options[case_selectionnee].w, cases.options[case_selectionnee].h)),
                                     (cases.options[case_selectionnee].x, cases.options[case_selectionnee].y,
@@ -6913,14 +7085,6 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
 
         if choix[0] == 1:
             continuer = False
-
-    # CALCULER L'ARMURE
-
-    session.armure = 0
-    # liste qui associe a un type d'item ses points d'armure
-    liste_armure_equipement = [0, 1, 2, 2, 1]
-    for item in session.equipement:
-        session.armure += liste_armure_equipement[item]
 
     # CHANGER LE CURSEUR
 

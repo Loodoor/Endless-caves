@@ -5,7 +5,7 @@ import sys
 from fonctions import *
 from sous_fonctions import *
 
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 
 # INITIALISATION DE PYGAME ET OBTENTION DE LA RESOLUTION DE L'UTILISATEUR
 
@@ -339,7 +339,7 @@ while programme_continuer:  # MENU PRINCIPALE
             temps_actuel = pygame.time.get_ticks()
             liste_rafraichir = mettre_fond(ecran)
 
-        while jeu_continuer:  # CREATION D'UN NOUVEL etage
+        while jeu_continuer:  # CREATION D'UN NOUVEL ETAGE
 
             if not session.partie:
 

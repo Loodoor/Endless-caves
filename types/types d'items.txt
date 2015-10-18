@@ -1,5 +1,13 @@
-0 = vide
-1 = casque en cuir
-2 = Plastron en cuir
-3 = Jambieres en cuir
+0 = Vide
+1 = Casque en cuir
+2 = Gilet en cuir
+3 = Pantalon en cuir
 4 = Bottes en cuir
+5 = Casque en fer
+6 = Plastron en fer
+7 = Jambières en fer
+8 = Bottes en fer
+9 = Casque en or
+10 = Plastron en or
+11 = Jambières en or
+12 = Bottes en or
