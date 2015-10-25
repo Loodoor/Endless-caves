@@ -2,7 +2,7 @@
 
 import pygame
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 
 class Salle:
@@ -55,6 +55,7 @@ class Ennemis:
         self.temps_dernier_poison = 0
         self.empoisonne = False
         self.fin_empoisonne = 0
+        self.temps = list()
 
 
 class Objet:

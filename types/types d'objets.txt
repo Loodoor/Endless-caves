@@ -10,3 +10,11 @@
 1000 = bombes*99
 1001 = clé*99
 1002 = argent*99
+1003 = bottes (vitesse +)
+1004 = livre de sorts (attaque +)
+1005 = épée (attaque +)
+1006 = champignon (vie +)
+1007 = bouclier (vie +)
+1008 = red cat (vitesse d'attaque +)
+1009 = arc (vitesse d'attaque +)
+1010 = cookie (vie +)

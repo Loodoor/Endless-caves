@@ -2,7 +2,7 @@
 
 from sous_fonctions import *
 
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 
 def generer_map(niveau):
@@ -19,7 +19,7 @@ def generer_map(niveau):
 def reset_stats_joueur(joueur, session):
 
     joueur.argent = 0
-    joueur.attaque = 40+(2*session.competences[0])
+    joueur.attaque = 30+(2*session.competences[0])
     joueur.bombes = 1
     joueur.cles = 1
     joueur.points_de_vies = 100+(10*session.competences[2])
@@ -29,6 +29,11 @@ def reset_stats_joueur(joueur, session):
     joueur.mana = 100+(10*session.competences[7])
     joueur.deplacement_x = 0
     joueur.deplacement_y = 0
+    for item in session.equipement:
+        joueur.points_de_vies += LISTE_ARMURE_EQUIPEMENT[item][1]
+        joueur.vie_maximum += LISTE_ARMURE_EQUIPEMENT[item][1]
+        joueur.mana += LISTE_ARMURE_EQUIPEMENT[item][2]
+        joueur.attaque += LISTE_ARMURE_EQUIPEMENT[item][3]
     if session.competences[1] == 0:
         joueur.vitesse_attaque = 500
     elif session.competences[1] == 1:

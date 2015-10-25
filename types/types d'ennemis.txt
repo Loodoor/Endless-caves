@@ -1,2 +1,3 @@
 0 = Monstre normal
 1 = Monstre a distance
+2 = Monstre explosif
