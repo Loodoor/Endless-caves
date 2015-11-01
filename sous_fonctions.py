@@ -7,7 +7,7 @@ from math import acos, degrees
 from random import randrange
 from classes import *
 
-VERSION = "0.3.2"
+VERSION = "0.3.3"
 
 FOND = pygame.image.load("images/fond.bmp")
 TILESET = pygame.image.load("images/tileset.bmp")
@@ -56,7 +56,8 @@ LISTE_ARMURE_EQUIPEMENT = [[0, 0, 0, 0],
                            [4, 0, 0, 0], [8, 0, 0, 0], [8, 0, 0, 0], [4, 0, 0, 0],
                            [8, 0, 5, 0], [16, 0, 10, 0], [16, 0, 10, 0], [8, 0, 5, 0],
                            [8, 10, 0, 0], [16, 20, 0, 0], [16, 20, 0, 0], [8, 10, 0, 0],
-                           [8, 0, 0, 4], [16, 0, 0, 8], [16, 0, 0, 8], [8, 0, 0, 4]]
+                           [8, 0, 0, 4], [16, 0, 0, 8], [16, 0, 0, 8], [8, 0, 0, 4],
+                           [16, 10, 5, 4], [32, 20, 10, 8], [32, 20, 10, 8], [16, 10, 5, 4]]
 
 
 def placer_salles(niveau):
@@ -527,8 +528,6 @@ def initialiser_objets(etage, joueur):
 
 
 def rafraichir_image(liste_rafraichir, ecran):
-
-    # FONCTION TRES IMPORTANTE !
 
     liste = []
     for i in range(9):
@@ -1668,8 +1667,8 @@ def creer_attaque(joueur, position_ecran_x, position_ecran_y, session, etage, te
                 entite.x = ennemi.x+32
                 entite.y = ennemi.y+32
                 entite.type = 7
-                entite.images = [ATTAQUES_MONSTRES.subsurface((0, 0, 32, 32)),
-                                 ATTAQUES_MONSTRES.subsurface((32, 0, 32, 32))]
+                entite.images = [ATTAQUES_MONSTRES.subsurface((0, 0, 20, 32)),
+                                 ATTAQUES_MONSTRES.subsurface((20, 0, 32, 32))]
 
                 difference_x = joueur.x-ennemi.x
                 difference_y = joueur.y-ennemi.y
@@ -6412,7 +6411,7 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
     # CREER LE MENU DES ACHETABLES
 
     achetables = Menu()
-    for i in range(24):
+    for i in range(28):
         achetables.options.append(Options_Menu())
     achetables.options[0].message = "Casque en cuir"
     achetables.options[1].message = "Gilet en cuir"
@@ -6438,6 +6437,10 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
     achetables.options[21].message = "Cape d'assassin"
     achetables.options[22].message = "Pantalon d'assassin"
     achetables.options[23].message = "Bottes d'assassin"
+    achetables.options[24].message = "Casque surpuissant"
+    achetables.options[25].message = "Plastron surpuissant"
+    achetables.options[26].message = "Jambières surpuissantes"
+    achetables.options[27].message = "Bottes surpuissantes"
     achetables.x = 100
     achetables.y = 100
     achetables.w = resolution.current_w-200
@@ -6486,12 +6489,16 @@ def achat_equipement(ecran, resolution, liste_rafraichir, liste_messages, sessio
                              "Capuche d'assassin\n\nArmure: 8\nAttaque: 4\n\n9600$",
                              "Cape d'assassin\n\nArmure: 16\nAttaque: 8\n\n16000$",
                              "Pantalon d'assassin\n\nArmure: 16\nAttaque: 8\n\n14400$",
-                             "Bottes d'assassin\n\nArmure: 8\nAttaque: 4\n\n8000$"]
+                             "Bottes d'assassin\n\nArmure: 8\nAttaque: 4\n\n8000$",
+                             "Casque surpuissant\n\nArmure: 8\nAttaque: 4\nVie: 10\nMana: 5\n\n38400$",
+                             "Plastron surpuissant\n\nArmure: 16\nAttaque: 8\nVie: 20\nMana: 10\n\n64000$",
+                             "Jambieres surpuissantes\n\nArmure: 16\nAttaque: 8\nVie: 20\nMana: 10\n\n57600$",
+                             "Bottes surpuissantes\n\nArmure: 8\nAttaque: 4\nVie: 10\nMana: 5\n\n32000$"]
 
     # INITIALISER QUELQUES VARIABLES
 
     liste_prix = [0, 150, 250, 225, 125, 600, 1000, 900, 500, 2400, 4000, 3600, 2000, 9600, 16000, 14400, 8000,
-                  9600, 16000, 14400, 8000, 9600, 16000, 14400, 8000]
+                  9600, 16000, 14400, 8000, 9600, 16000, 14400, 8000, 38400, 64000, 57600, 32000]
     # liste_cadre = [x, y, w, h, image]
     liste_cadre = [0, 0, 0, 0, pygame.Surface((0, 0))]
     choix = [0, 0]
@@ -6981,10 +6988,10 @@ def menu_inventaire(ecran, resolution, liste_rafraichir, liste_messages, session
     # INITIALISATION DES VARIABLES POUR CALCULER L'ARMURE
 
     # listes qui associent a un item son type: casque/plastron/jambiere/botte
-    liste_casques = [0, 1, 5, 9, 13, 17, 21]
-    liste_plastrons = [0, 2, 6, 10, 14, 18, 22]
-    liste_jambieres = [0, 3, 7, 11, 15, 19, 23]
-    liste_bottes = [0, 4, 8, 12, 16, 20, 24]
+    liste_casques = [0, 1, 5, 9, 13, 17, 21, 25]
+    liste_plastrons = [0, 2, 6, 10, 14, 18, 22, 26]
+    liste_jambieres = [0, 3, 7, 11, 15, 19, 23, 27]
+    liste_bottes = [0, 4, 8, 12, 16, 20, 24, 28]
 
     # CREER LE MESSAGE QUI AFFICHE L'ARMURE
 

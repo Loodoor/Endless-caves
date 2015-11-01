@@ -1,2 +1,4 @@
 1 = verticale
 2 = horizontale
+3 = verticale *32
+4 = horizontale *32
