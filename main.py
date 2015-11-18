@@ -1,6 +1,5 @@
 ﻿# -*- coding:utf_8 -*
 
-import pygame._view
 import sys
 import time
 from fonctions import *
@@ -63,13 +62,7 @@ joueur.hitbox.h = 48
 
 # CREATION / VERIFICATION DES DOSSIERS DE SAUVEGARDE
 
-try:
-    os.chdir(os.getcwd()+"\\saves")
-    path = os.getcwd().split("\\")
-    del path[len(path)-1]
-    os.chdir("\\".join(path))
-except:
-    os.mkdir(os.getcwd()+"\\saves")
+chdir("saves")
 
 a = open("saves/liste_personnages.txt", "a")
 a.close()
@@ -83,15 +76,13 @@ with open("saves/liste_personnages.txt", "r+") as liste_personnages:
         try:
             open("saves/"+chaine[i]+".txt", "r")
             i += 1
-        except:
+        except OSError:
             del chaine[i]
 
 with open("saves/liste_personnages.txt", "w") as liste_personnages:
     liste_personnages.write("\n"+"\n".join(chaine))
 
-del liste_personnages
-del chaine
-del i
+del liste_personnages, chaine, i
 
 # VERIFICATION DE SESSION.SORTS
 
@@ -105,8 +96,7 @@ with open("saves/liste_personnages.txt", "r") as liste_personnages:
         i += 1
     for i in range(len(liste)):
         with open("saves/"+liste[i]+".txt", "rb") as fichier_session:
-            depickler = pickle.Unpickler(fichier_session)
-            session_test = depickler.load()
+            session_test = pickle.Unpickler(fichier_session).load()
         if len(session_test.sorts) > 2:
             session_test.sorts = session_test.sorts[:2]
         while len(session_test.sorts) < 2:
@@ -117,13 +107,7 @@ with open("saves/liste_personnages.txt", "r") as liste_personnages:
 
 # CREATION / VERIFICATION DU DOSSIER DE SCREENSHOTS
 
-try:
-    os.chdir(os.getcwd()+"\\screenshots")
-    path = os.getcwd().split("\\")
-    del path[len(path)-1]
-    os.chdir("\\".join(path))
-except:
-    os.mkdir(os.getcwd()+"\\screenshots")
+chdir("screenschots")
 
 # OBTENTION / CREATION DES RACCOURCIS
 
@@ -142,7 +126,7 @@ try:
         for i in range(len(raccourcis_obtenus)):
             raccourcis[i] = raccourcis_obtenus[i].split("=")
             raccourcis[i][0] = int(raccourcis[i][0])
-except:
+except OSError:
     pass
 
 # DEBUT PROGRAMME

@@ -1,19 +1,23 @@
 ﻿# -*- coding:utf_8 -*
 
 import pygame
+from constantes import *
 
-VERSION = "0.3.3"
 
-
-class Salle:
-
+class Box:
     def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.w = 0
+        self.h = 0
 
+
+class Salle(Box):
+    def __init__(self):
+        super().__init__()
         self.image = pygame.Surface((960, 576))
         self.blocs_type = []
         self.blocs_hitboxs = []
-        self.x = 0
-        self.y = 0
         self.type_salle = 0
         self.visited = False
         self.objets = list()
@@ -23,21 +27,16 @@ class Salle:
 
 
 class Map:
-
     def __init__(self, nombre_de_salles):
-
         self.niveau = 0
         self.salles = []
         self.nombre_de_salles = nombre_de_salles
         self.carte_map = []
 
 
-class Ennemis:
-
+class Ennemis(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
+        super().__init__()
         self.type = 0
         self.attaque = 0
         self.points_de_vies = 0
@@ -58,23 +57,17 @@ class Ennemis:
         self.temps = list()
 
 
-class Objet:
-
+class Objet(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
+        super().__init__()
         self.type = 0
         self.image = pygame.Surface((64, 64))
         self.hitbox = Hitbox()
 
 
-class Joueur:
-
+class Joueur(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
+        super().__init__()
         self.w = 64
         self.h = 64
         self.hitbox = Hitbox()
@@ -108,82 +101,56 @@ class Joueur:
 
 
 class Image:
-
     def __init__(self):
-
         self.haut = []
         self.bas = []
         self.gauche = []
         self.droite = []
 
 
-class Hitbox:
-
+class Hitbox(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0
+        super().__init__()
 
 
-class Entite_Attaque:
-
+class Entite_Attaque(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
+        super().__init__()
         self.type = 0
         self.deplacement_x = 0
         self.deplacement_y = 0
         self.images = []
-        self.w = 0
-        self.h = 0
         self.detruit = False
         self.temps = 0
 
 
 class Attaque:
-
     def __init__(self):
-
         self.temps_derniere_attaque = 0
         self.entites = []
         self.autorisation = []
         self.position_souris = []
 
 
-class Menu:
-
+class Menu(Box):
     def __init__(self):
-
+        super().__init__()
         self.options = []
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0
         self.type = 0
 
 
-class Options_Menu:
-
+class Options_Menu(Box):
     def __init__(self):
-
+        super().__init__()
         self.message = ""
         self.chaines = []
         self.images = []
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0
 
 
 class Session:
-
     def __init__(self):
-
         self.nom = ""
-        self.competences = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.competences = [0 for _ in range(12)]
         self.points_de_competences = 0
         self.sorts = [0, 0]
         self.points_de_sorts = 0
@@ -199,38 +166,23 @@ class Session:
         self.version = VERSION
 
 
-class Message:
-
+class Message(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0
+        super().__init__()
         self.image = 0
         self.temps_creation = 0
 
 
-class Minibarre:
-
+class Minibarre(Box):
     def __init__(self):
-
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0
+        super().__init__()
         self.image = 0
 
 
-class Animation:
-
+class Animation(Box):
     def __init__(self):
-
+        super().__init__()
         self.activee = False
         self.images = list()
         self.temps_restant = 0
         self.temps_total = 0
-        self.x = 0
-        self.y = 0
-        self.w = 0
-        self.h = 0

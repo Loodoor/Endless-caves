@@ -1,12 +1,10 @@
 ﻿# -*- coding:utf_8 -*
 
 from sous_fonctions import *
-
-VERSION = "0.3.3"
+from constantes import *
 
 
 def generer_map(niveau):
-
     etage = placer_salles(niveau)
     etage = generer_salles(etage)
 
@@ -17,7 +15,6 @@ def generer_map(niveau):
 
 
 def reset_stats_joueur(joueur, session):
-
     joueur.argent = 0
     joueur.attaque = 30+(2*session.competences[0])
     joueur.bombes = 1
@@ -29,17 +26,20 @@ def reset_stats_joueur(joueur, session):
     joueur.mana = 100+(10*session.competences[7])
     joueur.deplacement_x = 0
     joueur.deplacement_y = 0
+
     for item in session.equipement:
         joueur.points_de_vies += LISTE_ARMURE_EQUIPEMENT[item][1]
         joueur.vie_maximum += LISTE_ARMURE_EQUIPEMENT[item][1]
         joueur.mana += LISTE_ARMURE_EQUIPEMENT[item][2]
         joueur.attaque += LISTE_ARMURE_EQUIPEMENT[item][3]
+
     if session.competences[1] == 0:
         joueur.vitesse_attaque = 500
     elif session.competences[1] == 1:
         joueur.vitesse_attaque = 475
     elif session.competences[1] == 2:
         joueur.vitesse_attaque = 425
+
     joueur.armure = session.armure
 
     joueur.temps_invincibilite = 1000
@@ -59,7 +59,6 @@ def reset_stats_joueur(joueur, session):
 
 
 def initialiser_salle(etage, joueur):
-
     etage = initialiser_ennemis(etage, joueur)
     etage = initialiser_objets(etage, joueur)
 
@@ -67,7 +66,6 @@ def initialiser_salle(etage, joueur):
 
 
 def creer_menu_session(resolution, session):
-
     menu_session = Menu()
     menu_session.x = 0
     menu_session.y = 128
@@ -99,7 +97,6 @@ def creer_menu_session(resolution, session):
 
 
 def creer_menu_programme(resolution):
-
     menu_programme = Menu()
     menu_programme.x = 0
     menu_programme.y = 128
@@ -116,3 +113,13 @@ def creer_menu_programme(resolution):
     menu_programme = creer_images_et_positions_menu(menu_programme)
 
     return menu_programme
+
+
+def chdir(path):
+    try:
+        os.chdir(os.getcwd() + "\\" + path)
+        path = os.getcwd().split("\\")
+        del path[len(path) - 1]
+        os.chdir("\\".join(path))
+    except OSError:
+        os.mkdir(os.getcwd() + "\\" + path)

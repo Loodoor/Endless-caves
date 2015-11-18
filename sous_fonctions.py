@@ -61,7 +61,6 @@ LISTE_ARMURE_EQUIPEMENT = [[0, 0, 0, 0],
 
 
 def placer_salles(niveau):
-
     # OBTENIR LE NOMBRE DE SALLES
 
     nombre_de_salles_normales_ou_tresor = randrange(8+niveau, 10+(2*niveau))
@@ -158,7 +157,6 @@ def placer_salles(niveau):
 
 
 def generer_salles(etage):
-
     fichier = open("patterns.txt", "r")  # RECUPERATION DES PATTERNS DE SALLES
 
     chaine_obtenue = fichier.read()
@@ -293,7 +291,6 @@ def generer_salles(etage):
 
 
 def generer_images_salles(etage, i):
-
     etage.salles[i].image = pygame.Surface((960, 576))
 
     for j in range(9):
